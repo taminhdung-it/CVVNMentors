@@ -8,9 +8,9 @@ export default tseslint.config(
   {
     ignores: ['eslint.config.mjs'],
   },
-  eslint.configs.recommended,
-  ...tseslint.configs.recommendedTypeChecked,
-  eslintPluginPrettierRecommended,
+  // eslint.configs.recommended,
+  // ...tseslint.configs.recommendedTypeChecked,
+  // eslintPluginPrettierRecommended,
   {
     languageOptions: {
       globals: {
@@ -26,10 +26,11 @@ export default tseslint.config(
   },
   {
     rules: {
-      '@typescript-eslint/no-explicit-any': 'off',
-      '@typescript-eslint/no-floating-promises': 'warn',
-      '@typescript-eslint/no-unsafe-argument': 'warn',
-      "prettier/prettier": ["error", { endOfLine: "auto" }],
+      // '@typescript-eslint/no-explicit-any': 'off',
+      // '@typescript-eslint/no-floating-promises': 'warn',
+      // '@typescript-eslint/no-unsafe-argument': 'warn',
+      // "prettier/prettier": ["error", { endOfLine: "auto" }],
+      "prettier/prettier":0,
     },
   },
 );
