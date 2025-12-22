@@ -52,7 +52,7 @@ export class AppService implements OnModuleInit {
     if (!idToken) {
       console.error('❌Lỗi kết nối fireauth. Báo lỗi: Không tìm thấy token');
       throw new Error()
-    }
+    }           
 
     const decoded = await this.firebaseApp
       .auth()
