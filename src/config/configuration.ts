@@ -15,5 +15,9 @@ export default () => ({
     firebase_auth_domain: process.env.FIREBASE_AUTH_DOMAIN,
     firebase_storage_bucket: process.env.FIREBASE_STORAGE_BUCKET,
   },
+  apilayer: {
+    key: process.env.APILAYER_KEY,
+    url: process.env.APILAYER_URL || 'https://api.apilayer.com/resume_parser/upload',
+  },
   jwt: {},
 });
