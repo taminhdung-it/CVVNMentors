@@ -8,35 +8,50 @@ import {
 import { HttpService } from '@nestjs/axios';
 import { ConfigService } from '@nestjs/config';
 import { lastValueFrom } from 'rxjs';
-import * as admin from 'firebase-admin';
 import {
   CV_COLLECTION_NAME,
   CvEntity,
-  CvStatus, Experience,
+  CvStatus,
 } from '../../entities/cv.entity';
 import { CreateCvDto } from './dto/create-cv.dto';
 import { UpdateCvStatusDto } from './dto/update-cv-status.dto';
 import { UpdateCvDto } from './dto/update-cv.dto';
-import { instanceToPlain } from 'class-transformer';
-import { FilterCvDto } from './dto/filter-cv.dto';
+import { PaginationDto } from '../../common/dto/pagination.dto';
+import { AssignJobDto } from './dto/assign-job.dto';
+import { FirebaseService } from '../../firebase/firebase.service';
+import {
+  JOB_COLLECTION_NAME,
+  JobEntity,
+  JobStatus,
+} from '../../entities/job.entity';
+import {
+  APPLICATION_COLLECTION_NAME,
+  ApplicationEntity,
+  ApplicationStatus,
+} from '../../entities/application.entity';
 
 @Injectable()
 export class CvService {
-  private readonly db = admin.firestore();
   private readonly cvCollection = CV_COLLECTION_NAME;
+  private readonly jobCollection = JOB_COLLECTION_NAME;
+  private readonly applicationCollection = APPLICATION_COLLECTION_NAME;
 
   constructor(
     private readonly httpService: HttpService,
     private readonly configService: ConfigService,
+    private readonly firebaseService: FirebaseService,
   ) {
-    this.db.settings({ ignoreUndefinedProperties: true });
+    this.firebaseService.firestore.settings({
+      ignoreUndefinedProperties: true,
+    });
   }
 
   async processAndSaveCvs(
     files: Express.Multer.File[],
     userId: string,
   ): Promise<any> {
-    if (!files || files.length === 0) throw new Error('Không có file nào được cung cấp');
+    if (!files || files.length === 0)
+      throw new Error('Không có file nào được cung cấp');
 
     const parseResults = await Promise.allSettled(
       files.map((file) => this.parseSingleFile(file)),
@@ -55,15 +70,18 @@ export class CvService {
           rawData.email,
           rawData.phone,
         );
-        const rawExperience = Array.isArray(rawData.experience) ? rawData.experience : [];
+        const rawExperience = Array.isArray(rawData.experience)
+          ? rawData.experience
+          : [];
 
         // Map và chuẩn hóa dữ liệu experience
         const mappedExperience = rawExperience.map((exp: any) => ({
           title: exp.title || exp.jobTitle || null, // Thử map nhiều key khác nhau
           location: exp.location || exp.place || null,
-          organization: exp.organization || exp.company || exp.companyName || null,
+          organization:
+            exp.organization || exp.company || exp.companyName || null,
           // GỌI HÀM HELPER ĐỂ XỬ LÝ DATE
-          dates: this.normalizeDate(exp.dates || exp.date)
+          dates: this.normalizeDate(exp.dates || exp.date),
         }));
 
         // Map sang Entity chuẩn DB ngay tại đây
@@ -93,7 +111,7 @@ export class CvService {
     );
 
     // 3. Batch Write
-    const batch = this.db.batch();
+    const batch = this.firebaseService.firestore.batch();
     const summary: {
       total: number;
       success: number;
@@ -117,7 +135,9 @@ export class CvService {
         const cvData = result.data;
 
         // Tạo docRef
-        const docRef = this.db.collection(this.cvCollection).doc();
+        const docRef = this.firebaseService.firestore
+          .collection(this.cvCollection)
+          .doc();
 
         batch.set(docRef, cvData.toFirestore());
 
@@ -190,7 +210,7 @@ export class CvService {
     const queries: Promise<FirebaseFirestore.QuerySnapshot>[] = [];
     if (email)
       queries.push(
-        this.db
+        this.firebaseService.firestore
           .collection(this.cvCollection)
           .where('email', '==', email)
           .limit(1)
@@ -198,7 +218,7 @@ export class CvService {
       );
     if (phone)
       queries.push(
-        this.db
+        this.firebaseService.firestore
           .collection(this.cvCollection)
           .where('phone', '==', phone)
           .limit(1)
@@ -222,18 +242,18 @@ export class CvService {
       status: CvStatus.NEW,
     });
 
-    const docRef = await this.db
+    const docRef = await this.firebaseService.firestore
       .collection(this.cvCollection)
       .add(newCv.toFirestore());
     return { id: docRef.id, ...newCv };
   }
 
-  async findAll(filter: FilterCvDto) {
+  async findAll(filter: PaginationDto) {
     const { page = 1, limit = 10 } = filter;
     const offset = (page - 1) * limit;
 
     // 1. Tạo Query cơ bản
-    let query = this.db
+    let query = this.firebaseService.firestore
       .collection(this.cvCollection)
       .orderBy('updatedAt', 'desc');
 
@@ -244,10 +264,7 @@ export class CvService {
     // 3. Lấy dữ liệu phân trang
     const snapshot = await query.offset(offset).limit(limit).get();
 
-    const data = snapshot.docs.map((doc) => ({
-      id: doc.id,
-      ...(doc.data() as CvEntity),
-    }));
+    const data = snapshot.docs.map((doc) => CvEntity.fromFirestore(doc));
 
     // 4. Trả về cấu trúc chuẩn cho Frontend
     return {
@@ -262,13 +279,19 @@ export class CvService {
   }
 
   async findOne(id: string) {
-    const doc = await this.db.collection(this.cvCollection).doc(id).get();
+    const doc = await this.firebaseService.firestore
+      .collection(this.cvCollection)
+      .doc(id)
+      .get();
     if (!doc.exists) throw new NotFoundException('Không tìm thấy cv');
-    return { id: doc.id, ...doc.data() };
+
+    return CvEntity.fromFirestore(doc);
   }
 
   async update(id: string, updateCvDto: UpdateCvDto) {
-    const docRef = this.db.collection(this.cvCollection).doc(id);
+    const docRef = this.firebaseService.firestore
+      .collection(this.cvCollection)
+      .doc(id);
     const doc = await docRef.get();
     if (!doc.exists) throw new NotFoundException('Không tìm thấy cv');
 
@@ -280,17 +303,108 @@ export class CvService {
   }
 
   async updateStatus(id: string, dto: UpdateCvStatusDto) {
-    const docRef = this.db.collection(this.cvCollection).doc(id);
+    const docRef = this.firebaseService.firestore
+      .collection(this.cvCollection)
+      .doc(id);
     const doc = await docRef.get();
     if (!doc.exists) throw new NotFoundException('Không tìm thấy cv');
 
-    await this.db.collection(this.cvCollection).doc(id).update({
-      status: dto.status,
-      updatedAt: new Date(),
-    });
+    await this.firebaseService.firestore
+      .collection(this.cvCollection)
+      .doc(id)
+      .update({
+        status: dto.status,
+        updatedAt: new Date(),
+      });
     return { id, status: dto.status };
   }
 
+  async assignJob(dto: AssignJobDto) {
+    const { jobId, cvIds } = dto;
+    const batch = this.firebaseService.firestore.batch();
+
+    //check Job có tồn tại và đang OPEN không
+    const jobRef = this.firebaseService.firestore
+      .collection(this.jobCollection)
+      .doc(jobId);
+    const jobDoc = await jobRef.get();
+
+    if (!jobDoc.exists) {
+      throw new NotFoundException(`Job ID ${jobId} không tồn tại`);
+    }
+
+    const jobData = JobEntity.fromFirestore(jobDoc);
+    //Không assign CV vào Job đã đóng hoặc lock
+    if (jobData.status !== JobStatus.OPEN) {
+      throw new BadRequestException(
+        'Không thể gán CV vào Job đã đóng hoặc bị khóa',
+      );
+    }
+
+    const successIds: string[] = [];
+    const errors: string[] = [];
+
+    // 2. Duyệt qua từng CV để xử lý
+    for (const cvId of cvIds) {
+      const cvRef = this.firebaseService.firestore
+        .collection(this.cvCollection)
+        .doc(cvId);
+      const cvDoc = await cvRef.get();
+
+      if (!cvDoc.exists) {
+        errors.push(`CV ID ${cvId} không tồn tại`);
+        continue;
+      }
+
+      const cvData = CvEntity.fromFirestore(cvDoc);
+
+      if (cvData.status !== CvStatus.APPROVED) {
+        errors.push(
+          `CV ${cvData.fullName} chưa được duyệt (Trạng thái: ${cvData.status})`,
+        );
+        continue;
+      }
+
+      //check trùng lặp (Đã apply job này chưa)
+      const duplicateCheck = await this.firebaseService.firestore
+        .collection(this.applicationCollection)
+        .where('jobId', '==', jobId)
+        .where('cvId', '==', cvId)
+        .limit(1)
+        .get();
+
+      if (!duplicateCheck.empty) {
+        errors.push(`CV ${cvData.fullName} đã ứng tuyển vào Job này rồi`);
+        continue;
+      }
+
+      const newAppRef = this.firebaseService.firestore
+        .collection(this.applicationCollection)
+        .doc();
+      const newApp = new ApplicationEntity({
+        cvId: cvId,
+        jobId: jobId,
+        status: ApplicationStatus.APPLIED, //  Default status
+        appliedAt: new Date(),
+        updatedAt: new Date(),
+      });
+
+      batch.set(newAppRef, newApp.toFirestore());
+      successIds.push(cvId);
+    }
+
+    // 5. Commit batch nếu có ít nhất 1 CV hợp lệ
+    if (successIds.length > 0) {
+      await batch.commit();
+    }
+
+    return {
+      success: successIds.length > 0,
+      assignedCount: successIds.length,
+      successIds,
+      errors, // Trả về danh sách lỗi để FE hiển thị
+    };
+  }
 
   private normalizeDate(dateInput: any): string | null {
     if (!dateInput) return null;
@@ -304,13 +418,16 @@ export class CvService {
     if (Array.isArray(dateInput)) {
       if (dateInput.length === 0) return null;
       // Nối mảng thành chuỗi "Start - End"
-      return dateInput.filter(d => d).join(' - ');
+      return dateInput.filter((d) => d).join(' - ');
     }
 
     // Trường hợp 3: Là Object (VD: { startDate: "2015-01", endDate: "2020-12" })
     if (typeof dateInput === 'object') {
       const start = dateInput.startDate || dateInput.start || '';
-      const end = dateInput.endDate || dateInput.end || (dateInput.isCurrent ? 'Present' : '');
+      const end =
+        dateInput.endDate ||
+        dateInput.end ||
+        (dateInput.isCurrent ? 'Present' : '');
 
       // Nếu cả 2 đều rỗng
       if (!start && !end) return null;

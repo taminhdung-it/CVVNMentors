@@ -3,9 +3,10 @@ import { CvService } from './cv.service';
 import { CvController } from './cv.controller';
 import { HttpModule } from '@nestjs/axios';
 import { AuthModule } from '../auth/auth.module';
+import { FirebaseModule } from '../../firebase/firebase.module';
 
 @Module({
-  imports:[HttpModule,AuthModule],
+  imports:[HttpModule,AuthModule, FirebaseModule],
   controllers: [CvController],
   providers: [CvService],
 })

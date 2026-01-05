@@ -1,4 +1,6 @@
-export  const CV_COLLECTION_NAME = "cv";
+import { DocumentSnapshot } from 'firebase-admin/firestore';
+
+export const CV_COLLECTION_NAME = "cv";
 export enum CvStatus {
   NEW = 'NEW',
   APPROVED = 'APPROVED',
@@ -22,7 +24,7 @@ export class CvEntity {
   phone: string;
   position: string;
   level: string;
-  status: string;
+  status: CvStatus;
   cvFileUrl: string;
   createdAt: Date;
   updatedAt: Date;
@@ -71,5 +73,13 @@ export class CvEntity {
         organization: exp.organization ?? null
       })),
     };
+  }
+
+  static fromFirestore(cvDoc:  DocumentSnapshot):CvEntity {
+    const data = cvDoc.data();
+    return new CvEntity({
+      id: cvDoc.id,
+      ...data,
+    });
   }
 }

@@ -1,4 +1,3 @@
-// src/modules/cv/cv.controller.ts
 import {
   Controller,
   Get,
@@ -19,8 +18,9 @@ import { CvService } from './cv.service';
 import { CreateCvDto, } from './dto/create-cv.dto';
 import { UpdateCvDto } from './dto/update-cv.dto';
 import { UpdateCvStatusDto } from './dto/update-cv-status.dto';
-import { FilterCvDto } from "./dto/filter-cv.dto";
+import { PaginationDto } from "../../common/dto/pagination.dto";
 import { AuthGuard } from '../auth/guards/auth.guard';
+import { AssignJobDto } from './dto/assign-job.dto';
 
 @Controller('cv')
 export class CvController {
@@ -57,7 +57,7 @@ export class CvController {
 
   @UseGuards(AuthGuard)
   @Get()
-  findAll(@Query() filter: FilterCvDto) {
+  findAll(@Query() filter: PaginationDto) {
     return this.cvService.findAll(filter);
   }
 
@@ -77,5 +77,11 @@ export class CvController {
   @Patch(':id/status')
   updateStatus(@Param('id') id: string, @Body() dto: UpdateCvStatusDto) {
     return this.cvService.updateStatus(id, dto);
+  }
+
+  @UseGuards(AuthGuard)
+  @Post('assign-job')
+  assignJob(@Body() dto: AssignJobDto) {
+    return this.cvService.assignJob(dto);
   }
 }

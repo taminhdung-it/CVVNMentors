@@ -1,7 +1,7 @@
 import { IsOptional, IsNumber, Min } from 'class-validator';
 import { Type } from 'class-transformer';
 //để sử dụng cho phân trang
-export class FilterCvDto {
+export class PaginationDto {
     @IsOptional()
     @Type(() => Number)
     @IsNumber()
