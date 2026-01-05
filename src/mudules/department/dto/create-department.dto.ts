@@ -8,8 +8,4 @@ export class CreateDepartmentDto {
   @IsNotEmpty()
   @IsString()
   description?: string;
-
-
-  @IsNotEmpty()
-  refreshtoken: string;
 }

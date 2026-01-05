@@ -9,8 +9,4 @@ export class SearchDepartmentDto extends PaginationDto {
 
     @IsOptional()
     @IsEnum(DepartmentStatus)
-    status?: DepartmentStatus;
-
-    @IsNotEmpty()
-    refreshtoken: string;
-}
+    status?: DepartmentStatus;}

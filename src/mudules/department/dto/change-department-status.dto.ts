@@ -4,5 +4,4 @@ import { DepartmentStatus } from '../../../entities/department.entity';
 export class ChangeDepartmentStatusDto {
     @IsNotEmpty()
     @IsEnum(DepartmentStatus)
-    status: DepartmentStatus;
-}
+    status: DepartmentStatus;}

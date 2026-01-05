@@ -4,61 +4,64 @@ import {
   Injectable,
   UnauthorizedException,
 } from '@nestjs/common';
-import { AuthService } from '../auth.service';
 import { ConfigService } from '@nestjs/config';
 import axios from 'axios';
+import * as admin from 'firebase-admin';
 
 @Injectable()
 export class AuthGuard implements CanActivate {
-  firebaseService: any;
   constructor(
-    private authService: AuthService,
-    private configService: ConfigService,
-  ) { }
+    private readonly configService: ConfigService,
+  ) {}
 
-  async canActivate(context: ExecutionContext): Promise<any> {
+  async canActivate(context: ExecutionContext): Promise<boolean> {
     const request = context.switchToHttp().getRequest();
-    const authHeader = request.headers.authorization;// access token
-    // lấy từ body lên refresh token
+
+    const authHeader = request.headers.authorization;
     if (!authHeader || !authHeader.startsWith('Bearer ')) {
-      throw new UnauthorizedException(
-        'Missing or invalid authorization header',
-      );
+      throw new UnauthorizedException('Missing or invalid authorization header');
     }
 
-    const token = authHeader.split(' ')[1];
-
-    if (!token) {
+    const accessToken = authHeader.split(' ')[1];
+    if (!accessToken) {
       throw new UnauthorizedException('Token không tồn tại');
     }
+
+    /** =======================
+     * 1️⃣ VERIFY ACCESS TOKEN
+     ======================= */
     try {
-      // checkRevoked: true trong verifyIdToken để chặn token nếu user đã đăng xuất hoặc đổi pass
-      const decodedToken = await this.firebaseService.auth.verifyIdToken(
-        token,
-        true,
-      );
-      return true;
-    } catch (err) {
-      if (err?.name !== 'TokenExpiredError') {
-        throw new UnauthorizedException('Token access hết hạn.');
+      await admin.auth().verifyIdToken(accessToken, true);
+      return true; // ✅ token còn hạn
+    } catch (err: any) {
+      // ❌ token sai → reject ngay
+      if (err?.code !== 'auth/id-token-expired') {
+        throw new UnauthorizedException('Access token không hợp lệ');
       }
+      // ✅ token hết hạn → cho refresh
     }
 
-    const refresh_token = request.body.refreshtoken;
-    if (!refresh_token) {
-      throw new UnauthorizedException('Token không tồn tại');
+    /** =======================
+     * 2️⃣ REFRESH TOKEN
+     ======================= */
+    const refreshToken = request.headers['tokenrefresh'];
+    if (!refreshToken) {
+      throw new UnauthorizedException('Refresh token không tồn tại');
     }
-    const apiKey = this.configService.get("firebase_api_key");
+
+    const apiKey = this.configService.get<string>('firebase_api_key');
     const url = `https://securetoken.googleapis.com/v1/token?key=${apiKey}`;
 
     try {
-      const response = await axios.post(url, {
+      await axios.post(url, {
         grant_type: 'refresh_token',
-        refresh_token: refresh_token,
+        refresh_token: refreshToken,
       });
+
+      // ✅ refresh token hợp lệ
       return true;
-    } catch (error) {
-      throw new UnauthorizedException('Thông tin token không hợp lệ');
+    } catch {
+      throw new UnauthorizedException('Refresh token không hợp lệ');
     }
   }
 }

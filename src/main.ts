@@ -9,7 +9,7 @@ async function bootstrap() {
       'http://localhost:9999',// backend cổng 9999
     ],
     methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
-    allowedHeaders: ['Content-Type', 'Authorization'],
+    allowedHeaders: ['Content-Type', 'Authorization','tokenrefresh'],
     credentials: true,
     preflightContinue: false,
     optionsSuccessStatus: 204,

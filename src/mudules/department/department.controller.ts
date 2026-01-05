@@ -60,4 +60,5 @@ export class DepartmentController {
   ) {
     return this.deptService.changeStatus(id, dto);
   }
+  
 }

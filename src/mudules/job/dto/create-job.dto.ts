@@ -32,8 +32,4 @@ export class CreateJobDto {
   @IsNotEmpty()
   @IsDateString()
   applyEnd: string;
-
-
-  @IsNotEmpty()
-  refreshtoken: string;
 }

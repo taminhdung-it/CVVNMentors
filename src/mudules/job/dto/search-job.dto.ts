@@ -1,4 +1,4 @@
-import { IsEnum, IsOptional, IsString, IsDateString } from 'class-validator';
+import { IsEnum, IsOptional, IsString, IsDateString, IsNotEmpty } from 'class-validator';
 import { JobStatus } from '../../../entities/job.entity';
 import { PaginationDto } from '../../../common/dto/pagination.dto';
 
@@ -37,8 +37,4 @@ export class SearchJobDto extends PaginationDto {
   @IsOptional()
   @IsDateString()
   deadlineTo?: string;
-
-
-  @IsNotEmpty()
-  refreshtoken: string;
 }

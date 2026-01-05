@@ -55,7 +55,4 @@ export class CreateCvDto {
   @ValidateNested({ each: true }) // Validate từng phần tử trong mảng
   @Type(() => ExperienceDto) // Chuyển đổi JSON object thành instance ExperienceDto
   experience?: ExperienceDto[];
-
-    @IsNotEmpty()
-    refreshtoken: string;
 }
