@@ -4,6 +4,7 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { CreateDepartmentDto } from './dto/create-department.dto';
+import { UpdateDepartmentDto } from './dto/update-department.dto';
 import {
   DEPARTMENT_COLLECTION_NAME,
   DepartmentEntity,
@@ -14,7 +15,6 @@ import { SearchDepartmentDto } from './dto/search-department.dto';
 import { FirebaseService } from '../../firebase/firebase.service';
 import { ChangeDepartmentStatusDto } from './dto/change-department-status.dto';
 import { JOB_COLLECTION_NAME, JobStatus } from '../../entities/job.entity';
-import { UpdateDepartmentDto } from './dto/update-department.dto';
 @Injectable()
 export class DepartmentService {
 

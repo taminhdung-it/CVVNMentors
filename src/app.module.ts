@@ -8,6 +8,7 @@ import { CvModule } from './mudules/cv/cv.module';
 import { JobModule } from './mudules/job/job.module';
 import { ApplicationModule } from './mudules/application/application.module';
 import configuration from './config/configuration';
+import {DepartmentModule} from "./mudules/department/department.module";
 
 @Module({
   imports: [
@@ -19,8 +20,9 @@ import configuration from './config/configuration';
     FirebaseModule,
     AuthModule,
     CvModule,
-    JobModule,
-    ApplicationModule,
+      JobModule,
+      ApplicationModule,
+      DepartmentModule
   ],
   controllers: [AppController],
   providers: [AppService],

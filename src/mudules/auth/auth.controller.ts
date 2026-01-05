@@ -25,8 +25,8 @@ export class AuthController {
   @UseGuards(AuthGuard) // Bắt buộc phải login mới được logout
   @Post('logout')
   @HttpCode(HttpStatus.OK)
-  async logout(@Req() req) {
+  async logout(@Body() body:{id:string} ) {
     // req.user được gán từ AuthGuard (là decoded token chứa uid)
-    return this.authService.logout(req.user.uid);
+    return this.authService.logout(body.id);
   }
 }
