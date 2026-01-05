@@ -26,10 +26,12 @@ export class AuthGuard implements CanActivate {
     if (!accessToken) {
       throw new UnauthorizedException('Token không tồn tại');
     }
+    const refreshToken = request.headers['refreshtoken'];
+    console.log(refreshToken);
 
-    /** =======================
-     * 1️⃣ VERIFY ACCESS TOKEN
-     ======================= */
+    if (!refreshToken) {
+      throw new UnauthorizedException('Refresh token không tồn tại');
+    }
     try {
       await admin.auth().verifyIdToken(accessToken, true);
       return true; // ✅ token còn hạn
@@ -38,15 +40,6 @@ export class AuthGuard implements CanActivate {
       if (err?.code !== 'auth/id-token-expired') {
         throw new UnauthorizedException('Access token không hợp lệ');
       }
-      // ✅ token hết hạn → cho refresh
-    }
-
-    /** =======================
-     * 2️⃣ REFRESH TOKEN
-     ======================= */
-    const refreshToken = request.headers['tokenrefresh'];
-    if (!refreshToken) {
-      throw new UnauthorizedException('Refresh token không tồn tại');
     }
 
     const apiKey = this.configService.get<string>('firebase_api_key');

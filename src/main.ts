@@ -1,6 +1,8 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { ValidationPipe, Post } from '@nestjs/common';
+import { SwaggerModule } from '@nestjs/swagger';
+import { document } from './swagger/swagger.document'
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
   app.enableCors({
@@ -13,6 +15,14 @@ async function bootstrap() {
     credentials: true,
     preflightContinue: false,
     optionsSuccessStatus: 204,
+  });
+
+    SwaggerModule.setup("/doc_api", app, document, {
+    swaggerOptions: {
+      docExpansion: 'none', //Kiểu hiện thị danh sách khi mở lên 
+      // operationsSorter: 'alpha',//Sắp xếp chức năng theo bảng chữ cái
+      // tagsSorter: 'alpha',//Sắp xếp tên tags theo bảng chữ cái 
+    },
   });
   app.useGlobalPipes(new ValidationPipe({
     whitelist: true, // loại bỏ các field không có trong DTO
@@ -27,7 +37,7 @@ async function bootstrap() {
   if (address.port == 10000) {
     console.log(`🎉Server Render đang chạy trên link: https://tungo-web.onrender.com/doc_api`)
   } else {
-    console.log(`🎉Server Render đang chạy trên link: ${url.replace("[::1]", "localhost")}`)
+    console.log(`🎉Server Render đang chạy trên link: ${url.replace("[::1]", "localhost")}/doc_api`)
   }
 }
 bootstrap();
