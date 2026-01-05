@@ -7,7 +7,7 @@ export const document: OpenAPIObject = {
     description: 'Tài liệu api dành cho frontend QLCV Web',
   },
   servers: [
-    { url: 'https://tungo-web.onrender.com/', description: 'Server Render' },
+    //{ url: 'https://tungo-web.onrender.com/', description: 'Server Render' },
     { url: 'http://localhost:9999/', description: 'Server local' },
   ],
   tags: [
