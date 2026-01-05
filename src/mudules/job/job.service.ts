@@ -1,12 +1,12 @@
 import {BadRequestException, Injectable, NotFoundException,} from '@nestjs/common';
 import {CreateJobDto} from './dto/create-job.dto';
-import {UpdateJobDto} from './dto/update-job.dto';
 import {JOB_COLLECTION_NAME, JobEntity, JobStatus,} from '../../entities/job.entity';
 import {DEPARTMENT_COLLECTION_NAME} from '../../entities/department.entity';
 import {PaginationDto} from '../../common/dto/pagination.dto';
 import {SearchJobDto} from './dto/search-job.dto';
 import {CloseJobDto} from './dto/close-job.dto';
 import {FirebaseService} from '../../firebase/firebase.service';
+import { UpdateJobDto } from './dto/update-job.dto';
 
 @Injectable()
 export class JobService {

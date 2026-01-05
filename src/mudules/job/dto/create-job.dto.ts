@@ -1,4 +1,4 @@
-import { IsNotEmpty, IsString, IsOptional,  IsNumber, Min, IsDateString, IsArray } from 'class-validator';
+import { IsNotEmpty, IsString, IsOptional, IsNumber, Min, IsDateString, IsArray } from 'class-validator';
 import { Type } from 'class-transformer';
 
 export class CreateJobDto {
@@ -32,4 +32,8 @@ export class CreateJobDto {
   @IsNotEmpty()
   @IsDateString()
   applyEnd: string;
+
+
+  @IsNotEmpty()
+  refreshtoken: string;
 }

@@ -5,4 +5,7 @@ export class UpdateCvStatusDto {
   @IsNotEmpty()
   @IsEnum(CvStatus)
   status: CvStatus;
+
+  @IsNotEmpty()
+  refreshtoken: string;
 }

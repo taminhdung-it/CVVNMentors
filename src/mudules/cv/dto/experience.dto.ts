@@ -1,4 +1,4 @@
-import { IsOptional, IsString } from 'class-validator';
+import { IsNotEmpty, IsOptional, IsString } from 'class-validator';
 
 export class ExperienceDto {
   @IsOptional()
@@ -16,4 +16,5 @@ export class ExperienceDto {
   @IsOptional()
   @IsString()
   organization: string;
+
 }

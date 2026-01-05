@@ -17,16 +17,11 @@ import { RegisterDto } from './dto/register.dto';
 export class AuthService {
   private readonly apiKey: any;
   constructor(
-    private firebaseService: FirebaseService,
+    private firebaseService: FirebaseService, 
     private configService: ConfigService,
-  ) {
-    this.apiKey = this.configService.get('database.firebase_api_key');
 
-    if (!this.apiKey) {
-      throw new InternalServerErrorException(
-        'Firebase API Key is missing in configuration',
-      );
-    }
+  ) {
+    this.apiKey = this.configService.get("firebase_api_key");
   }
   async register(registerDto: RegisterDto) {
     try {
@@ -36,7 +31,7 @@ export class AuthService {
         password: registerDto.password,
       });
       return {
-        message: 'User registered successfully',
+        message: 'Đăng ký thành công',
         uid: userRecord.uid,
       };
     } catch (error) {
@@ -61,27 +56,7 @@ export class AuthService {
         user_id: response.data.localId,
       };
     } catch (error) {
-      throw new UnauthorizedException('Invalid credentials');
-    }
-  }
-
-  async refresh(refreshToken: string) {
-    const url = `https://securetoken.googleapis.com/v1/token?key=${this.apiKey}`;
-
-    try {
-      const response = await axios.post(url, {
-        grant_type: 'refresh_token',
-        refresh_token: refreshToken,
-      });
-
-      return {
-        access_token: response.data.id_token,
-        refresh_token: response.data.refresh_token,
-        expires_in: response.data.expires_in,
-        user_id: response.data.user_id,
-      };
-    } catch (error) {
-      throw new UnauthorizedException('Invalid refresh token');
+      throw new UnauthorizedException('Thông tin đăng nhập không hợp lệ');
     }
   }
 
@@ -98,22 +73,4 @@ export class AuthService {
   }
 
   // Hàm này trả về DecodedIdToken nếu đúng, ném lỗi nếu sai.
-  async verifyToken(token: string): Promise<DecodedIdToken> {
-    if (!token) {
-      throw new UnauthorizedException('Token not exist');
-    }
-    try {
-      // checkRevoked: true trong verifyIdToken để chặn token nếu user đã đăng xuất hoặc đổi pass
-      const decodedToken = await this.firebaseService.auth.verifyIdToken(
-        token,
-        true,
-      );
-      return decodedToken;
-    } catch (error) {
-      if (error.code === 'auth/id-token-expired') {
-        throw new UnauthorizedException('Token expired');
-      }
-      throw new UnauthorizedException('Invalid token');
-    }
-  }
 }

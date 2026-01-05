@@ -19,6 +19,7 @@ import { UpdateCvDto } from './dto/update-cv.dto';
 import { PaginationDto } from '../../common/dto/pagination.dto';
 import { AssignJobDto } from './dto/assign-job.dto';
 import { FirebaseService } from '../../firebase/firebase.service';
+import * as XLSX from 'xlsx';
 import {
   JOB_COLLECTION_NAME,
   JobEntity,
@@ -317,6 +318,31 @@ export class CvService {
         updatedAt: new Date(),
       });
     return { id, status: dto.status };
+  }
+  async Readexcel(file: Express.Multer.File) {
+    if (!file) {
+      throw new BadRequestException('Không có file');
+    }
+
+    // Đọc Excel từ buffer
+    const workbook = XLSX.read(file.buffer, {
+      type: 'buffer',
+    });
+
+    // Lấy sheet đầu tiên
+    const sheetName = workbook.SheetNames[0];
+    const sheet = workbook.Sheets[sheetName];
+
+    // Sheet → JSON
+    const data = XLSX.utils.sheet_to_json(sheet) as Record<string, any>[];
+    const list_cv=data.map(row=>({
+      id: row.full_name,
+      data:row 
+    }))
+    return {
+      sheetName,
+      list_cv
+    };
   }
 
   async assignJob(dto: AssignJobDto) {

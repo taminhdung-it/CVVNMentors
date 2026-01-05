@@ -12,8 +12,10 @@ import {
   Query,
   Req,
   UseGuards,
+  UploadedFile,
+  Res,
 } from '@nestjs/common';
-import { FilesInterceptor } from '@nestjs/platform-express';
+import { FileInterceptor, FilesInterceptor } from '@nestjs/platform-express';
 import { CvService } from './cv.service';
 import { CreateCvDto, } from './dto/create-cv.dto';
 import { UpdateCvDto } from './dto/update-cv.dto';
@@ -21,10 +23,10 @@ import { UpdateCvStatusDto } from './dto/update-cv-status.dto';
 import { PaginationDto } from "../../common/dto/pagination.dto";
 import { AuthGuard } from '../auth/guards/auth.guard';
 import { AssignJobDto } from './dto/assign-job.dto';
-
+import express from 'express';
 @Controller('cv')
 export class CvController {
-  constructor(private readonly cvService: CvService) {}
+  constructor(private readonly cvService: CvService) { }
 
   //upload n file & dùng ai để lấy thông tin
   @UseGuards(AuthGuard)
@@ -49,7 +51,7 @@ export class CvController {
   @UseGuards(AuthGuard)
   @Post()
   create(@Body() createCvDto: CreateCvDto,
-         @Req() req,
+    @Req() req,
   ) {
     const userId = req.user?.uid || null;
     return this.cvService.create(createCvDto, userId);
@@ -83,5 +85,13 @@ export class CvController {
   @Post('assign-job')
   assignJob(@Body() dto: AssignJobDto) {
     return this.cvService.assignJob(dto);
+  }
+
+  @UseGuards(AuthGuard)
+  @Post("Readcvexcel")
+  @UseInterceptors(FileInterceptor('file'))
+  async read(@UploadedFile() file: Express.Multer.File, @Res() res: express.Response) {
+    const data = await this.cvService.Readexcel(file);
+    res.status(HttpStatus.OK).json({ sheetName: data.sheetName, data: data.list_cv })
   }
 }

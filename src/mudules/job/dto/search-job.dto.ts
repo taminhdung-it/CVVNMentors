@@ -37,4 +37,8 @@ export class SearchJobDto extends PaginationDto {
   @IsOptional()
   @IsDateString()
   deadlineTo?: string;
+
+
+  @IsNotEmpty()
+  refreshtoken: string;
 }

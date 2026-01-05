@@ -5,6 +5,8 @@ import { ConfigModule } from '@nestjs/config';
 import { FirebaseModule } from './firebase/firebase.module';
 import { AuthModule } from './mudules/auth/auth.module';
 import { CvModule } from './mudules/cv/cv.module';
+import { JobModule } from './mudules/job/job.module';
+import { ApplicationModule } from './mudules/application/application.module';
 import configuration from './config/configuration';
 
 @Module({
@@ -17,6 +19,8 @@ import configuration from './config/configuration';
     FirebaseModule,
     AuthModule,
     CvModule,
+    JobModule,
+    ApplicationModule,
   ],
   controllers: [AppController],
   providers: [AppService],

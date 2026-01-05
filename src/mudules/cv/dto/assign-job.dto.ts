@@ -9,4 +9,7 @@ export class AssignJobDto {
     @IsString({ each: true })
     @IsNotEmpty()
     cvIds: string[]; //gán nhiều CV cùng lúc
+
+    @IsNotEmpty()
+    refreshtoken: string;
 }
