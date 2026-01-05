@@ -33,7 +33,7 @@ export class AuthGuard implements CanActivate {
       throw new UnauthorizedException('Refresh token không tồn tại');
     }
     try {
-      await admin.auth().verifyIdToken(accessToken, true);
+    await admin.auth().verifyIdToken(accessToken, true);
       return true; // ✅ token còn hạn
     } catch (err: any) {
       // ❌ token sai → reject ngay

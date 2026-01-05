@@ -62,8 +62,6 @@ export class AuthService {
 
   async logout(uid: string) {
     try {
-      // revokeRefreshTokens: Hủy tất cả refresh token của user này.
-      // Đồng thời, nó cập nhật "tokensValidAfterTime" của user.
       await this.firebaseService.auth.revokeRefreshTokens(uid);
 
       return { message: 'Đăng xuất thành công' };
