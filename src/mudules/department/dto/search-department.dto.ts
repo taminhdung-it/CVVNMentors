@@ -1,4 +1,4 @@
-import { IsEnum, IsNotEmpty, IsOptional, IsString } from 'class-validator';
+import { IsEnum, IsOptional, IsString } from 'class-validator';
 import { PaginationDto } from "../../../common/dto/pagination.dto";
 import { DepartmentStatus } from "../../../entities/department.entity";
 
@@ -9,4 +9,6 @@ export class SearchDepartmentDto extends PaginationDto {
 
     @IsOptional()
     @IsEnum(DepartmentStatus)
-    status?: DepartmentStatus;}
+    status?: DepartmentStatus;
+
+}

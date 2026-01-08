@@ -45,7 +45,7 @@ export class ApplicationService {
       updatedAt: new Date(),
     };
 
-    if (dto.rejectionReason) {
+    if (dto.rejectionReason && newStatus === ApplicationStatus.REJECTED) {
       updates.rejectionReason = dto.rejectionReason;
     }
 
