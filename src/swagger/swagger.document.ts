@@ -15,7 +15,10 @@ export const document: OpenAPIObject = {
     { name: 'Quản lý CV', description: 'Trang quản lý' },
     { name: 'Quản lý Job', description: 'Trang quản lý' },
     { name: 'Quản lý Phòng ban', description: 'Trang quản lý' },
-    { name: 'Quản lý Ứng tuyển', description: 'Trang quản lý Ứng tuyển(application)' },
+    {
+      name: 'Quản lý Ứng tuyển',
+      description: 'Trang quản lý Ứng tuyển(application)',
+    },
   ],
   paths: {
     '/auth/login': {
@@ -232,9 +235,18 @@ export const document: OpenAPIObject = {
     '/cv': {
       post: {
         tags: ['Quản lý CV'],
-        summary: 'Tạo CV thủ công (Full Fields)',
-        description:
-          'Tạo CV với đầy đủ thông tin chi tiết bao gồm cả kinh nghiệm làm việc.',
+        summary: 'Tạo CV thủ công (Form Data)',
+        description: `
+      **Lưu ý quan trọng cho Frontend (Multipart/Form-data):**
+      
+      1. **File:** Gửi field tên là \`file\` (Binary).
+      2. **Experience (Mảng Object):** Vì FormData không chuẩn hóa việc gửi mảng object, hãy **JSON.stringify()** mảng experience thành chuỗi rồi mới append.
+         - VD: \`formData.append('experience', JSON.stringify([{title: 'Dev', dates: '2022'}]));\`
+      3. **Skills / Education:** Có thể gửi theo 2 cách:
+         - Cách 1 (Mảng): \`formData.append('skills', 'Java'); formData.append('skills', 'Node');\`
+         - Cách 2 (Chuỗi): \`formData.append('skills', 'Java, Node, SQL');\` (Backend tự split)
+      4. **ExperienceYears:** Gửi dạng chuỗi số, backend tự convert.
+    `,
         parameters: [
           {
             in: 'header',
@@ -247,67 +259,42 @@ export const document: OpenAPIObject = {
         requestBody: {
           required: true,
           content: {
-            'application/json': {
+            'multipart/form-data': {
               schema: {
                 type: 'object',
                 properties: {
+                  file: {
+                    type: 'string',
+                    format: 'binary',
+                    description: 'File CV đính kèm (PDF, DOCX).',
+                  },
                   fullName: { type: 'string', example: 'Nguyễn Văn A' },
-                  email: { type: 'string', example: 'nguyenvana@email.com' },
+                  email: { type: 'string', example: 'a@gmail.com' },
                   phone: { type: 'string', example: '0909123456' },
-                  cvType: {
-                    type: 'string',
-                    example: 'Manual Entry',
-                    description: 'Loại CV (Parsed/Manual)',
-                  },
-                  position: {
-                    type: 'string',
-                    example: 'Backend Developer',
-                    description: 'Vị trí ứng tuyển/chuyên môn',
-                  },
-                  level: {
-                    type: 'string',
-                    example: 'Junior',
-                    description: 'Trình độ (Intern, Junior, Senior...)',
-                  },
-                  cvFileUrl: {
-                    type: 'string',
-                    example: 'https://storage.googleapis.com/.../file.pdf',
-                    description: 'Link file gốc (nếu có)',
-                  },
+                  cvType: { type: 'string', example: 'Manual Entry' },
+                  position: { type: 'string', example: 'Backend Developer' },
+                  level: { type: 'string', example: 'Junior' },
                   experienceYears: {
                     type: 'number',
                     example: 2,
-                    description: 'Số năm kinh nghiệm',
+                    description: 'Số năm kinh nghiệm (Backend tự ép kiểu từ string)'
                   },
                   skills: {
                     type: 'array',
                     items: { type: 'string' },
-                    example: ['Java', 'Spring Boot', 'MySQL', 'Docker'],
+                    example: ['Java', 'NestJS', 'MySQL'],
+                    description: 'Có thể gửi mảng hoặc chuỗi cách nhau dấu phẩy',
                   },
                   education: {
                     type: 'array',
                     items: { type: 'string' },
-                    example: [
-                      'Đại học FPT - Kỹ thuật phần mềm',
-                      'Chứng chỉ AWS Cloud Practitioner',
-                    ],
+                    example: ['Đại học FPT'],
                   },
                   experience: {
-                    type: 'array',
-                    description: 'Danh sách kinh nghiệm làm việc',
-                    items: {
-                      type: 'object',
-                      properties: {
-                        title: { type: 'string', example: 'Java Developer' },
-                        organization: {
-                          type: 'string',
-                          example: 'FPT Software',
-                        },
-                        dates: { type: 'string', example: '2022 - 2024' },
-                        location: { type: 'string', example: 'Hồ Chí Minh' },
-                      },
-                    },
-                  },
+                    type: 'string',
+                    description: 'Chuỗi JSON của mảng kinh nghiệm. VD: "[{\\"title\\":\\"Dev\\",\\"organization\\":\\"FPT\\"}]"',
+                    example: '[{"title":"Java Dev","dates":"2022-2023","organization":"FPT Software","location":"HCM"}]'
+                  }
                 },
                 required: ['fullName', 'email', 'phone'],
               },
@@ -320,59 +307,24 @@ export const document: OpenAPIObject = {
             content: {
               'application/json': {
                 schema: {
-                  example: { id: 'cv_new_001', message: 'Tạo CV thành công' },
-                },
-              },
-            },
-          },
-        },
-      },
-      get: {
-        tags: ['Quản lý CV'],
-        summary: 'Lấy danh sách CV (Phân trang)',
-        parameters: [
-          {
-            in: 'header',
-            name: 'refreshtoken',
-            required: true,
-            schema: { type: 'string', example: 'eyJhbGciOiJIUzI1Ni...' },
-            description: 'Refresh Token',
-          },
-          {
-            in: 'query',
-            name: 'page',
-            schema: { type: 'number', example: 1 },
-            description: 'Trang số (mặc định 1)',
-          },
-          {
-            in: 'query',
-            name: 'limit',
-            schema: { type: 'number', example: 10 },
-            description: 'Số lượng item/trang (mặc định 10)',
-          },
-        ],
-        responses: {
-          '200': {
-            description: 'Thành công',
-            content: {
-              'application/json': {
-                schema: {
                   example: {
-                    data: [
-                      {
-                        id: 'cv_001',
-                        fullName: 'Nguyễn Văn A',
-                        email: 'a@gmail.com',
-                        position: 'Dev',
-                        skills: ['Java'],
-                      },
-                    ],
-                    meta: { total: 50, page: 1, limit: 10 },
+                    id: 'cv_new_001',
+                    fullName: 'Nguyễn Văn A',
+                    cvFileUrl: 'https://res.cloudinary.com/...',
+                    status: 'NEW'
                   },
                 },
               },
             },
           },
+          '400': {
+            description: 'Lỗi Validation hoặc Trùng lặp',
+            content: {
+              'application/json': {
+                schema: { example: { message: 'Email hoặc SĐT đã tồn tại / Upload file thất bại' } }
+              }
+            }
+          }
         },
       },
     },
@@ -408,9 +360,12 @@ export const document: OpenAPIObject = {
       },
       patch: {
         tags: ['Quản lý CV'],
-        summary: 'Cập nhật thông tin CV',
-        description:
-          'Cập nhật các trường thông tin (Partial Update). Gửi trường nào cập nhật trường đó.',
+        summary: 'Cập nhật thông tin CV (JSON)',
+        description: `
+      **Lưu ý:**
+      - Các trường như education, skill có thể gửi dạng Array hoặc String cách nhau bởi dấu phẩy (vd: "Java, AWS")
+      - Dữ liệu gửi lên là Partial (gửi trường nào update trường đó).
+    `,
         parameters: [
           {
             in: 'header',
@@ -433,53 +388,43 @@ export const document: OpenAPIObject = {
               schema: {
                 type: 'object',
                 properties: {
-                  fullName: { type: 'string', example: 'Trần Văn C' },
-                  cvType: { type: 'string', example: 'Parsed Resume' },
-                  email: { type: 'string', example: 'c.tran@gmail.com' },
-                  phone: { type: 'string', example: '0912345678' },
-                  position: { type: 'string', example: 'Backend Developer' },
+                  fullName: { type: 'string', example: 'Nguyễn Văn A (Updated)' },
+                  email: { type: 'string', example: 'new_email@gmail.com' },
+                  phone: { type: 'string', example: '0988888888' },
+                  position: { type: 'string', example: 'Fullstack Dev' },
                   level: { type: 'string', example: 'Senior' },
+                  experienceYears: { type: 'number', example: 5 },
+                  // JSON Body hỗ trợ mảng trực tiếp, không cần stringify như FormData
                   skills: {
                     type: 'array',
                     items: { type: 'string' },
-                    example: ['NestJS', 'Firebase', 'Docker'],
+                    example: ['Java', 'Go', 'AWS']
                   },
                   education: {
                     type: 'array',
                     items: { type: 'string' },
-                    example: ['Đại học Bách Khoa - CNTT', 'IELTS 7.0'],
+                    example: ['Thạc sĩ KHMT']
                   },
-                  experienceYears: { type: 'number', example: 4 },
                   experience: {
                     type: 'array',
-                    description: 'Danh sách kinh nghiệm làm việc',
                     items: {
                       type: 'object',
                       properties: {
-                        title: { type: 'string', example: 'Senior Java Dev' },
-                        dates: { type: 'string', example: '2022 - Present' },
-                        location: { type: 'string', example: 'Hồ Chí Minh' },
-                        organization: {
-                          type: 'string',
-                          example: 'FPT Software',
-                        },
-                      },
+                        title: { type: 'string' },
+                        dates: { type: 'string' },
+                        location: { type: 'string' },
+                        organization: { type: 'string' }
+                      }
                     },
                     example: [
                       {
-                        title: 'Senior Java Dev',
-                        dates: '2022 - Present',
-                        location: 'Hồ Chí Minh',
-                        organization: 'FPT Software',
-                      },
-                      {
-                        title: 'Junior Dev',
-                        dates: '2020 - 2022',
-                        location: 'Đà Nẵng',
-                        organization: 'VNG',
-                      },
-                    ],
-                  },
+                        title: "Tech Lead",
+                        dates: "2023 - Present",
+                        organization: "VNG",
+                        location: "HCM"
+                      }
+                    ]
+                  }
                 },
               },
             },
@@ -595,7 +540,7 @@ export const document: OpenAPIObject = {
       },
     },
 
-    // --- MODULE: QUẢN LÝ JOB (VỊ TRÍ TUYỂN DỤNG) ---
+    // --- MODULE: QUẢN LÝ JOB (CẬP NHẬT UI/UX EXAMPLE) ---
     '/jobs': {
       get: {
         tags: ['Quản lý Job'],
@@ -608,7 +553,7 @@ export const document: OpenAPIObject = {
             name: 'refreshtoken',
             required: true,
             schema: { type: 'string', example: 'eyJhbGciOiJIUzI1Ni...' },
-            description: 'Refresh Token',
+            description: 'Refresh Token để xác thực',
           },
           {
             in: 'query',
@@ -620,15 +565,20 @@ export const document: OpenAPIObject = {
             in: 'query',
             name: 'limit',
             schema: { type: 'number', example: 10 },
-            description: 'Số lượng/trang (Mặc định 10)',
+            description: 'Số lượng item mỗi trang (Mặc định 10)',
           },
         ],
         responses: {
           '200': {
-            description: 'Thành công',
+            description: 'Lấy dữ liệu thành công',
             content: {
               'application/json': {
                 schema: {
+                  type: 'object',
+                  properties: {
+                    data: { type: 'array', items: { type: 'object' } },
+                    meta: { type: 'object' },
+                  },
                   example: {
                     data: [
                       {
@@ -637,6 +587,7 @@ export const document: OpenAPIObject = {
                         status: 'OPEN',
                         headcountTarget: 5,
                         headcountHired: 1,
+                        jdFileUrl: 'https://res.cloudinary.com/.../jd.pdf',
                         createdAt: '2025-01-01T00:00:00.000Z',
                       },
                     ],
@@ -650,7 +601,9 @@ export const document: OpenAPIObject = {
       },
       post: {
         tags: ['Quản lý Job'],
-        summary: 'Tạo Job mới',
+        summary: 'Tạo Job mới (Có upload file JD)',
+        description:
+          'Tạo job mới kèm theo file JD (PDF/Doc). Sử dụng form-data.',
         parameters: [
           {
             in: 'header',
@@ -663,31 +616,54 @@ export const document: OpenAPIObject = {
         requestBody: {
           required: true,
           content: {
-            'application/json': {
+            'multipart/form-data': {
               schema: {
                 type: 'object',
                 properties: {
-                  departmentId: { type: 'string', example: 'dept_cntt_01' },
-                  name: { type: 'string', example: 'Backend NodeJS Developer' },
+                  file: {
+                    type: 'string',
+                    format: 'binary',
+                    description:
+                      'File mô tả công việc (JD) - Định dạng PDF, DOCX',
+                  },
+                  departmentId: {
+                    type: 'string',
+                    example: '4aqhaIY6UmtfRCxdJKuK',
+                    description: 'ID của phòng ban cần tuyển',
+                  },
+                  name: {
+                    type: 'string',
+                    example: 'Backend NodeJS Developer',
+                    description: 'Tên vị trí tuyển dụng',
+                  },
                   description: {
                     type: 'string',
-                    example: 'Xây dựng API cho hệ thống ERP...',
+                    example: 'Xây dựng API cho hệ thống ERP, tối ưu DB...',
+                    description: 'Mô tả chi tiết công việc',
                   },
                   skills: {
                     type: 'array',
-                    items: { type: 'string' },
+                    items: { type: 'string', example: 'NodeJS' },
                     example: ['NodeJS', 'NestJS', 'PostgreSQL'],
+                    description: 'Danh sách kỹ năng yêu cầu',
                   },
-                  headcountTarget: { type: 'number', example: 3, minimum: 1 },
+                  headcountTarget: {
+                    type: 'number',
+                    example: 3,
+                    minimum: 1,
+                    description: 'Số lượng cần tuyển',
+                  },
                   applyStart: {
                     type: 'string',
                     format: 'date',
                     example: '2025-01-05',
+                    description: 'Ngày bắt đầu nhận hồ sơ (YYYY-MM-DD)',
                   },
                   applyEnd: {
                     type: 'string',
                     format: 'date',
                     example: '2025-02-28',
+                    description: 'Hạn chót nhận hồ sơ (YYYY-MM-DD)',
                   },
                 },
                 required: [
@@ -704,16 +680,18 @@ export const document: OpenAPIObject = {
         },
         responses: {
           '201': {
-            description: 'Tạo thành công',
+            description: 'Tạo job thành công',
             content: {
               'application/json': {
                 schema: {
+                  type: 'object',
                   example: {
                     id: 'job_new_01',
                     departmentId: 'dept_cntt_01',
                     name: 'Backend NodeJS Developer',
                     status: 'OPEN',
-                    headcountHired: 0,
+                    jdFileUrl: 'https://res.cloudinary.com/.../file.pdf',
+                    warning: null,
                   },
                 },
               },
@@ -727,7 +705,7 @@ export const document: OpenAPIObject = {
         tags: ['Quản lý Job'],
         summary: 'Tìm kiếm Job nâng cao (Filter)',
         description:
-          'Hỗ trợ tìm theo từ khóa, phòng ban, trạng thái, ngày tạo, ngày hết hạn.',
+          'Hỗ trợ tìm theo từ khóa, phòng ban, trạng thái, người tạo, ngày tạo, ngày hết hạn.',
         parameters: [
           {
             in: 'header',
@@ -740,13 +718,13 @@ export const document: OpenAPIObject = {
             in: 'query',
             name: 'keyword',
             schema: { type: 'string', example: 'Java' },
-            description: 'Tìm theo tên Job',
+            description: 'Từ khóa tìm kiếm (Tên Job)',
           },
           {
             in: 'query',
             name: 'departmentId',
             schema: { type: 'string', example: 'dept_01' },
-            description: 'Lọc theo phòng ban',
+            description: 'Lọc theo ID phòng ban',
           },
           {
             in: 'query',
@@ -756,31 +734,37 @@ export const document: OpenAPIObject = {
               enum: ['OPEN', 'CLOSED', 'LOCKED'],
               example: 'OPEN',
             },
-            description: 'Trạng thái Job',
+            description: 'Trạng thái Job (OPEN, CLOSED, LOCKED)',
+          },
+          {
+            in: 'query',
+            name: 'createdBy',
+            schema: { type: 'string', example: 'user_id_123' },
+            description: 'Lọc theo ID người tạo',
           },
           {
             in: 'query',
             name: 'createdFrom',
             schema: { type: 'string', format: 'date', example: '2025-01-01' },
-            description: 'Ngày tạo từ',
+            description: 'Ngày tạo từ (YYYY-MM-DD)',
           },
           {
             in: 'query',
             name: 'createdTo',
             schema: { type: 'string', format: 'date', example: '2025-01-31' },
-            description: 'Ngày tạo đến',
+            description: 'Ngày tạo đến (YYYY-MM-DD)',
           },
           {
             in: 'query',
             name: 'deadlineFrom',
             schema: { type: 'string', format: 'date', example: '2025-02-01' },
-            description: 'Hạn ứng tuyển từ',
+            description: 'Hạn ứng tuyển từ (YYYY-MM-DD)',
           },
           {
             in: 'query',
             name: 'deadlineTo',
             schema: { type: 'string', format: 'date', example: '2025-02-28' },
-            description: 'Hạn ứng tuyển đến',
+            description: 'Hạn ứng tuyển đến (YYYY-MM-DD)',
           },
           {
             in: 'query',
@@ -795,10 +779,11 @@ export const document: OpenAPIObject = {
         ],
         responses: {
           '200': {
-            description: 'Kết quả tìm kiếm',
+            description: 'Trả về danh sách kết quả',
             content: {
               'application/json': {
                 schema: {
+                  type: 'object',
                   example: {
                     data: [
                       { id: 'job_001', name: 'Java Developer', status: 'OPEN' },
@@ -829,14 +814,16 @@ export const document: OpenAPIObject = {
             name: 'id',
             required: true,
             schema: { type: 'string', example: 'job_001' },
+            description: 'ID của Job cần xem',
           },
         ],
         responses: {
           '200': {
-            description: 'Thông tin chi tiết',
+            description: 'Thông tin chi tiết Job',
             content: {
               'application/json': {
                 schema: {
+                  type: 'object',
                   example: {
                     id: 'job_001',
                     name: 'Java Developer',
@@ -845,6 +832,7 @@ export const document: OpenAPIObject = {
                     headcountTarget: 5,
                     headcountHired: 2,
                     status: 'OPEN',
+                    jdFileUrl: 'https://cloudinary...',
                     applyStart: '2025-01-01',
                     applyEnd: '2025-02-01',
                     createdAt: '2025-01-01T08:00:00Z',
@@ -857,8 +845,9 @@ export const document: OpenAPIObject = {
       },
       patch: {
         tags: ['Quản lý Job'],
-        summary: 'Cập nhật thông tin Job',
-        description: 'Không thể cập nhật nếu Job đã đóng (CLOSED).',
+        summary: 'Cập nhật thông tin Job (Có upload file)',
+        description:
+          'Dùng multipart/form-data. Gửi file mới để thay thế file cũ. Field nào không gửi sẽ giữ nguyên giá trị cũ.',
         parameters: [
           {
             in: 'header',
@@ -877,22 +866,47 @@ export const document: OpenAPIObject = {
         requestBody: {
           required: true,
           content: {
-            'application/json': {
+            'multipart/form-data': {
               schema: {
                 type: 'object',
                 properties: {
-                  name: { type: 'string', example: 'Java Developer (Updated)' },
-                  description: { type: 'string', example: 'Mô tả mới...' },
+                  file: {
+                    type: 'string',
+                    format: 'binary',
+                    description: 'File JD mới (Nếu muốn cập nhật file)',
+                  },
+                  name: {
+                    type: 'string',
+                    example: 'Java Developer (Updated)',
+                    description: 'Tên mới',
+                  },
+                  description: {
+                    type: 'string',
+                    example: 'Mô tả mới...',
+                    description: 'Mô tả mới',
+                  },
                   skills: {
                     type: 'array',
                     items: { type: 'string' },
                     example: ['Java', 'Microservices'],
+                    description: 'Danh sách skill mới',
                   },
-                  headcountTarget: { type: 'number', example: 10 },
+                  headcountTarget: {
+                    type: 'number',
+                    example: 10,
+                    description: 'Số lượng cần tuyển mới',
+                  },
+                  headcountHired: {
+                    type: 'number',
+                    example: 2,
+                    description:
+                      'Số lượng đã tuyển (Thường cập nhật tự động, nhưng cho phép sửa nếu cần)',
+                  },
                   applyEnd: {
                     type: 'string',
                     format: 'date',
                     example: '2025-03-30',
+                    description: 'Gia hạn ngày kết thúc',
                   },
                 },
               },
@@ -905,9 +919,11 @@ export const document: OpenAPIObject = {
             content: {
               'application/json': {
                 schema: {
+                  type: 'object',
                   example: {
                     id: 'job_001',
                     message: 'Cập nhật Job thành công',
+                    warning: 'Cập nhật text thành công nhưng file lỗi (nếu có)',
                   },
                 },
               },
@@ -943,7 +959,11 @@ export const document: OpenAPIObject = {
               schema: {
                 type: 'object',
                 properties: {
-                  reason: { type: 'string', example: 'Đã tuyển đủ người' },
+                  reason: {
+                    type: 'string',
+                    example: 'Đã tuyển đủ người',
+                    description: 'Lý do đóng Job',
+                  },
                 },
                 required: ['reason'],
               },
@@ -955,7 +975,10 @@ export const document: OpenAPIObject = {
             description: 'Đóng thành công',
             content: {
               'application/json': {
-                schema: { example: { id: 'job_001', status: 'CLOSED' } },
+                schema: {
+                  type: 'object',
+                  example: { id: 'job_001', status: 'CLOSED' },
+                },
               },
             },
           },
@@ -988,6 +1011,7 @@ export const document: OpenAPIObject = {
             content: {
               'application/json': {
                 schema: {
+                  type: 'object',
                   example: {
                     id: 'job_001',
                     status: 'OPEN',
@@ -1026,6 +1050,7 @@ export const document: OpenAPIObject = {
             content: {
               'application/json': {
                 schema: {
+                  type: 'object',
                   example: {
                     id: 'job_001',
                     status: 'LOCKED',
@@ -1043,7 +1068,8 @@ export const document: OpenAPIObject = {
       get: {
         tags: ['Quản lý Phòng ban'],
         summary: 'Lấy danh sách Phòng ban (Cơ bản)',
-        description: 'Lấy danh sách có phân trang, sắp xếp theo ngày tạo mới nhất.',
+        description:
+          'Lấy danh sách có phân trang, sắp xếp theo ngày tạo mới nhất.',
         parameters: [
           {
             in: 'header',
@@ -1109,7 +1135,10 @@ export const document: OpenAPIObject = {
                 type: 'object',
                 properties: {
                   name: { type: 'string', example: 'Phòng Marketing' },
-                  description: { type: 'string', example: 'Phụ trách truyền thông & quảng cáo' },
+                  description: {
+                    type: 'string',
+                    example: 'Phụ trách truyền thông & quảng cáo',
+                  },
                 },
                 required: ['name'],
               },
@@ -1156,7 +1185,11 @@ export const document: OpenAPIObject = {
           {
             in: 'query',
             name: 'status',
-            schema: { type: 'string', enum: ['ACTIVE', 'INACTIVE'], example: 'ACTIVE' },
+            schema: {
+              type: 'string',
+              enum: ['ACTIVE', 'INACTIVE'],
+              example: 'ACTIVE',
+            },
             description: 'Lọc trạng thái',
           },
           {
@@ -1177,7 +1210,13 @@ export const document: OpenAPIObject = {
               'application/json': {
                 schema: {
                   example: {
-                    data: [{ id: 'dept_001', name: 'Phòng Công nghệ', status: 'ACTIVE' }],
+                    data: [
+                      {
+                        id: 'dept_001',
+                        name: 'Phòng Công nghệ',
+                        status: 'ACTIVE',
+                      },
+                    ],
                     meta: { total: 1, page: 1, limit: 10 },
                   },
                 },
@@ -1264,7 +1303,12 @@ export const document: OpenAPIObject = {
             description: 'Cập nhật thành công',
             content: {
               'application/json': {
-                schema: { example: { id: 'dept_001', message: 'Cập nhật thông tin thành công' } },
+                schema: {
+                  example: {
+                    id: 'dept_001',
+                    message: 'Cập nhật thông tin thành công',
+                  },
+                },
               },
             },
           },
@@ -1275,7 +1319,8 @@ export const document: OpenAPIObject = {
       patch: {
         tags: ['Quản lý Phòng ban'],
         summary: 'Đổi trạng thái (Active/Inactive)',
-        description: 'Lưu ý: Không thể chuyển sang INACTIVE nếu phòng ban đó còn Job đang mở (Status: OPEN).',
+        description:
+          'Lưu ý: Không thể chuyển sang INACTIVE nếu phòng ban đó còn Job đang mở (Status: OPEN).',
         parameters: [
           {
             in: 'header',
@@ -1301,7 +1346,7 @@ export const document: OpenAPIObject = {
                   status: {
                     type: 'string',
                     enum: ['ACTIVE', 'INACTIVE'],
-                    example: 'INACTIVE'
+                    example: 'INACTIVE',
                   },
                 },
                 required: ['status'],
@@ -1318,8 +1363,9 @@ export const document: OpenAPIObject = {
                   example: {
                     id: 'dept_001',
                     status: 'INACTIVE',
-                    message: 'Đã chuyển trạng thái phòng ban sang INACTIVE thành công'
-                  }
+                    message:
+                      'Đã chuyển trạng thái phòng ban sang INACTIVE thành công',
+                  },
                 },
               },
             },
@@ -1331,8 +1377,9 @@ export const document: OpenAPIObject = {
                 schema: {
                   example: {
                     statusCode: 400,
-                    message: 'Không thể đóng phòng ban này vì còn 2 công việc đang tuyển dụng...'
-                  }
+                    message:
+                      'Không thể đóng phòng ban này vì còn 2 công việc đang tuyển dụng...',
+                  },
                 },
               },
             },
@@ -1345,7 +1392,8 @@ export const document: OpenAPIObject = {
       get: {
         tags: ['Quản lý Ứng tuyển'],
         summary: 'Lấy danh sách ứng viên theo Job',
-        description: 'Xem ai đang ứng tuyển vào Job này. Có thể lọc theo trạng thái (VD: chỉ xem ai đang Phỏng vấn).',
+        description:
+          'Xem ai đang ứng tuyển vào Job này. Có thể lọc theo trạng thái (VD: chỉ xem ai đang Phỏng vấn).',
         parameters: [
           {
             in: 'header',
@@ -1366,8 +1414,15 @@ export const document: OpenAPIObject = {
             name: 'status',
             schema: {
               type: 'string',
-              enum: ['APPLIED', 'SCREENING', 'INTERVIEW', 'OFFERED', 'HIRED', 'REJECTED'],
-              example: 'INTERVIEW'
+              enum: [
+                'APPLIED',
+                'SCREENING',
+                'INTERVIEW',
+                'OFFERED',
+                'HIRED',
+                'REJECTED',
+              ],
+              example: 'INTERVIEW',
             },
             description: 'Lọc theo trạng thái hồ sơ',
           },
@@ -1452,7 +1507,8 @@ export const document: OpenAPIObject = {
       patch: {
         tags: ['Quản lý Ứng tuyển'],
         summary: 'Cập nhật thông tin chi tiết (Lịch PV/Feedback)',
-        description: 'Dùng để set lịch phỏng vấn, đánh giá sao, viết nhận xét sau phỏng vấn.',
+        description:
+          'Dùng để set lịch phỏng vấn, đánh giá sao, viết nhận xét sau phỏng vấn.',
         parameters: [
           {
             in: 'header',
@@ -1475,10 +1531,21 @@ export const document: OpenAPIObject = {
               schema: {
                 type: 'object',
                 properties: {
-                  interviewScheduled: { type: 'string', format: 'date-time', example: '2025-01-15T09:00:00Z', description: 'Hẹn lịch phỏng vấn' },
-                  feedback: { type: 'string', example: 'Kỹ thuật tốt nhưng expect lương hơi cao' },
-                  rating: { type: 'number', example: "4 (min: 1, max: 5)" },
-                  rejectionReason: { type: 'string', example: 'Không phù hợp văn hóa' },
+                  interviewScheduled: {
+                    type: 'string',
+                    format: 'date-time',
+                    example: '2025-01-15T09:00:00Z',
+                    description: 'Hẹn lịch phỏng vấn',
+                  },
+                  feedback: {
+                    type: 'string',
+                    example: 'Kỹ thuật tốt nhưng expect lương hơi cao',
+                  },
+                  rating: { type: 'number', example: '4 (min: 1, max: 5)' },
+                  rejectionReason: {
+                    type: 'string',
+                    example: 'Không phù hợp văn hóa',
+                  },
                 },
               },
             },
@@ -1489,7 +1556,12 @@ export const document: OpenAPIObject = {
             description: 'Cập nhật thành công',
             content: {
               'application/json': {
-                schema: { example: { id: 'app_001', message: 'Cập nhật thông tin thành công' } },
+                schema: {
+                  example: {
+                    id: 'app_001',
+                    message: 'Cập nhật thông tin thành công',
+                  },
+                },
               },
             },
           },
@@ -1533,13 +1605,20 @@ export const document: OpenAPIObject = {
                 properties: {
                   status: {
                     type: 'string',
-                    enum: ['APPLIED', 'SCREENING', 'INTERVIEW', 'OFFERED', 'HIRED', 'REJECTED'],
-                    example: 'INTERVIEW'
+                    enum: [
+                      'APPLIED',
+                      'SCREENING',
+                      'INTERVIEW',
+                      'OFFERED',
+                      'HIRED',
+                      'REJECTED',
+                    ],
+                    example: 'INTERVIEW',
                   },
                   rejectionReason: {
                     type: 'string',
                     example: 'Chuyên môn chưa đạt yêu cầu',
-                    description: 'Bắt buộc nếu status là REJECTED'
+                    description: 'Bắt buộc nếu status là REJECTED',
                   },
                 },
                 required: ['status'],
@@ -1557,8 +1636,8 @@ export const document: OpenAPIObject = {
                     id: 'app_001',
                     oldStatus: 'SCREENING',
                     newStatus: 'INTERVIEW',
-                    message: 'Cập nhật trạng thái thành công'
-                  }
+                    message: 'Cập nhật trạng thái thành công',
+                  },
                 },
               },
             },
@@ -1567,7 +1646,13 @@ export const document: OpenAPIObject = {
             description: 'Lỗi quy trình (Đi sai bước hoặc thiếu lý do từ chối)',
             content: {
               'application/json': {
-                schema: { example: { statusCode: 400, message: 'Không thể chuyển trạng thái từ APPLIED sang OFFERED...' } },
+                schema: {
+                  example: {
+                    statusCode: 400,
+                    message:
+                      'Không thể chuyển trạng thái từ APPLIED sang OFFERED...',
+                  },
+                },
               },
             },
           },

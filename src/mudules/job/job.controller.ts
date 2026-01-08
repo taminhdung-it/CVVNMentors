@@ -8,6 +8,8 @@ import {
   Query,
   Req,
   UseGuards,
+  UseInterceptors,
+  UploadedFile,
 } from '@nestjs/common';
 import { JobService } from './job.service';
 import { PaginationDto } from '../../common/dto/pagination.dto';
@@ -16,6 +18,7 @@ import { SearchJobDto } from './dto/search-job.dto';
 import { UpdateJobDto } from './dto/update-job.dto';
 import { CloseJobDto } from './dto/close-job.dto';
 import { AuthGuard } from '../auth/guards/auth.guard';
+import { FileInterceptor } from '@nestjs/platform-express';
 
 @Controller('jobs')
 export class JobController {
@@ -23,9 +26,10 @@ export class JobController {
 
   @UseGuards(AuthGuard)
   @Post()
-  create(@Body() dto: CreateJobDto, @Req() req) {
+  @UseInterceptors(FileInterceptor('file'))
+  create(@Body() dto: CreateJobDto, @Req() req, @UploadedFile() file: Express.Multer.File) {
     const userId = req.user?.uid || 'hr_admin';
-    return this.jobService.create(dto, userId);
+    return this.jobService.create(dto, userId, file);
   }
 
   @UseGuards(AuthGuard)
@@ -48,8 +52,9 @@ export class JobController {
 
   @UseGuards(AuthGuard)
   @Patch(':id')
-  update(@Param('id') id: string, @Body() dto: UpdateJobDto) {
-    return this.jobService.update(id, dto);
+  @UseInterceptors(FileInterceptor('file'))
+  update(@Param('id') id: string, @Body() dto: UpdateJobDto,  @UploadedFile() file: Express.Multer.File) {
+    return this.jobService.update(id, dto, file);
   }
 
   @UseGuards(AuthGuard)

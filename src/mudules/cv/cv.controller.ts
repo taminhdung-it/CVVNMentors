@@ -35,9 +35,9 @@ export class CvController {
   async uploadCvs(
     @UploadedFiles(
       new ParseFilePipeBuilder()
-        .addFileTypeValidator({
-          fileType: /(pdf|msword|wordprocessingml)/,
-        }) // Chỉ nhận file văn bản
+        // .addFileTypeValidator({
+        //     fileType: /(pdf|msword|wordprocessing)/,
+        // }) // Chỉ nhận file văn bản
         .build({ errorHttpStatusCode: HttpStatus.UNPROCESSABLE_ENTITY }),
     )
     files: Express.Multer.File[],
@@ -48,14 +48,17 @@ export class CvController {
   }
 
   //tạo thủ công
-  @UseGuards(AuthGuard)
-  @Post()
-  create(@Body() createCvDto: CreateCvDto,
-    @Req() req,
-  ) {
-    const userId = req.user?.uid || null;
-    return this.cvService.create(createCvDto, userId);
-  }
+    @UseGuards(AuthGuard)
+    @Post()
+    @UseInterceptors(FileInterceptor('file'))
+    create(
+        @Body() createCvDto: CreateCvDto,
+        @Req() req,
+        @UploadedFile() file: Express.Multer.File,
+    ) {
+        const userId = req.user?.uid || null;
+        return this.cvService.create(createCvDto, userId, file);
+    }
 
   @UseGuards(AuthGuard)
   @Get()

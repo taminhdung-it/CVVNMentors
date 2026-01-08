@@ -25,6 +25,8 @@ export class JobEntity {
   createdBy: string;
   createdAt: Date;
   updatedAt: Date;
+  jdFileUrl?: string; // Link file JD
+  publicId?: string; // ID của Cloudinary để xóa sau này
 
   constructor(partial: Partial<JobEntity>) {
     Object.assign(this, partial);
@@ -67,6 +69,8 @@ export class JobEntity {
       createdBy: this.createdBy,
       createdAt: this.createdAt,
       updatedAt: this.updatedAt,
+      jdFileUrl: this.jdFileUrl || null,
+      publicId: this.publicId || null,
     };
   }
 }
