@@ -1,0 +1,99 @@
+<div class="cv-page">
+
+  <div class="header">
+    <h2>Danh sách CV</h2>
+    <button class="btn-primary">Thêm CV ▾</button>
+  </div>
+
+  <!-- FILTER -->
+  <div class="filter-box">
+    <input type="date" class="input" />
+
+    <select class="input" [(ngModel)]="cvType" (change)="applyFilter()">
+      <option value="">Loại hồ sơ</option>
+      <option>Có CV</option>
+      <option>Không CV</option>
+    </select>
+
+    <select class="input" [(ngModel)]="status" (change)="applyFilter()">
+      <option value="">Trạng thái</option>
+      <option>Mới</option>
+      <option>Duyệt</option>
+      <option>Không đạt</option>
+      <option>Lưu trữ</option>
+    </select>
+
+    <a class="clear" (click)="clearFilter()">Xóa bộ lọc</a>
+
+    <input
+      class="input search"
+      placeholder="Tìm theo SDT, Tên, Email..."
+      [(ngModel)]="keyword"
+      (input)="applyFilter()"
+    />
+  </div>
+
+  <!-- TABLE -->
+  <div class="table-box">
+    <table>
+      <thead>
+        <tr>
+          <th><input type="checkbox" /></th>
+          <th>Họ và tên / Liên hệ</th>
+          <th>Loại hồ sơ</th>
+          <th>Trạng thái</th>
+          <th>Job đã gán</th>
+          <th>Ngày cập nhật</th>
+          <th>SĐT</th>
+          <th>Hành động</th>
+        </tr>
+      </thead>
+
+      <tbody>
+        <tr *ngFor="let cv of pagedData">
+          <td><input type="checkbox" /></td>
+
+          <td>
+            <b>{{ cv.fullName }}</b>
+            <div class="sub">{{ cv.email }}</div>
+          </td>
+
+          <td>{{ cv.cvType }}</td>
+
+          <td>
+            <span class="status" [class]="cv.status">{{ cv.status }}</span>
+          </td>
+
+          <td>
+            <div *ngIf="cv.job">
+              <b>{{ cv.job }}</b>
+              <div class="sub">{{ cv.department }}</div>
+            </div>
+            <span *ngIf="!cv.job">-</span>
+          </td>
+
+          <td>{{ cv.updatedAt }}</td>
+          <td>{{ cv.phone }}</td>
+
+          <td>
+            👁️ ⋮
+          </td>
+        </tr>
+      </tbody>
+    </table>
+
+    <!-- PAGINATION -->
+    <div class="pagination">
+      <button (click)="page=page-1" [disabled]="page===1">&lt;</button>
+
+      <button
+        *ngFor="let p of pages()"
+        [class.active]="p===page"
+        (click)="page=p">
+        {{ p }}
+      </button>
+
+      <button (click)="page=page+1" [disabled]="page===totalPages">&gt;</button>
+    </div>
+  </div>
+</div>

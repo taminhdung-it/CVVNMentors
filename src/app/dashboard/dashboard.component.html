@@ -1,0 +1,34 @@
+<section class="dashboard-root">
+  <!-- top stat cards -->
+  <div class="stats-row">
+    <div class="stat-card" *ngFor="let s of stats">
+      <div class="stat-value">{{ s.value }}</div>
+      <div class="stat-label">{{ s.label }}</div>
+    </div>
+  </div>
+
+  <!-- widgets row -->
+  <div class="widgets-row">
+    <div class="widget widget-left">
+      <h3 class="widget-title">Trạng thái doanh thu</h3>
+      <div class="chart-placeholder large"> <!-- replace with real chart -->
+        <div class="fake-chart">[Chart placeholder]</div>
+      </div>
+    </div>
+
+    <div class="widget widget-right">
+      <h3 class="widget-title">Top vị trí tuyển dụng</h3>
+      <div class="chart-placeholder small">
+        <div class="fake-chart">[Bar chart placeholder]</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- table -->
+  <div class="orders-widget">
+    <h3 class="widget-title">CV đã nộp gần đây</h3>
+    <div class="table-wrap">
+     
+    </div>
+  </div>
+</section>

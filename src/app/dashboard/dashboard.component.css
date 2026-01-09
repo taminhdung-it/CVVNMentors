@@ -1,0 +1,135 @@
+.dashboard-root {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+/* stat cards row */
+.stats-row {
+  display: flex;
+  gap: 18px;
+  flex-wrap: wrap;
+  margin-bottom: 8px;
+}
+.stat-card {
+  background: #fff;
+  padding: 18px 22px;
+  border-radius: 10px;
+  box-shadow: 0 6px 16px rgba(21, 24, 32, 0.06);
+  min-width: 140px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.stat-value {
+  font-weight: 700;
+  font-size: 22px;
+  color: #222;
+}
+.stat-label {
+  color: var(--muted);
+  font-size: 13px;
+}
+
+/* widgets */
+.widgets-row {
+  display: grid;
+  grid-template-columns: 1fr 360px;
+  gap: 20px;
+  align-items: start;
+}
+
+.widget {
+  background: #fff;
+  border-radius: 10px;
+  padding: 18px;
+  box-shadow: 0 6px 16px rgba(21, 24, 32, 0.06);
+}
+
+.widget-title {
+  margin: 0 0 12px 0;
+  font-size: 16px;
+  font-weight: 700;
+}
+
+/* placeholder charts */
+.chart-placeholder {
+  height: 260px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(180deg, #fafafa, #fff);
+  border-radius: 6px;
+  border: 1px solid #f0f0f0;
+}
+.chart-placeholder.large {
+  height: 280px;
+}
+.chart-placeholder.small {
+  height: 220px;
+}
+
+.fake-chart {
+  color: #999;
+  font-size: 14px;
+}
+
+/* orders table */
+.orders-widget {
+  background: transparent;
+}
+.table-wrap {
+  margin-top: 12px;
+  background: #fff;
+  padding: 14px;
+  border-radius: 10px;
+  box-shadow: 0 6px 16px rgba(21, 24, 32, 0.06);
+}
+.orders-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
+}
+.orders-table th {
+  text-align: left;
+  padding: 10px 12px;
+  color: var(--muted);
+  font-weight: 700;
+  border-bottom: 1px solid #eee;
+}
+.orders-table td {
+  padding: 12px;
+  border-bottom: 1px solid #f3f3f3;
+}
+.status {
+  padding: 6px 10px;
+  border-radius: 8px;
+  font-weight: 600;
+  font-size: 13px;
+}
+.status.ok {
+  background: #e6f7ea;
+  color: #2b8a4b;
+}
+.status.pending {
+  background: #fff2e6;
+  color: #c87a38;
+}
+.status.ship {
+  background: #fff3e6;
+  color: #d66a3a;
+}
+.status.fail {
+  background: #ffe9e9;
+  color: #d64040;
+}
+
+/* responsive */
+@media (max-width: 960px) {
+  .widgets-row {
+    grid-template-columns: 1fr;
+  }
+  .stats-row {
+    justify-content: flex-start;
+  }
+}

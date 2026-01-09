@@ -1,0 +1,82 @@
+<div class="login-wrapper">
+  <mat-card class="login-card">
+
+    <!-- LEFT IMAGE -->
+    <div class="login-image">
+      <img
+        src= "../../../assets/image_login.png"
+        alt="Login image"
+      />
+
+    </div>
+
+    <!-- RIGHT FORM -->
+    <div class="login-form">
+      <h2>Đăng nhập</h2>
+      <p class="subtitle">Chào mừng đến với QLCV</p>
+
+      <!-- ERROR MESSAGE -->
+      <div *ngIf="errorMessage" class="error-box">
+        {{ errorMessage }}
+      </div>
+
+      <form
+        [formGroup]="loginForm"
+        (ngSubmit)="onSubmit()"
+        autocomplete="off"
+      >
+
+        <!-- EMAIL -->
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Email</mat-label>
+          <input
+            matInput
+            type="email"
+            formControlName="email"
+            autocomplete="username"
+          />
+        </mat-form-field>
+
+        <!-- PASSWORD -->
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Mật khẩu</mat-label>
+          <input
+            matInput
+            [type]="hidePassword ? 'password' : 'text'"
+            formControlName="password"
+            autocomplete="current-password"
+          />
+          <button
+            mat-icon-button
+            matSuffix
+            type="button"
+            tabindex="-1"
+            (click)="hidePassword = !hidePassword"
+          >
+            <mat-icon>
+              {{ hidePassword ? 'visibility_off' : 'visibility' }}
+            </mat-icon>
+          </button>
+        </mat-form-field>
+
+        <!-- FORGOT PASSWORD -->
+        <div class="forgot-password">
+          <a (click)="openForgotPassword()">Quên mật khẩu</a>
+        </div>
+
+        <!-- SUBMIT -->
+        <button
+          mat-raised-button
+          color="primary"
+          class="login-button"
+          type="submit"
+          [disabled]="loginForm.invalid"
+        >
+          Đăng nhập
+        </button>
+
+      </form>
+    </div>
+
+  </mat-card>
+</div>

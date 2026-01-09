@@ -1,1 +1,25 @@
 /* You can add global styles to this file, and also import other style files */
+/* src/styles.css (append this) */
+/* sidebar widths must match the actual sidebar CSS you use */
+:root {
+  --sidebar-width: 260px;
+  --sidebar-collapsed: 72px;
+}
+
+/* ensure app-root / main layout doesn't conflict */
+body {
+  margin: 0;
+  background: #f5f6f9;
+}
+
+/* if your sidebar is positioned fixed/absolute at left, content should have left margin.
+   dashboard.component.css already uses body:not(.sidebar-collapsed) .dashboard-wrapper { margin-left ... }
+   but for other routes/pages you may also want generic content wrapper rule (optional): */
+body:not(.sidebar-collapsed) .app-content {
+  margin-left: var(--sidebar-width);
+  transition: margin-left 0.22s ease;
+}
+body.sidebar-collapsed .app-content {
+  margin-left: var(--sidebar-collapsed);
+  transition: margin-left 0.22s ease;
+}

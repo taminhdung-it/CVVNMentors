@@ -1,0 +1,92 @@
+<div class="job-page">
+  <!-- Header -->
+  <div class="job-header">
+    <h2>Quản lý Job</h2>
+
+    <button class="btn-primary">
+      Thêm Job
+      <span class="caret">▾</span>
+    </button>
+  </div>
+
+  <!-- Filters -->
+  <div class="job-filters">
+    <input type="date" />
+
+    <select>
+      <option value="">Tên phòng ban</option>
+      <option>IT</option>
+      <option>Marketing</option>
+    </select>
+
+    <select>
+      <option value="">Tên việc làm</option>
+      <option>Nhân viên</option>
+      <option>Quản lý</option>
+    </select>
+
+    <select>
+      <option value="">Người tạo</option>
+      <option>Sơn Hà</option>
+      <option>Minh Dương</option>
+    </select>
+
+    <button class="btn-clear">Xóa bộ lọc</button>
+  </div>
+
+  <!-- Search -->
+  <input
+    class="search-input"
+    placeholder="Tìm theo Tên Việc Làm, Tên Phòng Ban..."
+  />
+
+  <!-- Table -->
+  <div class="table-wrapper">
+    <table>
+      <thead>
+        <tr>
+          <th><input type="checkbox" /></th>
+          <th>Tên Việc Làm</th>
+          <th>Tên phòng ban</th>
+          <th>Số lượng ứng tuyển</th>
+          <th>Ngày tạo</th>
+          <th>Người tạo</th>
+          <th>File JD</th>
+          <th>Thao tác</th>
+        </tr>
+      </thead>
+
+      <tbody>
+        <tr *ngFor="let item of [1,2,3,4,5]; let i = index">
+          <td><input type="checkbox" /></td>
+          <td>Nhân viên</td>
+          <td>IT</td>
+          <td>5</td>
+          <td>31/12/2025</td>
+          <td>Sơn Hà</td>
+          <td class="file">PDF</td>
+          <td>
+            <div class="actions">
+              <button class="icon-btn" title="Xem">
+                👁
+              </button>
+              <button class="icon-btn" title="Khác">
+                ⋮
+              </button>
+            </div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+
+    <!-- Pagination -->
+    <div class="pagination">
+      <button>&lt;</button>
+      <button class="active">1</button>
+      <button>2</button>
+      <button>…</button>
+      <button>10</button>
+      <button>&gt;</button>
+    </div>
+  </div>
+</div>
