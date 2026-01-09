@@ -21,7 +21,7 @@ export class AuthService {
     private configService: ConfigService,
 
   ) {
-    this.apiKey = this.configService.get("firebase_api_key");
+    this.apiKey = this.configService.get<string>("database.firebase_api_key");
   }
   async register(registerDto: RegisterDto) {
     try {
