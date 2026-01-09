@@ -47,6 +47,7 @@ import { JobManagementComponent } from './job-management/job-management.componen
 
 import { CvService } from './services/cv.service';
 import { AuthService } from './services/auth.service';
+import { CvDetailComponent } from './cv-detail/cv-detail.component';
 
 @NgModule({
   declarations: [
@@ -58,7 +59,8 @@ import { AuthService } from './services/auth.service';
     CvManagementComponent,
     JobManagementComponent,
     LoginComponent,
-    ForgotPasswordDialog
+    ForgotPasswordDialog,
+    CvDetailComponent
   ],
   imports: [
     BrowserModule,

@@ -1,68 +1,69 @@
 .cv-page {
-  padding: 8px 12px;
+  padding: 12px 24px;
   background: #f5f7fb;
 }
 
-h1 {
-  margin: 0;
-  font-size: 22px;
-  line-height: 32px;
-}
-
+/* HEADER */
 .header {
   display: flex;
-  align-items: center; /* QUAN TRỌNG */
   justify-content: space-between;
-  margin-bottom: 4px; /* giảm mạnh */
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.header h2 {
+  font-size: 18px;
+  font-weight: 600;
+  margin: 0;
 }
 
 .btn-primary {
+  height: 32px;
+  padding: 0 12px;
+  font-size: 12.5px;
+  border-radius: 6px;
+  border: none;
   background: #2563eb;
   color: #fff;
-  border: none;
-
-  padding: 6px 14px; /* GIẢM */
-  font-size: 14px;
-  line-height: 20px;
-
-  border-radius: 8px;
-  height: auto; /* QUAN TRỌNG */
-  display: flex;
-  align-items: center;
-  gap: 6px;
 }
 
+/* FILTER */
 .filter-box {
   background: #fff;
-  padding: 16px;
-  border-radius: 12px;
+  padding: 22px 24px;
+  border-radius: 10px;
+  margin-bottom: 10px;
+}
+
+.filter-row {
   display: grid;
-  grid-template-columns: 200px 200px 200px auto;
-  gap: 12px;
-  margin-bottom: 16px;
+  grid-template-columns: 170px 170px 170px 170px auto;
+  gap: 10px;
 }
 
 .input {
-  padding: 10px 12px;
+  height: 45px;
+  padding: 0 14px;
+  font-size: 14px;
   border-radius: 8px;
-  border: 1px solid #d0d7e2;
+  border: 1px solid #d1d5db;
 }
 
 .search {
-  grid-column: 1 / -1;
+  margin-top: 10px;
+  width: 320px;
 }
 
 .clear {
   color: #2563eb;
-  align-self: center;
   cursor: pointer;
   margin-left: auto;
 }
 
+/* TABLE */
 .table-box {
   background: #fff;
-  border-radius: 12px;
-  padding: 8px;
+  border-radius: 8px;
 }
 
 table {
@@ -70,58 +71,531 @@ table {
   border-collapse: collapse;
 }
 
-th,
-td {
-  padding: 14px;
-  border-bottom: 1px solid #eee;
+th {
+  background: #fafafa;
+  font-size: 12.5px;
+  padding: 10px 12px;
+  border-bottom: 1px solid #e5e7eb;
 }
 
-th {
-  background: #f9fafb;
-  text-align: left;
+td {
+  font-size: 12.5px;
+  padding: 10px 12px;
+  border-bottom: 1px solid #f0f0f0;
+  text-align: center;
+}
+
+tbody tr {
+  height: 44px;
+}
+
+tbody tr:nth-child(even) {
+  background: #fafafa;
+}
+
+tbody tr:hover {
+  background: #f3f6ff;
+}
+
+/* USER / JOB */
+.cell-user,
+.cell-job {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.name {
+  font-weight: 500;
 }
 
 .sub {
+  font-size: 11.5px;
+  color: #6b7280;
+}
+
+/* STATUS */
+.status-pill {
+  padding: 0 10px;
+  height: 22px;
+  border-radius: 999px;
+  font-size: 11.5px;
+  color: #fff;
+}
+
+.status-new {
+  background: #3b82f6;
+}
+.status-approved {
+  background: #15803d;
+}
+.status-reject {
+  background: #dc2626;
+}
+.status-archived {
+  background: #4b5563;
+}
+
+/* ===============================
+   ACTION COLUMN
+================================ */
+.action-col {
+  position: relative;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 4px;
+}
+
+/* ICON TRÊN DÒNG */
+.action-icon {
+  width: 26px;
+  height: 26px;
+  border-radius: 6px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+
+.action-icon .material-symbols-outlined {
+  font-size: 20px;
+  font-variation-settings: "FILL" 0, "wght" 400, "GRAD" 0, "opsz" 22;
+}
+
+.action-icon.view {
+  color: #2563eb;
+}
+.action-icon.view:hover {
+  background: #e0e7ff;
+}
+
+.action-icon.more {
+  color: #6b7280;
+}
+.action-icon.more:hover {
+  background: #f3f4f6;
+}
+
+/* ===== FORM / TOOLBAR CONTAINER ===== */
+.action-toolbar {
+  position: absolute;
+  top: -52px;
+  right: 0;
+  background: #ffffff;
+  padding: 10px 14px;
+  border-radius: 14px;
+  display: flex;
+  gap: 16px;
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.12), 0 4px 10px rgba(0, 0, 0, 0.06);
+  z-index: 20;
+}
+
+/* ===== ICON ITEM ===== */
+.tool-item {
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+
+/* ===== SVG ICON ===== */
+.tool-item svg {
+  width: 22px;
+  height: 22px;
+  stroke: #7b8594;
+  stroke-width: 1.8;
+  fill: none;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+/* icon đậm hơn (download) */
+.tool-item.bold svg {
+  stroke-width: 2.2;
+  stroke: #111827;
+}
+
+/* hover giống ảnh */
+.tool-item:hover {
+  background: #f1f3f6;
+}
+
+/* ===== ADD CV DROPDOWN ===== */
+.add-cv-wrapper {
+  position: relative;
+}
+
+.add-cv-menu {
+  position: absolute;
+  top: 38px;
+  right: 0;
+  width: 280px;
+  background: #fff;
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+  overflow: hidden;
+  z-index: 50;
+}
+
+.menu-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 14px;
+  font-size: 14px;
+  cursor: pointer;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.menu-item:last-child {
+  border-bottom: none;
+}
+
+.menu-item:hover {
+  background: #f3f4f6;
+}
+
+/* ===== ICON ===== */
+.menu-icon {
+  width: 22px;
+  height: 22px;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 600;
+  font-size: 14px;
+}
+
+/* icon giả lập giống ảnh */
+.menu-icon.pdf {
+  border: 2px solid #111;
+}
+
+.menu-icon.excel {
+  border: 2px solid #15803d;
+  color: #15803d;
+}
+
+.menu-icon.form {
+  border: 2px solid #374151;
+}
+
+/* ===== DROPDOWN ===== */
+.add-cv-menu {
+  width: 340px;
+  background: #fff;
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+/* ITEM */
+.menu-item {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 14px 16px;
+  font-size: 15px;
+  font-weight: 500;
+  border-bottom: 1px solid #e5e7eb;
+  cursor: pointer;
+}
+
+.menu-item:last-child {
+  border-bottom: none;
+}
+
+.menu-item:hover {
+  background: #f9fafb;
+}
+
+/* ===== ICON WRAPPER (QUAN TRỌNG) ===== */
+.menu-icon {
+  width: 28px;
+  height: 28px;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* ===== SVG CHUẨN ẢNH ===== */
+.menu-icon svg {
+  width: 24px;
+  height: 24px;
+  stroke: #111827;
+  stroke-width: 1.8;
+  fill: none;
+  stroke-linecap: square;
+  stroke-linejoin: miter;
+}
+
+/* EXCEL MÀU XANH */
+.menu-icon.excel svg {
+  stroke: #15803d;
+}
+
+/* ===============================
+   ASSIGN JOB BAR
+================================ */
+.assign-bar {
+  position: fixed;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 100;
+  width: 100%;
+  display: flex;
+  justify-content: center;
+}
+
+/* BAR CONTENT */
+.assign-content {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+  transform: translateX(calc(30% - 100px));
+
+  /* 👇 DÀI RA */
+  min-width: 460px;
+  padding: 14px 22px;
+
+  background: #ecfeff;
+  border-radius: 12px;
+
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.16), 0 2px 6px rgba(0, 0, 0, 0.08);
+}
+
+/* LEFT */
+.assign-left {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 14px;
+  font-weight: 500;
+  color: #0f172a;
+}
+
+/* BUTTON */
+.assign-btn {
+  height: 34px;
+  padding: 0 18px;
+  font-size: 13.5px;
+  border-radius: 8px;
+  border: none;
+  background: #2563eb;
+  color: #fff;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.assign-btn:hover {
+  background: #1d4ed8;
+}
+
+/* ===============================
+   MODAL BACKDROP
+================================ */
+.modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.35);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 200;
+}
+
+/* ===============================
+   MODAL
+================================ */
+.modal-mask {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.35);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 200;
+}
+
+.modal {
+  width: 460px;
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.25);
+  overflow: hidden;
+}
+
+.modal-header {
+  padding: 14px 18px;
+  display: flex;
+  justify-content: space-between;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.modal-header h3 {
+  margin: 0;
+  font-size: 16px;
+}
+
+.close {
+  cursor: pointer;
+  font-size: 18px;
+}
+
+/* SECTION */
+.modal-section {
+  padding: 14px 18px;
+}
+
+.section-title {
+  font-size: 13px;
+  font-weight: 600;
+  margin-bottom: 8px;
+}
+
+/* ===== CV LIST (MAX 4 ITEM) ===== */
+.cv-list {
+  max-height: 180px; /* ~4 items */
+  overflow-y: auto;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+}
+
+.cv-item {
+  padding: 8px 10px;
+  border-bottom: 1px solid #f1f5f9;
+}
+
+.cv-item:last-child {
+  border-bottom: none;
+}
+
+.cv-name {
+  font-weight: 500;
+  font-size: 13px;
+}
+
+.cv-email {
   font-size: 12px;
   color: #6b7280;
 }
 
-.status {
-  padding: 6px 14px;
-  border-radius: 999px;
-  font-size: 13px;
-  color: #fff;
+/* ===== JOB SELECT ===== */
+.job-select {
+  width: 100%;
 }
 
-.Mới {
-  background: #3b82f6;
-}
-.Duyệt {
-  background: #15803d;
-}
-.Không\ đạt {
-  background: #dc2626;
-}
-.Lưu\ trữ {
-  background: #4b5563;
+/* INPUT */
+.job-input {
+  position: relative;
 }
 
-.pagination {
+.job-input input {
+  width: 100%;
+  height: 38px;
+  padding: 0 36px 0 12px;
+  border-radius: 8px;
+  border: 1px solid #d1d5db;
+  font-size: 13.5px;
+  box-sizing: border-box; /* QUAN TRỌNG */
+}
+
+.job-input .arrow {
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 12px;
+  color: #6b7280;
+  pointer-events: none;
+}
+
+/* DROPDOWN – KHÔNG ABSOLUTE */
+.job-dropdown {
+  margin-top: 6px;
+  width: 100%;
+  max-height: 160px;
+  overflow-y: auto;
+
+  background: #fff;
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+}
+
+/* ITEM */
+.job-item {
+  padding: 10px 12px;
+  font-size: 13.5px;
+  cursor: pointer;
+}
+
+.job-item:hover {
+  background: #f1f5f9;
+}
+
+/* FOOTER */
+.modal-footer {
+  padding: 12px 18px;
   display: flex;
   justify-content: flex-end;
-  gap: 6px;
-  padding: 12px;
+  gap: 10px;
+  border-top: 1px solid #e5e7eb;
 }
 
-.pagination button {
-  width: 32px;
-  height: 32px;
+.btn-cancel {
+  padding: 6px 14px;
   border-radius: 6px;
-  border: 1px solid #ddd;
+  border: 1px solid #d1d5db;
   background: #fff;
 }
 
-.pagination .active {
-  background: #2563eb;
-  color: #fff;
+/* ===============================
+   TOAST SUCCESS
+================================ */
+.toast-success {
+  position: fixed;
+  top: 80px; /* ngay dưới header */
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 2000;
+
+  background: #ffffff;
+  border-radius: 10px;
+  padding: 12px 20px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.18);
+
+  animation: slideDown 0.25s ease;
+}
+
+.toast-content {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.toast-icon {
+  color: #16a34a;
+  font-size: 18px;
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translate(-50%, -10px);
+  }
+  to {
+    opacity: 1;
+    transform: translate(-50%, 0);
+  }
 }

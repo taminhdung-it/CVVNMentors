@@ -1,33 +1,75 @@
 <div class="cv-page">
-
   <div class="header">
     <h2>Danh sách CV</h2>
-    <button class="btn-primary">Thêm CV ▾</button>
+    <div class="add-cv-wrapper">
+      <button class="btn-primary" (click)="toggleAddMenu()">Thêm CV ▾</button>
+
+      <div class="add-cv-menu" *ngIf="showAddMenu">
+        <div class="menu-item" (click)="addCvWithFile()">
+          <span class="menu-icon">
+            <!-- PDF / DOCX -->
+            <svg viewBox="0 0 24 24">
+              <rect x="3" y="3" width="18" height="18" rx="2"></rect>
+              <path d="M12 7v10"></path>
+              <path d="M7 12h10"></path>
+            </svg>
+          </span>
+          <span>Thêm CV bằng pdf, docx</span>
+        </div>
+
+        <div class="menu-item" (click)="importExcel()">
+          <span class="menu-icon excel">
+            <!-- EXCEL -->
+            <svg viewBox="0 0 24 24">
+              <rect x="3" y="3" width="18" height="18" rx="2"></rect>
+              <path d="M8 8l8 8"></path>
+              <path d="M16 8l-8 8"></path>
+            </svg>
+          </span>
+          <span>Import Excel</span>
+        </div>
+
+        <div class="menu-item" (click)="addCvNoFile()">
+          <span class="menu-icon">
+            <!-- FORM -->
+            <svg viewBox="0 0 24 24">
+              <rect x="3" y="3" width="18" height="18" rx="2"></rect>
+              <path d="M8 8h8"></path>
+              <path d="M8 12h8"></path>
+              <path d="M8 16h8"></path>
+            </svg>
+          </span>
+          <span>Thêm CV nhưng không có CV</span>
+        </div>
+      </div>
+    </div>
   </div>
 
   <!-- FILTER -->
   <div class="filter-box">
-    <input type="date" class="input" />
-
-    <select class="input" [(ngModel)]="cvType" (change)="applyFilter()">
-      <option value="">Loại hồ sơ</option>
-      <option>Có CV</option>
-      <option>Không CV</option>
-    </select>
-
-    <select class="input" [(ngModel)]="status" (change)="applyFilter()">
-      <option value="">Trạng thái</option>
-      <option>Mới</option>
-      <option>Duyệt</option>
-      <option>Không đạt</option>
-      <option>Lưu trữ</option>
-    </select>
-
-    <a class="clear" (click)="clearFilter()">Xóa bộ lọc</a>
+    <div class="filter-row">
+      <input type="date" class="input" [(ngModel)]="date" />
+      <select class="input" [(ngModel)]="cvType" (change)="applyFilter()">
+        <option value="">Loại hồ sơ</option>
+        <option>Có CV</option>
+        <option>Không CV</option>
+      </select>
+      <select class="input" [(ngModel)]="status" (change)="applyFilter()">
+        <option value="">Trạng thái</option>
+        <option>Mới</option>
+        <option>Duyệt</option>
+        <option>Không đạt</option>
+        <option>Lưu trữ</option>
+      </select>
+      <select class="input">
+        <option value="">Job đã gán</option>
+      </select>
+      <span class="clear" (click)="clearFilter()">Xóa bộ lọc</span>
+    </div>
 
     <input
       class="input search"
-      placeholder="Tìm theo SDT, Tên, Email..."
+      placeholder="🔍 Tìm theo SDT, Tên, Email..."
       [(ngModel)]="keyword"
       (input)="applyFilter()"
     />
@@ -38,62 +80,186 @@
     <table>
       <thead>
         <tr>
-          <th><input type="checkbox" /></th>
+          <th><input type="checkbox" (change)="toggleAll($event)" /></th>
           <th>Họ và tên / Liên hệ</th>
           <th>Loại hồ sơ</th>
           <th>Trạng thái</th>
           <th>Job đã gán</th>
           <th>Ngày cập nhật</th>
-          <th>SĐT</th>
+          <th>Số điện thoại</th>
           <th>Hành động</th>
         </tr>
       </thead>
 
       <tbody>
         <tr *ngFor="let cv of pagedData">
-          <td><input type="checkbox" /></td>
+          <td><input type="checkbox" [(ngModel)]="cv.checked" /></td>
 
-          <td>
-            <b>{{ cv.fullName }}</b>
+          <td class="cell-user">
+            <div class="name">{{ cv.fullName }}</div>
             <div class="sub">{{ cv.email }}</div>
           </td>
 
           <td>{{ cv.cvType }}</td>
 
-          <td>
-            <span class="status" [class]="cv.status">{{ cv.status }}</span>
+          <td class="status-col">
+            <span class="status-pill" [ngClass]="getStatusClass(cv.status)">
+              {{ cv.status }}
+            </span>
           </td>
 
-          <td>
-            <div *ngIf="cv.job">
-              <b>{{ cv.job }}</b>
-              <div class="sub">{{ cv.department }}</div>
-            </div>
-            <span *ngIf="!cv.job">-</span>
+          <td class="cell-job">
+            <strong>{{ cv.job }}</strong>
+            <div class="sub">Phòng IT</div>
           </td>
 
           <td>{{ cv.updatedAt }}</td>
           <td>{{ cv.phone }}</td>
 
-          <td>
-            👁️ ⋮
+          <td class="action-col" (click)="$event.stopPropagation()">
+            <!-- xem -->
+            <span class="action-icon view" (click)="view(cv)">
+              <span class="material-symbols-outlined">visibility</span>
+            </span>
+
+            <!-- 3 chấm -->
+            <span class="action-icon more" (click)="toggleAction(cv)">
+              <span class="material-symbols-outlined">more_vert</span>
+            </span>
+
+            <div class="action-toolbar" *ngIf="openActionId === cv.id">
+              <!-- DUYỆT -->
+              <span
+                class="tool-item"
+                title="Duyệt"
+                (click)="setStatus(cv, 'Duyệt')"
+              >
+                <svg viewBox="0 0 24 24">
+                  <rect x="3" y="3" width="18" height="18" rx="3" />
+                  <path d="M8 12l3 3 5-6" />
+                </svg>
+              </span>
+
+              <!-- DUYỆT LẠI -->
+              <span
+                class="tool-item"
+                title="Duyệt lại"
+                (click)="setStatus(cv, 'Mới')"
+              >
+                <svg viewBox="0 0 24 24">
+                  <path d="M12 5a7 7 0 1 1-6.5 4" />
+                  <polyline points="6 5 3 5 3 8" />
+                </svg>
+              </span>
+
+              <!-- KHÔNG ĐẠT -->
+              <span
+                class="tool-item"
+                title="Không đạt"
+                (click)="setStatus(cv, 'Không đạt')"
+              >
+                <svg viewBox="0 0 24 24">
+                  <line x1="5" y1="5" x2="19" y2="19" />
+                  <line x1="19" y1="5" x2="5" y2="19" />
+                </svg>
+              </span>
+
+              <!-- LƯU TRỮ -->
+              <span
+                class="tool-item bold"
+                title="Lưu trữ"
+                (click)="setStatus(cv, 'Lưu trữ')"
+              >
+                <svg viewBox="0 0 24 24">
+                  <path d="M12 4v10" />
+                  <polyline points="8 10 12 14 16 10" />
+                  <rect x="4" y="18" width="16" height="2" />
+                </svg>
+              </span>
+            </div>
           </td>
         </tr>
       </tbody>
     </table>
+  </div>
+  <!-- ASSIGN JOB BAR -->
+  <div class="assign-bar" *ngIf="selectedCount > 0">
+    <div class="assign-content">
+      <div class="assign-left">
+        <input type="checkbox" checked />
+        <span>{{ selectedCount }} CV đã chọn</span>
+      </div>
 
-    <!-- PAGINATION -->
-    <div class="pagination">
-      <button (click)="page=page-1" [disabled]="page===1">&lt;</button>
-
-      <button
-        *ngFor="let p of pages()"
-        [class.active]="p===page"
-        (click)="page=p">
-        {{ p }}
-      </button>
-
-      <button (click)="page=page+1" [disabled]="page===totalPages">&gt;</button>
+      <button class="assign-btn" (click)="openAssignModal()">▾ Gán Job</button>
     </div>
+  </div>
+  <!-- ASSIGN JOB MODAL -->
+  <div class="modal-mask" *ngIf="showAssignModal">
+    <div class="modal">
+      <div class="modal-header">
+        <h3>Gán CV vào job</h3>
+        <span class="close" (click)="closeAssignModal()">✕</span>
+      </div>
+
+      <!-- CV ĐÃ CHỌN -->
+      <div class="modal-section">
+        <div class="section-title">CV đã chọn ({{ selectedCVs.length }})</div>
+
+        <div class="cv-list">
+          <div class="cv-item" *ngFor="let cv of selectedCVs">
+            <div class="cv-name">{{ cv.fullName }}</div>
+            <div class="cv-email">{{ cv.email }}</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- CHỌN JOB -->
+      <div class="modal-section">
+        <div class="section-title">Chọn Job</div>
+
+        <div class="job-select">
+          <!-- INPUT -->
+          <div class="job-input">
+            <input
+              type="text"
+              placeholder="Tìm Job theo tên"
+              [(ngModel)]="jobKeyword"
+              (focus)="showJobDropdown = true"
+              (input)="showJobDropdown = true"
+            />
+            <span class="arrow">▾</span>
+          </div>
+
+          <!-- DROPDOWN NẰM TRONG FLOW -->
+          <div class="job-dropdown" *ngIf="showJobDropdown">
+            <div
+              class="job-item"
+              *ngFor="let job of filteredJobs()"
+              (click)="selectJob(job)"
+            >
+              {{ job }}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- FOOTER -->
+      <div class="modal-footer">
+        <button class="btn-cancel" (click)="closeAssignModal()">Hủy</button>
+        <button class="btn-primary" (click)="confirmAssignJob()">
+          Gán Job
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+<!-- TOAST THÔNG BÁO GÁN JOB -->
+<div class="toast-success" *ngIf="showAssignToast">
+  <div class="toast-content">
+    <span class="toast-icon">✔</span>
+    <span>
+      {{ assignedCount }} CV đã được thêm vào Job
+      <strong>"{{ assignedJob }}"</strong>
+    </span>
   </div>
 </div>
