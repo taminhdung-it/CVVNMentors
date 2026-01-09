@@ -26,6 +26,7 @@ export class CvEntity {
   level: string;
   status: CvStatus;
   cvFileUrl: string;
+  publicId?: string | null;
   createdAt: Date;
   updatedAt: Date;
   skills: string[];
@@ -45,6 +46,7 @@ export class CvEntity {
     this.position = this.position || 'Unknown';
     this.level = this.level || 'Unknown';
     this.cvFileUrl = this.cvFileUrl || '';
+    this.publicId = this.publicId || null;
     this.experience = this.experience || [];
   }
 
@@ -59,13 +61,13 @@ export class CvEntity {
       level: this.level,
       status: this.status,
       cvFileUrl: this.cvFileUrl,
+      publicId: this.publicId,
       createdAt: this.createdAt,
       updatedAt: this.updatedAt,
       skills: this.skills,
       education: this.education,
       experienceYears: this.experienceYears || 0,
 
-      // --- MỚI THÊM: Lưu mảng object ---
       experience: this.experience.map(exp => ({
         title: exp.title ?? null,
         dates: exp.dates ?? null,

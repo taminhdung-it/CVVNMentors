@@ -1,16 +1,13 @@
 import {
   IsArray,
-  isEmail,
   IsEmail,
-  IsEnum,
-  IsNotEmpty,
   IsNumber,
   IsOptional,
   IsPhoneNumber,
   IsString,
   ValidateNested,
 } from 'class-validator';
-import { Type } from 'class-transformer';
+import { plainToInstance, Transform, Type } from 'class-transformer';
 
 import { ExperienceDto } from './experience.dto';
 
@@ -20,16 +17,12 @@ export class UpdateCvDto {
   fullName?: string;
   @IsOptional()
   @IsString()
-  cvType?: string;
-
-  @IsOptional()
-  @IsString()
   @IsEmail()
   email?: string;
 
   @IsOptional()
   @IsString()
-  @IsPhoneNumber("VN")
+  @IsPhoneNumber('VN')
   phone?: string;
   @IsOptional()
   @IsString()
@@ -38,21 +31,46 @@ export class UpdateCvDto {
   @IsString()
   level?: string;
   @IsOptional()
-  @IsString()
-  cvFileUrl?: string;
-  @IsOptional()
   @IsArray()
+  @Transform(({ value }) => {
+    if (Array.isArray(value)) return value;
+    if (typeof value === 'string') {
+      try { return JSON.parse(value); } catch(e) {}
+      return value.includes(',') ? value.split(',').map(s => s.trim()) : [value];
+    }
+    return value;
+  })
   skills?: string[];
   @IsOptional()
   @IsArray()
+  @Transform(({ value }) => {
+    if (Array.isArray(value)) return value;
+    if (typeof value === 'string') {
+      try { return JSON.parse(value); } catch(e) {}
+      return value.includes(',') ? value.split(',').map(s => s.trim()) : [value];
+    }
+    return value;
+  })
   education?: string[];
   @IsOptional()
   @IsNumber()
+  @Type(() => Number)
   experienceYears?: number;
 
   @IsOptional()
   @IsArray()
-  @ValidateNested({ each: true }) // Validate từng phần tử trong mảng
-  @Type(() => ExperienceDto)      // Chuyển đổi JSON object thành instance ExperienceDto
+  @ValidateNested({ each: true })
+  @Type(() => ExperienceDto)
+  @Transform(({ value }) => {
+    if (typeof value === 'string') {
+      try {
+        const parsed = JSON.parse(value);
+        return plainToInstance(ExperienceDto, parsed);
+      } catch (error) {
+        return [];
+      }
+    }
+    return plainToInstance(ExperienceDto, value);
+  })
   experience?: ExperienceDto[];
 }

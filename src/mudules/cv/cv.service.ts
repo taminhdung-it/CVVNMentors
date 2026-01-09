@@ -30,12 +30,14 @@ import {
   ApplicationEntity,
   ApplicationStatus,
 } from '../../entities/application.entity';
+import { CloudinaryService } from '../../cloudinary/cloudinary.service';
 import { instanceToPlain } from 'class-transformer';
 import { firestore } from 'firebase-admin';
 import { error } from 'console';
 
 @Injectable()
 export class CvService {
+  private readonly logger = new Logger(CvService.name);
   private readonly cvCollection = CV_COLLECTION_NAME;
   private readonly jobCollection = JOB_COLLECTION_NAME;
   private readonly applicationCollection = APPLICATION_COLLECTION_NAME;
@@ -44,6 +46,7 @@ export class CvService {
     private readonly httpService: HttpService,
     private readonly configService: ConfigService,
     private readonly firebaseService: FirebaseService,
+    private readonly cloudinaryService: CloudinaryService,
   ) {
     this.firebaseService.firestore.settings({
       ignoreUndefinedProperties: true,
@@ -57,65 +60,6 @@ export class CvService {
     if (!files || files.length === 0)
       throw new Error('Không có file nào được cung cấp');
 
-    const parseResults = await Promise.allSettled(
-      files.map((file) => this.parseSingleFile(file)),
-    );
-
-    // 2. Check trùng & Prepare Data
-    const processedResults = await Promise.all(
-      parseResults.map(async (result, index) => {
-        const fileName = files[index].originalname;
-        if (result.status === 'rejected') {
-          return { fileName, success: false, error: result.reason.message };
-        }
-
-        const rawData = result.value;
-        const duplicateInfo = await this.checkDuplicate(
-          rawData.email,
-          rawData.phone,
-        );
-        const rawExperience = Array.isArray(rawData.experience)
-          ? rawData.experience
-          : [];
-
-        // Map và chuẩn hóa dữ liệu experience
-        const mappedExperience = rawExperience.map((exp: any) => ({
-          title: exp.title || exp.jobTitle || null, // Thử map nhiều key khác nhau
-          location: exp.location || exp.place || null,
-          organization:
-            exp.organization || exp.company || exp.companyName || null,
-          // GỌI HÀM HELPER ĐỂ XỬ LÝ DATE
-          dates: this.normalizeDate(exp.dates || exp.date),
-        }));
-
-        // Map sang Entity chuẩn DB ngay tại đây
-        const cvEntity = new CvEntity({
-          createdBy: userId,
-          cvType: 'Parsed Resume',
-          fullName: rawData.fullName,
-          email: rawData.email,
-          phone: rawData.phone,
-          position: rawData.position || 'N/A',
-          level: rawData.level || 'N/A',
-          cvFileUrl: files[index].originalname,
-          skills: rawData.skills,
-          education: rawData.education,
-          experienceYears: rawData.experienceYears,
-          status: CvStatus.NEW,
-          experience: mappedExperience || [],
-        });
-
-        return {
-          fileName,
-          success: true,
-          data: cvEntity, // Đã là object chuẩn
-          duplicateInfo,
-        };
-      }),
-    );
-
-    // 3. Batch Write
-    const batch = this.firebaseService.firestore.batch();
     const summary: {
       total: number;
       success: number;
@@ -134,40 +78,102 @@ export class CvService {
       failed: 0,
       details: [],
     };
-    processedResults.forEach((result) => {
-      if (result.success && result.data) {
-        const cvData = result.data;
 
-        // Tạo docRef
-        const docRef = this.firebaseService.firestore
-          .collection(this.cvCollection)
-          .doc();
+    // BATCH PROCESSING
+    const batch = this.firebaseService.firestore.batch();
+    let hasValidDataToSave = false;
 
-        batch.set(docRef, cvData.toFirestore());
+    await Promise.all(
+      files.map(async (file) => {
+        const fileName = file.originalname;
+        try {
+          //Parse AI
+          // Nếu parse thất bại, nó sẽ throw Error và nhảy xuống catch -> Không upload
+          const rawData = await this.parseSingleFile(file);
 
-        summary.success++;
-        summary.details.push({
-          fileName: result.fileName,
-          status: 'SUCCESS',
-          id: docRef.id,
-          warning: result.duplicateInfo
-            ? `Trùng lặp: ${result.duplicateInfo}`
-            : null,
-        });
-      } else {
-        summary.failed++;
-        summary.details.push({
-          fileName: result.fileName,
-          status: 'FAILED',
-          error: result.error,
-        });
-      }
-    });
+          //Check trùng lặp
+          const duplicateInfo = await this.checkDuplicate(
+            rawData.email,
+            rawData.phone,
+          );
 
-    if (summary.success > 0) await batch.commit();
+          // Upload Cloudinary (Chỉ chạy khi Parse thành công)
+          let uploadResult;
+          try {
+            uploadResult = await this.cloudinaryService.uploadFile(file, 'CV');
+          } catch (uploadError) {
+            // Upload thất bại -> Không lưu DB -> Throw error để nhảy xuống catch ngoài cùng
+            throw new Error(
+              `Upload Cloudinary thất bại: ${uploadError.message}`,
+            );
+          }
+
+          // BƯỚC 4: Map Entity & Chuẩn bị lưu DB
+          // Chỉ chạy tới đây khi Upload thành công
+          const rawExperience = Array.isArray(rawData.experience)
+            ? rawData.experience
+            : [];
+
+          const mappedExperience = rawExperience.map((exp: any) => ({
+            title: exp.title || exp.jobTitle || null,
+            location: exp.location || exp.place || null,
+            organization:
+              exp.organization || exp.company || exp.companyName || null,
+            dates: this.normalizeDate(exp.dates || exp.date),
+          }));
+
+          const cvEntity = new CvEntity({
+            createdBy: userId,
+            cvType: 'Parsed Resume',
+            fullName: rawData.fullName,
+            email: rawData.email,
+            phone: rawData.phone,
+            position: rawData.position || 'N/A',
+            level: rawData.level || 'N/A',
+            cvFileUrl: uploadResult.secure_url, // URL từ Cloudinary
+            publicId: uploadResult.public_id, // Public ID để xóa sau này
+            skills: rawData.skills,
+            education: rawData.education,
+            experienceYears: rawData.experienceYears,
+            status: CvStatus.NEW,
+            experience: mappedExperience || [],
+          });
+
+          // Thêm vào batch
+          const docRef = this.firebaseService.firestore
+            .collection(this.cvCollection)
+            .doc();
+          batch.set(docRef, cvEntity.toFirestore());
+
+          hasValidDataToSave = true;
+          summary.success++;
+          summary.details.push({
+            fileName,
+            status: 'SUCCESS',
+            id: docRef.id,
+            data: cvEntity,
+            warning: duplicateInfo ? `Trùng lặp: ${duplicateInfo}` : null,
+          });
+        } catch (error) {
+          // Xử lý lỗi (Parse lỗi hoặc Upload lỗi)
+          summary.failed++;
+          summary.details.push({
+            fileName,
+            status: 'FAILED',
+            error: error.message || 'Unknown Error',
+          });
+          this.logger.error(`Failed processing ${fileName}: ${error.message}`);
+        }
+      }),
+    );
+
+    // BƯỚC 5: Commit Batch (Chỉ lưu những CV thành công trọn vẹn)
+    if (hasValidDataToSave) {
+      await batch.commit();
+    }
+
     return summary;
   }
-
   //lấy dữ liệu trả về từ AI
   private async parseSingleFile(
     file: Express.Multer.File,
@@ -201,7 +207,8 @@ export class CvService {
       };
     } catch (error) {
       const msg = error.response?.data?.message || error.message;
-      throw new Error(msg);
+      console.log(error);
+      throw new Error(`Có lỗi xảy ra khi đọc file: ${msg}`);
     }
   }
 
@@ -236,20 +243,47 @@ export class CvService {
     return isDup ? `Email hoặc SĐT đã tồn tại` : null;
   }
 
-  async create(createCvDto: CreateCvDto, userId: string) {
+  async create(
+    createCvDto: CreateCvDto,
+    userId: string,
+    file?: Express.Multer.File,
+  ) {
+    // 1. Check trùng lặp
     const dup = await this.checkDuplicate(createCvDto.email, createCvDto.phone);
     if (dup) throw new BadRequestException(dup);
 
+    let cvFileUrl = '';
+    let publicId = null;
+
+    if (file) {
+      try {
+        const uploadResult = await this.cloudinaryService.uploadFile(
+          file,
+          'CV',
+        );
+        cvFileUrl = uploadResult.secure_url;
+        publicId = uploadResult.public_id;
+      } catch (error) {
+        throw new BadRequestException(`Upload file thất bại: ${error.message}`);
+      }
+    }
+
+    // 3. Tạo Entity với thông tin file
     const newCv = new CvEntity({
       ...createCvDto,
       createdBy: userId,
       status: CvStatus.NEW,
+      cvFileUrl: cvFileUrl, // Lưu URL
+      publicId: publicId, // Lưu Public ID để xóa sau này
     });
 
+    // 4. Lưu xuống Firestore
     const docRef = await this.firebaseService.firestore
       .collection(this.cvCollection)
       .add(newCv.toFirestore());
-    return { id: docRef.id, ...newCv };
+
+    newCv.id = docRef.id;
+    return { ...newCv };
   }
 
   async findAll(filter: PaginationDto) {
@@ -299,8 +333,9 @@ export class CvService {
     const doc = await docRef.get();
     if (!doc.exists) throw new NotFoundException('Không tìm thấy cv');
 
+    const updateData = instanceToPlain(updateCvDto);
     await docRef.update({
-      ...updateCvDto,
+      ...updateData,
       updatedAt: new Date(),
     });
     return { id, message: 'Cập nhật thành công' };
@@ -338,13 +373,13 @@ export class CvService {
 
     // Sheet → JSON
     const data = XLSX.utils.sheet_to_json(sheet) as Record<string, any>[];
-    const list_cv = data.map(row => ({
+    const list_cv=data.map(row=>({
       id: row.full_name,
-      data: row
+      data:row 
     }))
     return {
       sheetName,
-      list_cv
+      list_cv,
     };
   }
 

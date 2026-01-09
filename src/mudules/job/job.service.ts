@@ -1,4 +1,9 @@
-import {BadRequestException, Injectable, NotFoundException,} from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  Logger,
+  NotFoundException,
+} from '@nestjs/common';
 import {CreateJobDto} from './dto/create-job.dto';
 import {JOB_COLLECTION_NAME, JobEntity, JobStatus,} from '../../entities/job.entity';
 import {DEPARTMENT_COLLECTION_NAME} from '../../entities/department.entity';
@@ -7,23 +12,49 @@ import {SearchJobDto} from './dto/search-job.dto';
 import {CloseJobDto} from './dto/close-job.dto';
 import {FirebaseService} from '../../firebase/firebase.service';
 import { UpdateJobDto } from './dto/update-job.dto';
+import { CloudinaryService } from '../../cloudinary/cloudinary.service';
 
 @Injectable()
 export class JobService {
   private readonly jobCollection = JOB_COLLECTION_NAME;
   private readonly deptCollection = DEPARTMENT_COLLECTION_NAME;
-  constructor(private readonly firebaseService: FirebaseService) {}
+  private readonly logger = new Logger(JobService.name);
 
-  async create(dto: CreateJobDto, userId: string) {
+  private readonly cloudinaryFolderName = "Job";
+
+  constructor(private readonly firebaseService: FirebaseService, private readonly cloudinaryService: CloudinaryService,) {}
+
+  async create(dto: CreateJobDto, userId: string, file?: Express.Multer.File) {
+    // 1. Validate phòng ban
     const deptDoc = await this.firebaseService.firestore.collection(this.deptCollection).doc(dto.departmentId).get();
     if (!deptDoc.exists) {
       throw new NotFoundException('Không tìm thấy phòng ban');
     }
-    // Validate: Ngày start < End
+
+    // 2. Validate ngày tháng
     if (new Date(dto.applyStart) >= new Date(dto.applyEnd)) {
       throw new BadRequestException('Ngày bắt đầu phải trước ngày kết thúc.');
     }
 
+    // 3. Xử lý Upload file (Soft Failure Logic)
+    let jdFileUrl;
+    let publicId;
+    let uploadWarning;
+
+    if (file) {
+      try {
+        // Upload vào folder 'job_jds'
+        const uploadResult = await this.cloudinaryService.uploadFile(file, this.cloudinaryFolderName);
+        jdFileUrl = uploadResult.secure_url;
+        publicId = uploadResult.public_id;
+      } catch (error) {
+        this.logger.error(`Upload JD thất bại: ${error.message}`);
+        // Không throw lỗi chặn, chỉ ghi nhận cảnh báo để trả về FE
+        uploadWarning = 'Tạo Job thành công nhưng upload file JD thất bại. Vui lòng cập nhật lại file sau.';
+      }
+    }
+
+    // 4. Tạo Entity
     const newJob = new JobEntity({
       departmentId: dto.departmentId,
       name: dto.name,
@@ -33,13 +64,20 @@ export class JobService {
       applyStart: new Date(dto.applyStart),
       applyEnd: new Date(dto.applyEnd),
       createdBy: userId,
-      status: JobStatus.OPEN
+      status: JobStatus.OPEN,
+      jdFileUrl: jdFileUrl,       // Lưu URL (hoặc null nếu lỗi/không có file)
+      publicId: publicId, // Lưu PublicID (hoặc null)
     });
 
+    // 5. Lưu xuống DB
     const docRef = await this.firebaseService.firestore.collection(this.jobCollection).add(newJob.toFirestore());
-    return { id: docRef.id, ...newJob };
-  }
 
+    return {
+      id: docRef.id,
+      ...newJob,
+      warning: uploadWarning // Trả về cảnh báo nếu có
+    };
+  }
   async findAll(pagination: PaginationDto) {
     const { page = 1, limit = 10} = pagination;
     const offset = (page - 1) * limit;
@@ -108,7 +146,7 @@ export class JobService {
     return JobEntity.fromFirestore(doc);
   }
 
-  async update(id: string, dto: UpdateJobDto) {
+  async update(id: string, dto: UpdateJobDto, file?: Express.Multer.File) {
     const docRef = this.firebaseService.firestore.collection(this.jobCollection).doc(id);
     const doc = await docRef.get();
     if (!doc.exists) throw new NotFoundException('Không tìm thấy job');
@@ -120,10 +158,44 @@ export class JobService {
     }
 
     const updates: any = { ...dto, updatedAt: new Date() };
-    if(dto.applyEnd) updates.applyEnd = new Date(dto.applyEnd);
+    if (dto.applyEnd) updates.applyEnd = new Date(dto.applyEnd);
+
+    // Xử lý File Upload (Nếu có file mới gửi lên)
+    let uploadWarning: any = null;
+
+    if (file) {
+      try {
+        // 1. Upload file mới trước
+        const uploadResult = await this.cloudinaryService.uploadFile(file, this.cloudinaryFolderName);
+
+        // 2. Nếu upload thành công, cập nhật URL và ID vào biến updates
+        updates.jdUrl = uploadResult.secure_url;
+        updates.publicId = uploadResult.public_id;
+
+        // 3. Xóa file cũ (nếu tồn tại)
+        if (jobData.publicId) {
+          try {
+            await this.cloudinaryService.deleteFile(jobData.publicId);
+          } catch (deleteErr) {
+            this.logger.warn(`Xóa file JD cũ thất bại: ${deleteErr.message} - Ignored`);
+            // Không throw lỗi ở đây để đảm bảo luồng update tiếp tục
+          }
+        }
+
+      } catch (error) {
+        this.logger.error(`Cập nhật file JD thất bại: ${error.message}`);
+        // Soft Failure: Báo lỗi nhưng vẫn tiếp tục update các trường text khác
+        uploadWarning = 'Cập nhật thông tin thành công nhưng upload file JD mới thất bại. File cũ (nếu có) vẫn được giữ nguyên.';
+      }
+    }
 
     await docRef.update(updates);
-    return { id, message: 'Cập nhật Job thành công' };
+
+    return {
+      id,
+      message: 'Cập nhật Job thành công',
+      warning: uploadWarning // Trả về cảnh báo FE hiển thị
+    };
   }
 
   async closeJob(id: string, dto: CloseJobDto) {
