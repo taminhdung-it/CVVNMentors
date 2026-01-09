@@ -9,9 +9,9 @@ export const FirebaseProvider = {
       return admin.app();
     }
 
-    const projectId = config.get('firebase_project_id');
-    const clientEmail = config.get('firebase_client_email');
-    let privateKey = config.get('firebase_private_key');
+    const projectId = config.get<string>('database.firebase_project_id');
+    const clientEmail = config.get<string>('database.firebase_client_email');
+    let privateKey = config.get<string>('database.firebase_private_key');
 
     // Convert \n thành newline thật
     privateKey = privateKey?.replace(/\\n/g, '\n');
