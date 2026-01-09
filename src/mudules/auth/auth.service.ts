@@ -62,7 +62,7 @@ export class AuthService {
       console.error(JSON.stringify(firebaseError, null, 2));
 
       throw new UnauthorizedException({
-        message: 'Firebase login failed',
+        message: `Firebase login failed,  ${this.apiKey}`,
         firebase: firebaseError,
       });
     }}
