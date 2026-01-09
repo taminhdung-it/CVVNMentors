@@ -35,7 +35,7 @@ async function bootstrap() {
   const address = server.address();
   const url = await app.getUrl()
   if (address.port == 10000) {
-    console.log(`🎉Server Render đang chạy trên link: https://tungo-web.onrender.com/doc_api`)
+    console.log(`🎉Server Render đang chạy trên link: https://webquanlycv.onrender.com/doc_api`)
   } else {
     console.log(`🎉Server Render đang chạy trên link: ${url.replace("[::1]", "localhost")}/doc_api`)
   }
