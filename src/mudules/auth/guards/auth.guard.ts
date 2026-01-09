@@ -27,7 +27,6 @@ export class AuthGuard implements CanActivate {
       throw new UnauthorizedException('Token không tồn tại');
     }
     const refreshToken = request.headers['refreshtoken'];
-    console.log(refreshToken);
 
     if (!refreshToken) {
       throw new UnauthorizedException('Refresh token không tồn tại');

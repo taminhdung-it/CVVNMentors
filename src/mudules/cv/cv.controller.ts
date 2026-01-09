@@ -49,17 +49,17 @@ export class CvController {
   }
 
   //tạo thủ công
-    @UseGuards(AuthGuard)
-    @Post()
-    @UseInterceptors(FileInterceptor('file'))
-    create(
-        @Body() createCvDto: CreateCvDto,
-        @Req() req,
-        @UploadedFile() file: Express.Multer.File,
-    ) {
-        const userId = req.user?.uid || null;
-        return this.cvService.create(createCvDto, userId, file);
-    }
+  @UseGuards(AuthGuard)
+  @Post()
+  @UseInterceptors(FileInterceptor('file'))
+  create(
+    @Body() createCvDto: CreateCvDto,
+    @Req() req,
+    @UploadedFile() file: Express.Multer.File,
+  ) {
+    const userId = req.user?.uid || null;
+    return this.cvService.create(createCvDto, userId, file);
+  }
 
   @UseGuards(AuthGuard)
   @Get()
@@ -101,11 +101,12 @@ export class CvController {
 
   @UseGuards(AuthGuard)
   @Post("addcvexcel")
-  async createcvexcel(@Body() addcvimportexcel: Addcvimportexcel[],@Res() res:express.Response) {
+  async createcvexcel(@Body() addcvimportexcel: Addcvimportexcel[], @Res() res: express.Response) {
     const data = await this.cvService.add_cv_excel(addcvimportexcel);
-    if (data.data.length!=0){
+    if (data.data.length != 0) {
       res.status(HttpStatus.OK).json(data)
+    } else {
+      res.status(HttpStatus.BAD_REQUEST).json(data)
     }
-    res.status(HttpStatus.BAD_REQUEST).json(data)
   }
 }

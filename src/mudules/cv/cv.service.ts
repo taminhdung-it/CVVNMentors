@@ -373,9 +373,9 @@ export class CvService {
 
     // Sheet → JSON
     const data = XLSX.utils.sheet_to_json(sheet) as Record<string, any>[];
-    const list_cv=data.map(row=>({
+    const list_cv = data.map(row => ({
       id: row.full_name,
-      data:row 
+      data: row
     }))
     return {
       sheetName,
@@ -511,12 +511,11 @@ export class CvService {
     try {
       for (let i = 0; i < addcvimportexcel.length; i++) {
         for (let j = i + 1; j < addcvimportexcel.length; j++) {
-          if (addcvimportexcel[i].email != addcvimportexcel[j].email) {
-            if (addcvimportexcel[i].email == addcvimportexcel[j].email) {
-              throw new Error(`CV ${i} và ${j} trùng lặp số điện thoại`)
-            }
-          } {
-            throw new Error(`CV ${i} và ${j} trùng lặp email`)
+          if (addcvimportexcel[i].email === addcvimportexcel[j].email) {
+            throw new Error(`CV ${i} và ${j} trùng lặp email. Đã check: email CV${i}:${addcvimportexcel[i].email} & email CV${j}:${addcvimportexcel[j].email}`)
+          }
+          if (addcvimportexcel[i].phone === addcvimportexcel[j].phone) {
+            throw new Error(`CV ${i} và ${j} trùng lặp số điện thoại Đã check: email CV${i}:${addcvimportexcel[i].phone} & email CV${j}:${addcvimportexcel[j].phone}`)
           }
         }
       }
@@ -536,9 +535,9 @@ export class CvService {
         batch.set(docref, newCv);
       }
       await batch.commit();
-      return { message: "thêm thành công",data: list_id }
-    } catch(error) {
-      return {message:error, data:[]}
+      return { message: "thêm thành công", data: list_id }
+    } catch (error) {
+      return { message: error, data: [] }
+    }
   }
-}
 }
