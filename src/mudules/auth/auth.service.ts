@@ -17,7 +17,7 @@ import { RegisterDto } from './dto/register.dto';
 export class AuthService {
   private readonly apiKey: any;
   constructor(
-    private firebaseService: FirebaseService,
+    private firebaseService: FirebaseService, 
     private configService: ConfigService,
 
   ) {
@@ -55,27 +55,20 @@ export class AuthService {
         refresh_token: response.data.refreshToken,
         user_id: response.data.localId,
       };
-    } catch (error: any) {
-      const firebaseError = error.response?.data;
-
-      console.error('🔥 FIREBASE ERROR RAW =====>');
-      console.error(JSON.stringify(firebaseError, null, 2));
-
-      throw new UnauthorizedException({
-        message: `Firebase login failed,  ${this.apiKey}`,
-        firebase: firebaseError,
-      });
-    }}
+    } catch (error) {
+      throw new UnauthorizedException(`Thông tin đăng nhập không hợp lệ. Báo lỗi: ${this.apiKey}`);
+    }
+  }
 
   async logout(uid: string) {
-      try {
-        await this.firebaseService.auth.revokeRefreshTokens(uid);
+    try {
+      await this.firebaseService.auth.revokeRefreshTokens(uid);
 
-        return { message: 'Đăng xuất thành công' };
-      } catch (error) {
-        throw new BadRequestException('Lỗi khi đăng xuất');
-      }
+      return { message: 'Đăng xuất thành công' };
+    } catch (error) {
+      throw new BadRequestException('Lỗi khi đăng xuất');
     }
-
-    // Hàm này trả về DecodedIdToken nếu đúng, ném lỗi nếu sai.
   }
+
+  // Hàm này trả về DecodedIdToken nếu đúng, ném lỗi nếu sai.
+}
