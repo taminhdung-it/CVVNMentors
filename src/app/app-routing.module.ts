@@ -9,6 +9,7 @@ import { AuthGuard } from './auth/auth/auth.guard';
 import { LogoutComponent } from './auth/logout/logout.component';
 import { JobManagementComponent } from './job-management/job-management.component';
 import { CvDetailComponent } from './cv-detail/cv-detail.component';
+import { CvImportExcelComponent } from './cv-import-excel/cv-import-excel.component';
 
 const routes: Routes = [
   { path: 'login', component: LoginComponent },
@@ -22,6 +23,7 @@ const routes: Routes = [
       { path: '', redirectTo: 'dashboard', pathMatch: 'full' },
       { path: 'dashboard', component: DashboardComponent, data: { title: 'Dashboard' } },
       { path: 'cv', component: CvManagementComponent, data: { title: 'Quản lý CV' } },
+      { path: 'cv/import-excel', component: CvImportExcelComponent },
       { path: 'cv/:id', component: CvDetailComponent },
       { path: 'jobmanagement', component: JobManagementComponent, data: { title: 'Quản lý Job' } }
     ]

@@ -157,9 +157,10 @@ export class CvManagementComponent implements OnInit {
   }
 
   importExcel() {
-    alert('Import Excel');
-    this.showAddMenu = false;
-  }
+  this.showAddMenu = false;
+  this.router.navigate(['/cv/import-excel']);
+}
+
 
   addCvNoFile() {
     alert('Thêm CV không có file');
