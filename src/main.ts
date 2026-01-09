@@ -9,6 +9,7 @@ async function bootstrap() {
     origin: [
       'http://localhost:3000', //backend mặc định
       'http://localhost:9999',// backend cổng 9999
+      'https://webquanlycv.onrender.com'
     ],
     methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization','tokenrefresh'],
