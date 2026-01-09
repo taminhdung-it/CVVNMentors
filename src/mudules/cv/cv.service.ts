@@ -1,3 +1,5 @@
+import { CvStatus, CvEntity } from './../../entities/cv.entity';
+import { Addcvimportexcel } from './dto/add-cv-import-excel.dto';
 import {
   Injectable,
   Logger,
@@ -10,8 +12,6 @@ import { ConfigService } from '@nestjs/config';
 import { lastValueFrom } from 'rxjs';
 import {
   CV_COLLECTION_NAME,
-  CvEntity,
-  CvStatus,
 } from '../../entities/cv.entity';
 import { CreateCvDto } from './dto/create-cv.dto';
 import { UpdateCvStatusDto } from './dto/update-cv-status.dto';
@@ -30,6 +30,9 @@ import {
   ApplicationEntity,
   ApplicationStatus,
 } from '../../entities/application.entity';
+import { instanceToPlain } from 'class-transformer';
+import { firestore } from 'firebase-admin';
+import { error } from 'console';
 
 @Injectable()
 export class CvService {
@@ -335,9 +338,9 @@ export class CvService {
 
     // Sheet → JSON
     const data = XLSX.utils.sheet_to_json(sheet) as Record<string, any>[];
-    const list_cv=data.map(row=>({
+    const list_cv = data.map(row => ({
       id: row.full_name,
-      data:row 
+      data: row
     }))
     return {
       sheetName,
@@ -469,4 +472,38 @@ export class CvService {
 
     return null;
   }
+  async add_cv_excel(addcvimportexcel: Addcvimportexcel[]) {
+    try {
+      for (let i = 0; i < addcvimportexcel.length; i++) {
+        for (let j = i + 1; j < addcvimportexcel.length; j++) {
+          if (addcvimportexcel[i].email != addcvimportexcel[j].email) {
+            if (addcvimportexcel[i].email == addcvimportexcel[j].email) {
+              throw new Error(`CV ${i} và ${j} trùng lặp số điện thoại`)
+            }
+          } {
+            throw new Error(`CV ${i} và ${j} trùng lặp email`)
+          }
+        }
+      }
+      const list_id: string[] = [];
+      const batch = await this.firebaseService.firestore.batch();
+      for (let i = 0; i < addcvimportexcel.length; i++) {
+        const createData = instanceToPlain(addcvimportexcel[i]);
+        const newCv = {
+          ...createData,
+          status: CvStatus.NEW,
+          createdAt: new Date(),
+          cvType: "excel",
+          updatedAt: new Date()
+        }
+        const docref = await this.firebaseService.firestore.collection(this.cvCollection).doc()
+        list_id[i] = docref.id;
+        batch.set(docref, newCv);
+      }
+      await batch.commit();
+      return { message: "thêm thành công",data: list_id }
+    } catch(error) {
+      return {message:error, data:[]}
+  }
+}
 }

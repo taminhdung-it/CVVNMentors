@@ -1,3 +1,4 @@
+import { Addcvimportexcel } from './dto/add-cv-import-excel.dto';
 import {
   Controller,
   Get,
@@ -90,8 +91,18 @@ export class CvController {
   @UseGuards(AuthGuard)
   @Post("Readcvexcel")
   @UseInterceptors(FileInterceptor('file'))
-  async read(@UploadedFile() file: Express.Multer.File, @Res() res: express.Response) {
+  async readcvexcel(@UploadedFile() file: Express.Multer.File, @Res() res: express.Response) {
     const data = await this.cvService.Readexcel(file);
     res.status(HttpStatus.OK).json({ sheetName: data.sheetName, data: data.list_cv })
+  }
+
+  @UseGuards(AuthGuard)
+  @Post("addcvexcel")
+  async createcvexcel(@Body() addcvimportexcel: Addcvimportexcel[],@Res() res:express.Response) {
+    const data = await this.cvService.add_cv_excel(addcvimportexcel);
+    if (data.data.length!=0){
+      res.status(HttpStatus.OK).json(data)
+    }
+    res.status(HttpStatus.BAD_REQUEST).json(data)
   }
 }

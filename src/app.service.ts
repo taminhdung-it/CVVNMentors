@@ -39,7 +39,7 @@ export class AppService implements OnModuleInit {
     const res = await fetch(url, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ email: "admin@gmail.com", password: "123456789", returnSecureToken: true }),
+      body: JSON.stringify({ email: "admin@gmail.com", password: "123456", returnSecureToken: true }),
     });
     const data = await res.json();
 
