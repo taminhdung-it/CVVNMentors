@@ -56,7 +56,7 @@ export class AuthService {
         user_id: response.data.localId,
       };
     } catch (error) {
-      throw new UnauthorizedException('Thông tin đăng nhập không hợp lệ');
+      throw new UnauthorizedException(`Thông tin đăng nhập không hợp lệ. Báo lỗi: ${error}`);
     }
   }
 
