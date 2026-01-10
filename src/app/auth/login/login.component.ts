@@ -3,6 +3,7 @@ import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatDialog } from '@angular/material/dialog';
 import { Router } from '@angular/router';
+import { AuthService } from '../auth/auth.service';
 
 
 @Component({
@@ -19,7 +20,8 @@ export class LoginComponent {
     private fb: FormBuilder,
     private snackBar: MatSnackBar,
     private dialog: MatDialog,
-    private router: Router
+    private router: Router,
+    private authservice:AuthService
   ) {
     this.loginForm = this.fb.group({
       email: ['', [Validators.required, Validators.email]],
@@ -27,7 +29,7 @@ export class LoginComponent {
     });
   }
 
-  onSubmit() {
+  async onSubmit() {
   if (this.loginForm.invalid) {
     this.errorMessage = 'Các trường nhập không được bỏ trống';
     return;
@@ -35,30 +37,18 @@ export class LoginComponent {
 
   const { email, password } = this.loginForm.value;
 
-  // MOCK LOGIN – sau này thay API
-  if (email !== 'admin@gmail.com' || password !== '12345') {
-    this.errorMessage = 'Tài khoản hoặc mật khẩu không chính xác';
-    return;
-  }
-
-  // === LƯU SESSION ===
-  sessionStorage.setItem(
-    'auth',
-    JSON.stringify({
-      token: 'mock-token',
-      user: { email },
-      permissions: ['dashboard.view']
-    })
-  );
-
-  this.errorMessage = '';
-  this.snackBar.open('Đăng nhập thành công', 'Đóng', {
-    duration: 2000
-  });
-
-  setTimeout(() => {
-    this.router.navigate(['/dashboard']);
-  }, 500);
+  this.authservice.login(email,password).subscribe({
+    next:(res)=>{
+      sessionStorage.setItem("accesstoken",res.access_token)
+      sessionStorage.setItem("refreshtoken",res.refresh_token)
+      sessionStorage.setItem("accountid",res.user_id)
+      this.router.navigate(['/dashboard']);
+    },
+    error:(res)=>{
+      console.log()
+      this.errorMessage=`Sai email hoặc mật khẩu`
+    }
+  })
 }
 
 

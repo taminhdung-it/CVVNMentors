@@ -12,10 +12,11 @@ export class AuthGuard implements CanActivate {
   ) {}
 
   canActivate(): boolean {
-    const auth = sessionStorage.getItem('auth');
+    const accesstoken = sessionStorage.getItem('accesstoken');
+    const refreshtoken = sessionStorage.getItem('refreshtoken');
+    const uesrid = sessionStorage.getItem('accountid');
 
-    if (!auth) {
-      // 👉 QUAN TRỌNG: redirect về login
+    if (!accesstoken || !refreshtoken || !uesrid) {
       this.router.navigate(['/login']);
       return false;
     }

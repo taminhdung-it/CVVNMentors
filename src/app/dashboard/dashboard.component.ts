@@ -1,4 +1,4 @@
-import { Component, OnInit  } from '@angular/core';
+import { Component} from '@angular/core';
 import { Router } from '@angular/router';
 
 @Component({
@@ -6,7 +6,7 @@ import { Router } from '@angular/router';
   templateUrl: './dashboard.component.html',
   styleUrls: ['./dashboard.component.css']
 })
-export class DashboardComponent implements OnInit {
+export class DashboardComponent {
   // stats to render cards
   stats = [
     { label: 'Tổng CV', value: '320' },
@@ -19,14 +19,4 @@ export class DashboardComponent implements OnInit {
 
   constructor(private router: Router) {}
 
-  ngOnInit(): void {
-    const auth = sessionStorage.getItem('auth');
-
-    if (!auth) {
-      // ❌ chưa đăng nhập → về login
-      this.router.navigate(['/login']);
-      return;
-    }
- 
-}
 }

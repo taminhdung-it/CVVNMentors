@@ -1,27 +1,38 @@
 // src/app/auth/auth.service.ts
 import { Injectable } from '@angular/core';
-
+import { HttpClient, HttpHeaders } from '@angular/common/http';
 @Injectable({
   providedIn: 'root'
 })
 export class AuthService {
   private tokenKey = 'app_token';
-  constructor() {}
+  constructor(private http: HttpClient) { }
 
   // fake login: lưu token đơn giản vào localStorage
-  loginFake(identifier: string, password: string): boolean {
-    // demo: chấp nhận bất kỳ credential nào dài >=6
-    if (identifier && password && password.length >= 6) {
-      localStorage.setItem(this.tokenKey, 'fake-jwt-token');
-      localStorage.setItem('user', JSON.stringify({ name: 'Quản trị' }));
-      return true;
-    }
-    return false;
+  login(email: string, password: string) {
+    return this.http.post<any>(
+      "https://webquanlycv.onrender.com/auth/login",
+      {
+        email:email,
+        password:password
+      }
+    )
   }
 
   logout() {
-    localStorage.removeItem(this.tokenKey);
-    localStorage.removeItem('user');
+    const accesstoken=sessionStorage.getItem('accesstoken');
+    const refreshtoken=sessionStorage.getItem('refreshtoken');
+    const accountid=sessionStorage.getItem('accountid');
+    const headers=new HttpHeaders({
+      Authorization: `Bearer ${accesstoken}`,
+      refreshtoken: refreshtoken || ''
+    })
+    return this.http.post<any>(
+      "https://webquanlycv.onrender.com/auth/logout",
+      {
+        id:accountid
+      }
+    )
   }
 
   isAuthenticated(): boolean {
