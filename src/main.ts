@@ -10,7 +10,8 @@ async function bootstrap() {
       'http://localhost:3000',
       'http://localhost:4200',
       'http://localhost:9999',
-      'https://webquanlycv.onrender.com'
+      'https://webquanlycv.onrender.com',
+      'webquanlycv.pages.dev'
     ],
     methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization','refreshtoken'],
