@@ -7,12 +7,13 @@ async function bootstrap() {
   const app = await NestFactory.create(AppModule);
   app.enableCors({
     origin: [
-      'http://localhost:3000', //backend mặc định
-      'http://localhost:9999',// backend cổng 9999
+      'http://localhost:3000',
+      'http://localhost:4200',
+      'http://localhost:9999',
       'https://webquanlycv.onrender.com'
     ],
     methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
-    allowedHeaders: ['Content-Type', 'Authorization','tokenrefresh'],
+    allowedHeaders: ['Content-Type', 'Authorization','refreshtoken'],
     credentials: true,
     preflightContinue: false,
     optionsSuccessStatus: 204,

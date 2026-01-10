@@ -67,8 +67,28 @@ export const document: OpenAPIObject = {
                 },
               },
             },
+            links: {
+              // GetUserDetail: {
+              //   operationId: 'getUser',
+              //   parameters: {
+              //     id: '$response.body#/user_id'
+              //   },
+              //   description: 'Lấy thông tin user vừa đăng nhập'
+              // }
+            }
           },
-          '401': { description: 'Đăng nhập thất bại. Báo lỗi: ...' },
+          '401': {
+            description: 'Đăng nhập thất bại. Báo lỗi: ...',
+            links: {
+              // GetUserDetail: {
+              //   operationId: 'getUser',
+              //   parameters: {
+              //     id: '$response.body#/user_id'
+              //   },
+              //   description: 'Lấy thông tin user vừa đăng nhập'
+              // }
+            }
+          },
         },
       },
     },
@@ -106,8 +126,28 @@ export const document: OpenAPIObject = {
         responses: {
           '200': {
             description: 'Đăng xuất thành công',
+            links: {
+              // GetUserDetail: {
+              //   operationId: 'getUser',
+              //   parameters: {
+              //     id: '$response.body#/user_id'
+              //   },
+              //   description: 'Lấy thông tin user vừa đăng nhập'
+              // }
+            }
           },
-          '400': { description: 'Đăng xuất thất bại. Báo lỗi: ...' },
+          '400': {
+            description: 'Đăng xuất thất bại. Báo lỗi: ...',
+            links: {
+              // GetUserDetail: {
+              //   operationId: 'getUser',
+              //   parameters: {
+              //     id: '$response.body#/user_id'
+              //   },
+              //   description: 'Lấy thông tin user vừa đăng nhập'
+              // }
+            }
+          },
         },
       },
     },
@@ -170,9 +210,19 @@ export const document: OpenAPIObject = {
                       },
                     ],
                   },
+
                 },
               },
             },
+            links: {
+              // GetUserDetail: {
+              //   operationId: 'getUser',
+              //   parameters: {
+              //     id: '$response.body#/user_id'
+              //   },
+              //   description: 'Lấy thông tin user vừa đăng nhập'
+              // }
+            }
           },
         },
       },
@@ -228,6 +278,15 @@ export const document: OpenAPIObject = {
                 },
               },
             },
+            links: {
+              // GetUserDetail: {
+              //   operationId: 'getUser',
+              //   parameters: {
+              //     id: '$response.body#/user_id'
+              //   },
+              //   description: 'Lấy thông tin user vừa đăng nhập'
+              // }
+            }
           },
         },
       },
@@ -238,7 +297,7 @@ export const document: OpenAPIObject = {
         summary: 'Tạo CV thủ công (Form Data)',
         description: `
       **Lưu ý quan trọng cho Frontend (Multipart/Form-data):**
-      
+
       1. **File:** Gửi field tên là \`file\` (Binary).
       2. **Experience (Mảng Object):** Vì FormData không chuẩn hóa việc gửi mảng object, hãy **JSON.stringify()** mảng experience thành chuỗi rồi mới append.
          - VD: \`formData.append('experience', JSON.stringify([{title: 'Dev', dates: '2022'}]));\`
@@ -316,6 +375,15 @@ export const document: OpenAPIObject = {
                 },
               },
             },
+            links: {
+              // GetUserDetail: {
+              //   operationId: 'getUser',
+              //   parameters: {
+              //     id: '$response.body#/user_id'
+              //   },
+              //   description: 'Lấy thông tin user vừa đăng nhập'
+              // }
+            }
           },
           '400': {
             description: 'Lỗi Validation hoặc Trùng lặp',
@@ -323,6 +391,15 @@ export const document: OpenAPIObject = {
               'application/json': {
                 schema: { example: { message: 'Email hoặc SĐT đã tồn tại / Upload file thất bại' } }
               }
+            },
+            links: {
+              // GetUserDetail: {
+              //   operationId: 'getUser',
+              //   parameters: {
+              //     id: '$response.body#/user_id'
+              //   },
+              //   description: 'Lấy thông tin user vừa đăng nhập'
+              // }
             }
           }
         },
@@ -355,6 +432,15 @@ export const document: OpenAPIObject = {
                 schema: { example: { id: 'cv_123', fullName: 'Trần Văn C' } },
               },
             },
+            links: {
+              // GetUserDetail: {
+              //   operationId: 'getUser',
+              //   parameters: {
+              //     id: '$response.body#/user_id'
+              //   },
+              //   description: 'Lấy thông tin user vừa đăng nhập'
+              // }
+            }
           },
         },
       },
@@ -440,6 +526,15 @@ export const document: OpenAPIObject = {
                 },
               },
             },
+            links: {
+              // GetUserDetail: {
+              //   operationId: 'getUser',
+              //   parameters: {
+              //     id: '$response.body#/user_id'
+              //   },
+              //   description: 'Lấy thông tin user vừa đăng nhập'
+              // }
+            }
           },
         },
       },
@@ -489,6 +584,15 @@ export const document: OpenAPIObject = {
                 schema: { example: { id: 'cv_123', status: 'APPROVED' } },
               },
             },
+            links: {
+              // GetUserDetail: {
+              //   operationId: 'getUser',
+              //   parameters: {
+              //     id: '$response.body#/user_id'
+              //   },
+              //   description: 'Lấy thông tin user vừa đăng nhập'
+              // }
+            }
           },
         },
       },
@@ -535,6 +639,15 @@ export const document: OpenAPIObject = {
                 },
               },
             },
+            links: {
+              // GetUserDetail: {
+              //   operationId: 'getUser',
+              //   parameters: {
+              //     id: '$response.body#/user_id'
+              //   },
+              //   description: 'Lấy thông tin user vừa đăng nhập'
+              // }
+            }
           },
         },
       },
@@ -596,6 +709,15 @@ export const document: OpenAPIObject = {
                 },
               },
             },
+            links: {
+              // GetUserDetail: {
+              //   operationId: 'getUser',
+              //   parameters: {
+              //     id: '$response.body#/user_id'
+              //   },
+              //   description: 'Lấy thông tin user vừa đăng nhập'
+              // }
+            }
           },
         },
       },
@@ -696,6 +818,15 @@ export const document: OpenAPIObject = {
                 },
               },
             },
+            links: {
+              // GetUserDetail: {
+              //   operationId: 'getUser',
+              //   parameters: {
+              //     id: '$response.body#/user_id'
+              //   },
+              //   description: 'Lấy thông tin user vừa đăng nhập'
+              // }
+            }
           },
         },
       },
@@ -793,6 +924,15 @@ export const document: OpenAPIObject = {
                 },
               },
             },
+            links: {
+              // GetUserDetail: {
+              //   operationId: 'getUser',
+              //   parameters: {
+              //     id: '$response.body#/user_id'
+              //   },
+              //   description: 'Lấy thông tin user vừa đăng nhập'
+              // }
+            }
           },
         },
       },
@@ -840,6 +980,15 @@ export const document: OpenAPIObject = {
                 },
               },
             },
+            links: {
+              // GetUserDetail: {
+              //   operationId: 'getUser',
+              //   parameters: {
+              //     id: '$response.body#/user_id'
+              //   },
+              //   description: 'Lấy thông tin user vừa đăng nhập'
+              // }
+            }
           },
         },
       },
@@ -928,6 +1077,15 @@ export const document: OpenAPIObject = {
                 },
               },
             },
+            links: {
+              // GetUserDetail: {
+              //   operationId: 'getUser',
+              //   parameters: {
+              //     id: '$response.body#/user_id'
+              //   },
+              //   description: 'Lấy thông tin user vừa đăng nhập'
+              // }
+            }
           },
         },
       },
@@ -981,6 +1139,15 @@ export const document: OpenAPIObject = {
                 },
               },
             },
+            links: {
+              // GetUserDetail: {
+              //   operationId: 'getUser',
+              //   parameters: {
+              //     id: '$response.body#/user_id'
+              //   },
+              //   description: 'Lấy thông tin user vừa đăng nhập'
+              // }
+            }
           },
         },
       },
@@ -1020,6 +1187,15 @@ export const document: OpenAPIObject = {
                 },
               },
             },
+            links: {
+              // GetUserDetail: {
+              //   operationId: 'getUser',
+              //   parameters: {
+              //     id: '$response.body#/user_id'
+              //   },
+              //   description: 'Lấy thông tin user vừa đăng nhập'
+              // }
+            }
           },
         },
       },
@@ -1059,6 +1235,15 @@ export const document: OpenAPIObject = {
                 },
               },
             },
+            links: {
+              // GetUserDetail: {
+              //   operationId: 'getUser',
+              //   parameters: {
+              //     id: '$response.body#/user_id'
+              //   },
+              //   description: 'Lấy thông tin user vừa đăng nhập'
+              // }
+            }
           },
         },
       },
@@ -1111,6 +1296,15 @@ export const document: OpenAPIObject = {
                   },
                 },
               },
+              links: {
+                // GetUserDetail: {
+                //   operationId: 'getUser',
+                //   parameters: {
+                //     id: '$response.body#/user_id'
+                //   },
+                //   description: 'Lấy thông tin user vừa đăng nhập'
+                // }
+              }
             },
           },
         },
@@ -1159,6 +1353,15 @@ export const document: OpenAPIObject = {
                 },
               },
             },
+            links: {
+              // GetUserDetail: {
+              //   operationId: 'getUser',
+              //   parameters: {
+              //     id: '$response.body#/user_id'
+              //   },
+              //   description: 'Lấy thông tin user vừa đăng nhập'
+              // }
+            }
           },
         },
       },
@@ -1222,6 +1425,15 @@ export const document: OpenAPIObject = {
                 },
               },
             },
+            links: {
+              // GetUserDetail: {
+              //   operationId: 'getUser',
+              //   parameters: {
+              //     id: '$response.body#/user_id'
+              //   },
+              //   description: 'Lấy thông tin user vừa đăng nhập'
+              // }
+            }
           },
         },
       },
@@ -1261,9 +1473,29 @@ export const document: OpenAPIObject = {
                   },
                 },
               },
+              links: {
+                // GetUserDetail: {
+                //   operationId: 'getUser',
+                //   parameters: {
+                //     id: '$response.body#/user_id'
+                //   },
+                //   description: 'Lấy thông tin user vừa đăng nhập'
+                // }
+              }
             },
           },
-          '404': { description: 'Không tìm thấy phòng ban' },
+          '404': {
+            description: 'Không tìm thấy phòng ban',
+            links: {
+              // GetUserDetail: {
+              //   operationId: 'getUser',
+              //   parameters: {
+              //     id: '$response.body#/user_id'
+              //   },
+              //   description: 'Lấy thông tin user vừa đăng nhập'
+              // }
+            }
+          },
         },
       },
       patch: {
@@ -1311,6 +1543,15 @@ export const document: OpenAPIObject = {
                 },
               },
             },
+            links: {
+              // GetUserDetail: {
+              //   operationId: 'getUser',
+              //   parameters: {
+              //     id: '$response.body#/user_id'
+              //   },
+              //   description: 'Lấy thông tin user vừa đăng nhập'
+              // }
+            }
           },
         },
       },
@@ -1369,6 +1610,15 @@ export const document: OpenAPIObject = {
                 },
               },
             },
+            links: {
+              // GetUserDetail: {
+              //   operationId: 'getUser',
+              //   parameters: {
+              //     id: '$response.body#/user_id'
+              //   },
+              //   description: 'Lấy thông tin user vừa đăng nhập'
+              // }
+            }
           },
           '400': {
             description: 'Lỗi nghiệp vụ (Vẫn còn Job đang tuyển)',
@@ -1383,6 +1633,15 @@ export const document: OpenAPIObject = {
                 },
               },
             },
+            links: {
+              // GetUserDetail: {
+              //   operationId: 'getUser',
+              //   parameters: {
+              //     id: '$response.body#/user_id'
+              //   },
+              //   description: 'Lấy thông tin user vừa đăng nhập'
+              // }
+            }
           },
         },
       },
@@ -1459,6 +1718,15 @@ export const document: OpenAPIObject = {
                 },
               },
             },
+            links: {
+              // GetUserDetail: {
+              //   operationId: 'getUser',
+              //   parameters: {
+              //     id: '$response.body#/user_id'
+              //   },
+              //   description: 'Lấy thông tin user vừa đăng nhập'
+              // }
+            }
           },
         },
       },
@@ -1501,6 +1769,15 @@ export const document: OpenAPIObject = {
                 },
               },
             },
+            links: {
+              // GetUserDetail: {
+              //   operationId: 'getUser',
+              //   parameters: {
+              //     id: '$response.body#/user_id'
+              //   },
+              //   description: 'Lấy thông tin user vừa đăng nhập'
+              // }
+            }
           },
         },
       },
@@ -1564,6 +1841,15 @@ export const document: OpenAPIObject = {
                 },
               },
             },
+            links: {
+              // GetUserDetail: {
+              //   operationId: 'getUser',
+              //   parameters: {
+              //     id: '$response.body#/user_id'
+              //   },
+              //   description: 'Lấy thông tin user vừa đăng nhập'
+              // }
+            }
           },
         },
       },
@@ -1578,7 +1864,7 @@ export const document: OpenAPIObject = {
           - SCREENING -> INTERVIEW (Phỏng vấn) hoặc REJECTED
           - INTERVIEW -> OFFERED (Mời nhận việc) hoặc REJECTED
           - OFFERED -> HIRED (Đã tuyển) hoặc REJECTED
-          
+
           *Lưu ý: Nếu chọn REJECTED, bắt buộc phải gửi kèm 'rejectionReason'.*
         `,
         parameters: [
@@ -1641,6 +1927,15 @@ export const document: OpenAPIObject = {
                 },
               },
             },
+            links: {
+              // GetUserDetail: {
+              //   operationId: 'getUser',
+              //   parameters: {
+              //     id: '$response.body#/user_id'
+              //   },
+              //   description: 'Lấy thông tin user vừa đăng nhập'
+              // }
+            }
           },
           '400': {
             description: 'Lỗi quy trình (Đi sai bước hoặc thiếu lý do từ chối)',
@@ -1655,6 +1950,15 @@ export const document: OpenAPIObject = {
                 },
               },
             },
+            links: {
+              // GetUserDetail: {
+              //   operationId: 'getUser',
+              //   parameters: {
+              //     id: '$response.body#/user_id'
+              //   },
+              //   description: 'Lấy thông tin user vừa đăng nhập'
+              // }
+            }
           },
         },
       },
