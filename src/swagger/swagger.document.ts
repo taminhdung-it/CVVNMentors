@@ -7,7 +7,7 @@ export const document: OpenAPIObject = {
     description: 'Tài liệu api dành cho frontend QLCV Web',
   },
   servers: [
-    { url: 'https://webquanlycv.onrender.com/', description: 'Server Render' },
+    { url: 'https://cvvnmentors.onrender.com/', description: 'Server Render' },
     { url: 'http://localhost:9999/', description: 'Server local' },
   ],
   tags: [

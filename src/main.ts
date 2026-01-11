@@ -10,8 +10,8 @@ async function bootstrap() {
       'http://localhost:3000',
       'http://localhost:4200',
       'http://localhost:9999',
-      'https://webquanlycv.onrender.com',
-      'https://webquanlycv.pages.dev'
+      'https://cvvnmentors.onrender.com',
+      'https://cvvnmentors.pages.dev'
     ],
     methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization','refreshtoken'],
@@ -35,7 +35,7 @@ async function bootstrap() {
 
   await app.listen(process.env.SERVER_PORT ?? process.env.PORT ?? 3000);
   const url = await app.getUrl()
-  console.log(`🎉Link Render: https://webquanlycv.onrender.com/doc_api`)
+  console.log(`🎉Link Render: https://cvvnmentors.onrender.com/doc_api`)
   console.log(`🎉Link localhost: ${url.replace("[::1]", "localhost")}/doc_api`)
 }
 bootstrap();
