@@ -11,7 +11,7 @@ export class AuthService {
   // fake login: lưu token đơn giản vào localStorage
   login(email: string, password: string) {
     return this.http.post<any>(
-      "https://webquanlycv.onrender.com/auth/login",
+      "https://cvvnmentors.onrender.com/auth/login",
       {
         email:email,
         password:password
@@ -28,7 +28,7 @@ export class AuthService {
       refreshtoken: refreshtoken || ''
     })
     return this.http.post<any>(
-      "https://webquanlycv.onrender.com/auth/logout",
+      "https://cvvnmentors.onrender.com/auth/logout",
       {
         id:accountid
       }
