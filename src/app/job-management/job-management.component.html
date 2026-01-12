@@ -1,0 +1,174 @@
+<div class="job-detail-page">
+
+  <!-- HEADER -->
+  <div class="job-card">
+    <div>
+      <h2>Senior React Developer</h2>
+
+      <div class="job-meta">
+        <span
+          class="badge-open"
+          *ngIf="jobStatus === 'OPEN'"
+        >
+          Đang mở
+        </span>
+
+        <span
+          class="badge-closed"
+          *ngIf="jobStatus === 'CLOSED'"
+        >
+          Đã đóng
+        </span>
+
+        <span>👥 Headcount: {{ headcount }}</span>
+        <span>📅 Tạo ngày: 20/10/2023</span>
+      </div>
+    </div>
+
+    <button
+      class="btn-edit"
+      [class.closed]="jobStatus === 'CLOSED'"
+      (click)="toggleJobStatus()"
+    >
+      ✏️ {{ jobStatus === 'OPEN' ? 'Đóng job' : 'Mở lại job' }}
+    </button>
+  </div>
+
+  <!-- TABS -->
+  <div class="tabs">
+    <button
+      [class.active]="activeTab === 'candidates'"
+      (click)="setTab('candidates')"
+    >
+      Danh sách ứng viên
+    </button>
+
+    <button
+      [class.active]="activeTab === 'job-info'"
+      (click)="setTab('job-info')"
+    >
+      Thông tin job
+    </button>
+
+    <button
+      [class.active]="activeTab === 'history'"
+      (click)="setTab('history')"
+    >
+      Lịch sử hoạt động
+    </button>
+  </div>
+
+  <!-- ================= TAB: CANDIDATES ================= -->
+  <ng-container *ngIf="activeTab === 'candidates'">
+
+    <!-- TOOLBAR -->
+    <div class="toolbar">
+      <input
+        placeholder="Tìm kiếm ứng viên..."
+        [(ngModel)]="searchText"
+      />
+
+      <select [(ngModel)]="statusFilter">
+        <option value="">Tất cả trạng thái</option>
+        <option value="Ứng tuyển">Ứng tuyển</option>
+        <option value="Phỏng vấn">Phỏng vấn</option>
+      </select>
+
+      <button
+        class="btn-primary"
+        [disabled]="jobStatus === 'CLOSED'"
+      >
+        + Gắn CV vào Job
+      </button>
+    </div>
+
+    <!-- TABLE -->
+    <div class="table-box">
+      <table>
+        <thead>
+          <tr>
+            <th>
+              <input
+                type="checkbox"
+                #master
+                (change)="toggleAll(master.checked)"
+                [disabled]="jobStatus === 'CLOSED'"
+              />
+            </th>
+            <th>ỨNG VIÊN</th>
+            <th>LOẠI CV</th>
+            <th>TRẠNG THÁI</th>
+            <th>CẬP NHẬT</th>
+          </tr>
+        </thead>
+
+        <tbody>
+          <tr *ngFor="let c of paginatedCandidates; let i = index">
+            <td>
+              <input
+                type="checkbox"
+                [(ngModel)]="c.selected"
+                [disabled]="jobStatus === 'CLOSED'"
+              />
+            </td>
+
+            <td>
+              <b>{{ c.name }}</b><br />
+              <span class="email">{{ c.email }}</span>
+            </td>
+
+            <td class="link">
+              {{ c.hasCV ? 'Có CV' : 'Chưa có CV' }}
+            </td>
+
+            <td>
+              <span
+                class="status"
+                [class.blue]="c.status === 'Ứng tuyển'"
+                [class.orange]="c.status === 'Phỏng vấn'"
+              >
+                {{ c.status }}
+              </span>
+            </td>
+
+            <td>{{ c.updatedAt }}</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <!-- PAGINATION -->
+      <div class="pagination">
+        <button
+          (click)="goToPage(currentPage - 1)"
+          [disabled]="currentPage === 1"
+        >
+          &lt;
+        </button>
+
+        <button
+          *ngFor="let p of [].constructor(totalPages); let i = index"
+          (click)="goToPage(i + 1)"
+          [class.active]="currentPage === i + 1"
+        >
+          {{ i + 1 }}
+        </button>
+
+        <button
+          (click)="goToPage(currentPage + 1)"
+          [disabled]="currentPage === totalPages"
+        >
+          &gt;
+        </button>
+      </div>
+    </div>
+  </ng-container>
+
+  <!-- ================= TAB: JOB INFO ================= -->
+  <ng-container *ngIf="activeTab === 'job-info'">
+    <div class="job-info-page">
+      <h3>Mô tả công việc</h3>
+      <p>Senior React Developer...</p>
+    </div>
+  </ng-container>
+
+</div>

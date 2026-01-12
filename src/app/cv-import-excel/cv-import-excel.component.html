@@ -1,0 +1,93 @@
+<div class="page">
+  <div class="page-header">
+    <h2>Thêm CV</h2>
+    <button class="back-btn">← Quay lại</button>
+  </div>
+
+  <!-- TABS -->
+  <div class="tabs">
+    <div class="tab">Thêm File</div>
+    <div class="tab active">Import Excel</div>
+    <div class="tab">Thêm thủ công</div>
+  </div>
+
+  <!-- DOWNLOAD TEMPLATE -->
+  <div class="download-box">
+    <div class="left">
+      <div class="icon">📄</div>
+      <div>
+        <div class="title">Tải xuống mẫu</div>
+        <div class="desc">
+          Sử dụng file mẫu excel này để thêm dữ liệu ban đầu
+        </div>
+      </div>
+    </div>
+    <button class="btn-primary" (click)="downloadTemplate()">Tải xuống</button>
+  </div>
+
+  <!-- UPLOAD -->
+  <label class="upload-box">
+    <input
+      type="file"
+      hidden
+      accept=".xlsx"
+      (change)="onFileSelected($event)"
+    />
+    <div class="upload-content">
+      ⬆️
+      <div class="upload-title">Tải lên file Excel của bạn</div>
+      <div class="upload-desc">Hỗ trợ file .xlsx</div>
+    </div>
+  </label>
+
+  <!-- STATS -->
+  <div class="stats">
+    <div class="stat success">
+      <div>CV tìm thấy</div>
+      <strong>{{ found }}</strong>
+    </div>
+    <div class="stat warning">
+      <div>CV trùng lặp</div>
+      <strong>{{ duplicated }}</strong>
+    </div>
+    <div class="stat error">
+      <div>CV lỗi</div>
+      <strong>{{ error }}</strong>
+    </div>
+  </div>
+
+  <!-- TABLE -->
+  <div class="table-box" *ngIf="expanded && cvs.length">
+    <div class="table-header">
+      <input placeholder="🔍 Tìm theo tên" />
+      <button class="collapse-btn" (click)="toggleExpand()">Thu gọn</button>
+    </div>
+
+    <table>
+      <thead>
+        <tr>
+          <th>Họ và tên</th>
+          <th>Email</th>
+          <th>Trạng thái</th>
+          <th>Job đã gán</th>
+          <th>Ngày cập nhật</th>
+          <th>SĐT</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let cv of cvs">
+          <td>{{ cv.fullName }}</td>
+          <td>{{ cv.email }}</td>
+          <td>
+            <span class="status" [ngClass]="getStatusClass(cv.status)">
+              {{ cv.status }}
+            </span>
+          </td>
+          <td>{{ cv.job }}</td>
+          <td>{{ cv.updatedAt }}</td>
+          <td>{{ cv.phone }}</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
