@@ -16,7 +16,7 @@ export const FirebaseProvider = {
 
     // Convert \n thành newline thật
     privateKey = privateKey?.replace(/\\n/g, '\n');
-    console.log(privateKey)
+
     return admin.initializeApp({
       credential: admin.credential.cert({
         projectId,

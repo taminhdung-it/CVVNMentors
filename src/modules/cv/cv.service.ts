@@ -374,9 +374,23 @@ export class CvService {
     // Sheet → JSON
     const data = XLSX.utils.sheet_to_json(sheet) as Record<string, any>[];
     const list_cv = data.map(row => ({
-      id: row.full_name,
+      id: row["Họ và tên"],
       data: row
     }))
+    const list_email:string[]=[];
+    const list_phone:string[]=[];
+    let count=0;
+    for (let i in list_cv){
+      list_email[count]=list_cv[count].data["email"];
+      list_phone[count]=list_cv[count].data["Số điện thoại"];
+      count++;
+    }
+    if (list_email.length!== new Set(list_email).size){
+      throw new Error("Email bị trùng lặp")
+    }
+    if (list_phone.length!== new Set(list_phone).size){
+      throw new Error("Số điện thoại bị trùng lặp")
+    }
     return {
       sheetName,
       list_cv,
@@ -509,16 +523,6 @@ export class CvService {
   }
   async add_cv_excel(addcvimportexcel: Addcvimportexcel[]) {
     try {
-      for (let i = 0; i < addcvimportexcel.length; i++) {
-        for (let j = i + 1; j < addcvimportexcel.length; j++) {
-          if (addcvimportexcel[i].email === addcvimportexcel[j].email) {
-            throw new Error(`CV ${i} và ${j} trùng lặp email. Đã check: email CV${i}:${addcvimportexcel[i].email} & email CV${j}:${addcvimportexcel[j].email}`)
-          }
-          if (addcvimportexcel[i].phone === addcvimportexcel[j].phone) {
-            throw new Error(`CV ${i} và ${j} trùng lặp số điện thoại Đã check: email CV${i}:${addcvimportexcel[i].phone} & email CV${j}:${addcvimportexcel[j].phone}`)
-          }
-        }
-      }
       const list_id: string[] = [];
       const batch = await this.firebaseService.firestore.batch();
       for (let i = 0; i < addcvimportexcel.length; i++) {
