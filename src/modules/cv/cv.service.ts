@@ -361,7 +361,7 @@ export class CvService {
     if (!file) {
       throw new BadRequestException('Không có file');
     }
-
+    let message="Đọc excel thành công";
     // Đọc Excel từ buffer
     const workbook = XLSX.read(file.buffer, {
       type: 'buffer',
@@ -386,12 +386,13 @@ export class CvService {
       count++;
     }
     if (list_email.length!== new Set(list_email).size){
-      throw new Error("Email bị trùng lặp")
+      message="Email bị trùng lặp";
     }
     if (list_phone.length!== new Set(list_phone).size){
-      throw new Error("Số điện thoại bị trùng lặp")
+      message="Số điện thoại bị trùng lặp";
     }
     return {
+      message,
       sheetName,
       list_cv,
     };

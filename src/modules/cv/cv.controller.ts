@@ -95,12 +95,8 @@ export class CvController {
   @Post("Readcvexcel")
   @UseInterceptors(FileInterceptor('file'))
   async readcvexcel(@UploadedFile() file: Express.Multer.File, @Res() res: express.Response) {
-    try{
-          const data = await this.cvService.Readexcel(file);
-    res.status(HttpStatus.OK).json({ message:"Đọc excel thành công",sheetName: data.sheetName, data: data.list_cv })
-    } catch (err){
-      res.status(HttpStatus.BAD_REQUEST).json({ message:`Đọc excel thất bại. Báo lỗi: ${err}`,sheetName: "", data: [] })
-    }
+    const data = await this.cvService.Readexcel(file);
+    res.status(HttpStatus.OK).json({ message:data.message,sheetName: data.sheetName, data: data.list_cv })
   }
 
   @UseGuards(AuthGuard)
