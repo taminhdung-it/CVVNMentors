@@ -1,95 +1,116 @@
-import { Component, OnInit } from '@angular/core';
+import { Component } from '@angular/core';
+
+interface Candidate {
+  id: number;
+  name: string;
+  email: string;
+  status: 'Ứng tuyển' | 'Phỏng vấn';
+  hasCV: boolean;
+  updatedAt: string;
+  selected: boolean;
+}
 
 @Component({
   selector: 'app-job-management',
   templateUrl: './job-management.component.html',
   styleUrls: ['./job-management.component.css'],
 })
-export class JobManagementComponent implements OnInit {
-  jobs = [
+export class JobManagementComponent {
+  // ===== JOB STATE =====
+  jobStatus: 'OPEN' | 'CLOSED' = 'OPEN';
+
+  activeTab: 'candidates' | 'job-info' | 'history' = 'candidates';
+
+  // ===== FILTER =====
+  searchText = '';
+  statusFilter = '';
+
+  // ===== PAGINATION =====
+  currentPage = 1;
+  pageSize = 5;
+
+  // ===== DATA =====
+  candidates: Candidate[] = [
     {
-      name: 'Nhân viên',
-      department: 'IT',
-      applicants: 5,
-      createdDate: '31/12/2025',
-      creator: 'Sơn Hà',
-      checked: false,
+      id: 1,
+      name: 'Nguyễn Văn A',
+      email: 'nguyenvana@gmail.com',
+      status: 'Ứng tuyển',
+      hasCV: true,
+      updatedAt: '21/10/2023',
+      selected: false,
     },
     {
-      name: 'Nhân viên',
-      department: 'IT',
-      applicants: 5,
-      createdDate: '31/12/2025',
-      creator: 'Sơn Hà',
-      checked: false,
+      id: 2,
+      name: 'Trần Thị B',
+      email: 'tranthib@gmail.com',
+      status: 'Phỏng vấn',
+      hasCV: true,
+      updatedAt: '20/10/2025',
+      selected: false,
     },
     {
-      name: 'Nhân viên',
-      department: 'IT',
-      applicants: 5,
-      createdDate: '31/12/2025',
-      creator: 'Sơn Hà',
-      checked: false,
-    },
-    {
-      name: 'Nhân viên',
-      department: 'IT',
-      applicants: 5,
-      createdDate: '31/12/2025',
-      creator: 'Sơn Hà',
-      checked: false,
+      id: 3,
+      name: 'Lê Văn C',
+      email: 'levanc@gmail.com',
+      status: 'Ứng tuyển',
+      hasCV: true,
+      updatedAt: '19/10/2025',
+      selected: false,
     },
   ];
 
-  departments = ['IT', 'Marketing', 'Nhân sự'];
-  jobNames = ['Nhân viên', 'Quản lý'];
-  creators = ['Sơn Hà', 'Minh Dương'];
+  // ===== TAB =====
+  setTab(tab: 'candidates' | 'job-info' | 'history') {
+    this.activeTab = tab;
+  }
 
-  filters = {
-    createdDate: '',
-    department: '',
-    jobName: '',
-    creator: '',
-  };
+  // ===== JOB STATUS =====
+  toggleJobStatus() {
+    this.jobStatus = this.jobStatus === 'OPEN' ? 'CLOSED' : 'OPEN';
+  }
 
-  searchText = '';
-  openMenuIndex: number | null = null;
+  // ===== FILTERED DATA =====
+  get filteredCandidates(): Candidate[] {
+    return this.candidates.filter((c) => {
+      const matchSearch =
+        c.name.toLowerCase().includes(this.searchText.toLowerCase()) ||
+        c.email.toLowerCase().includes(this.searchText.toLowerCase());
 
-  get filteredJobs() {
-    return this.jobs.filter((job) => {
-      return (
-        (!this.filters.department ||
-          job.department === this.filters.department) &&
-        (!this.filters.jobName || job.name === this.filters.jobName) &&
-        (!this.filters.creator || job.creator === this.filters.creator) &&
-        (!this.searchText ||
-          job.name.toLowerCase().includes(this.searchText.toLowerCase()) ||
-          job.department
-            .toLowerCase()
-            .includes(this.searchText.toLowerCase()))
-      );
+      const matchStatus =
+        !this.statusFilter || c.status === this.statusFilter;
+
+      return matchSearch && matchStatus;
     });
   }
 
-  toggleAll(event: any) {
-    const checked = event.target.checked;
-    this.jobs.forEach((j) => (j.checked = checked));
+  // ===== HEADCOUNT (ĐẾM CV DƯỚI TABLE) =====
+  get headcount(): number {
+    return this.filteredCandidates.length;
   }
 
-  resetFilters() {
-    this.filters = {
-      createdDate: '',
-      department: '',
-      jobName: '',
-      creator: '',
-    };
-    this.searchText = '';
+  // ===== PAGINATION =====
+  get totalPages(): number {
+    return Math.ceil(this.filteredCandidates.length / this.pageSize);
   }
 
-  toggleMenu(index: number) {
-    this.openMenuIndex =
-      this.openMenuIndex === index ? null : index;
+  get paginatedCandidates(): Candidate[] {
+    const start = (this.currentPage - 1) * this.pageSize;
+    return this.filteredCandidates.slice(start, start + this.pageSize);
   }
 
-  ngOnInit(): void {}
+  goToPage(page: number) {
+    if (page >= 1 && page <= this.totalPages) {
+      this.currentPage = page;
+    }
+  }
+
+  // ===== CHECKBOX =====
+  toggleAll(checked: boolean) {
+    this.paginatedCandidates.forEach((c) => (c.selected = checked));
+  }
+
+  toggleOne() {
+    // để trống cũng được, Angular tự update selected
+  }
 }
