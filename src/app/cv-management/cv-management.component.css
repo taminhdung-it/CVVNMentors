@@ -599,3 +599,29 @@ tbody tr:hover {
     transform: translate(-50%, 0);
   }
 }
+
+/*phân trang*/
+.page-btn {
+  min-width: 28px;
+  height: 28px;
+  border-radius: 6px;
+  border: 1px solid #d1d5db;
+  background: #fff;
+  font-size: 13px;
+  cursor: pointer;
+}
+
+.page-btn:hover:not(:disabled) {
+  background: #f3f4f6;
+}
+
+.page-btn.active {
+  background: #2563eb;
+  color: #fff;
+  border-color: #2563eb;
+}
+
+.page-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}

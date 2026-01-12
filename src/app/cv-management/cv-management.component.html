@@ -110,7 +110,6 @@
 
           <td class="cell-job">
             <strong>{{ cv.job }}</strong>
-            <div class="sub">Phòng IT</div>
           </td>
 
           <td>{{ cv.updatedAt }}</td>
@@ -181,6 +180,41 @@
         </tr>
       </tbody>
     </table>
+    <!-- PAGINATION -->
+    <div
+      *ngIf="totalPages > 1"
+      style="
+        padding: 12px 16px;
+        display: flex;
+        justify-content: flex-end;
+        gap: 6px;
+      "
+    >
+      <button
+        class="page-btn"
+        (click)="goToPage(page - 1)"
+        [disabled]="page === 1"
+      >
+        ‹
+      </button>
+
+      <button
+        class="page-btn"
+        *ngFor="let _ of [].constructor(totalPages); let i = index"
+        (click)="goToPage(i + 1)"
+        [class.active]="page === i + 1"
+      >
+        {{ i + 1 }}
+      </button>
+
+      <button
+        class="page-btn"
+        (click)="goToPage(page + 1)"
+        [disabled]="page === totalPages"
+      >
+        ›
+      </button>
+    </div>
   </div>
   <!-- ASSIGN JOB BAR -->
   <div class="assign-bar" *ngIf="selectedCount > 0">

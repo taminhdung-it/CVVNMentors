@@ -3,7 +3,7 @@ import { Router } from '@angular/router';
 import { CvService } from '../cv-detail/cv.service';
 
 export interface CV {
-  id: number;
+  id: string;
   fullName: string;
   email: string;
   phone: string;
@@ -20,39 +20,33 @@ export interface CV {
   styleUrls: ['./cv-management.component.css'],
 })
 export class CvManagementComponent implements OnInit {
+  /* ================= DATA ================= */
   allData: CV[] = [];
   filteredData: CV[] = [];
   pagedData: CV[] = [];
 
+  /* ================= FILTER ================= */
   keyword = '';
   cvType = '';
   status = '';
   date = '';
 
+  /* ================= PAGINATION ================= */
   page = 1;
-  pageSize = 5;
+  pageSize = 10;
+  totalPages = 1;
 
-  /** ===== ACTION TOOLBAR ===== */
-  openActionId: number | null = null;
-
-  /** ===== ADD CV MENU ===== */
+  /* ================= UI STATE ================= */
+  openActionId: string | null = null;
   showAddMenu = false;
 
-  /** ===== ASSIGN JOB ===== */
+  /* ================= ASSIGN JOB ================= */
   showAssignModal = false;
-
   showAssignToast = false;
   assignedCount = 0;
   assignedJob = '';
 
-  jobs = [
-    'Frontend Developer',
-    'Backend Developer',
-    'Tester',
-    'QA Engineer',
-    'DevOps',
-  ];
-
+  jobs = ['Frontend Developer', 'Backend Developer', 'Tester', 'QA Engineer'];
   jobKeyword = '';
   selectedJob: string | null = null;
   showJobDropdown = false;
@@ -60,30 +54,61 @@ export class CvManagementComponent implements OnInit {
   constructor(private cvService: CvService, private router: Router) {}
 
   ngOnInit(): void {
-    const baseData = this.mockData();
-
-    const importedRaw = sessionStorage.getItem('importedCVs');
-    const imported: CV[] = importedRaw ? JSON.parse(importedRaw) : [];
-
-    // ❌ chống trùng Email / SĐT
-    const emailSet = new Set(baseData.map((c) => c.email.toLowerCase()));
-    const phoneSet = new Set(baseData.map((c) => c.phone));
-
-    const merged = [
-      ...baseData,
-      ...imported.filter(
-        (c) => !emailSet.has(c.email.toLowerCase()) && !phoneSet.has(c.phone)
-      ),
-    ];
-
-    this.allData = merged;
-
-    this.cvService.setCVs(this.allData);
-    this.applyFilter();
+    this.loadCvs();
   }
 
-  mockData(): CV[] {
-    return [];
+  /* ================= API ================= */
+  loadCvs() {
+    this.cvService.getCvs(this.page, this.pageSize).subscribe({
+      next: (res: any) => {
+        const data = res?.data || [];
+
+        this.allData = data.map(
+          (c: any): CV => ({
+            id: c.id,
+            fullName: c.fullName || 'Unknown',
+            email: c.email || '-',
+            phone: c.phone || '-',
+            cvType: 'Có CV',
+            status: this.mapStatus(c.status),
+            job: c.position || 'N/A',
+            updatedAt: new Date(c.updatedAt).toLocaleDateString('vi-VN'),
+            checked: false,
+          })
+        );
+
+        this.applyFilter();
+      },
+      error: (err) => console.error('Load CV error', err),
+    });
+  }
+
+  mapStatus(apiStatus: string): CV['status'] {
+    switch (apiStatus) {
+      case 'NEW':
+        return 'Mới';
+      case 'APPROVED':
+        return 'Duyệt';
+      case 'REJECTED':
+        return 'Không đạt';
+      case 'ARCHIVED':
+        return 'Lưu trữ';
+      default:
+        return 'Mới';
+    }
+  }
+
+  mapStatusToApi(status: CV['status']) {
+    switch (status) {
+      case 'Mới':
+        return 'NEW';
+      case 'Duyệt':
+        return 'APPROVED';
+      case 'Không đạt':
+        return 'REJECTED';
+      case 'Lưu trữ':
+        return 'ARCHIVED';
+    }
   }
 
   /* ================= FILTER ================= */
@@ -97,6 +122,7 @@ export class CvManagementComponent implements OnInit {
         (!this.cvType || cv.cvType === this.cvType) &&
         (!this.status || cv.status === this.status)
     );
+
     this.page = 1;
     this.updatePage();
   }
@@ -109,16 +135,25 @@ export class CvManagementComponent implements OnInit {
     this.applyFilter();
   }
 
+  /* ================= PAGINATION ================= */
   updatePage() {
+    this.totalPages = Math.ceil(this.filteredData.length / this.pageSize) || 1;
     const start = (this.page - 1) * this.pageSize;
     this.pagedData = this.filteredData.slice(start, start + this.pageSize);
   }
 
+  goToPage(p: number) {
+    if (p < 1 || p > this.totalPages) return;
+    this.page = p;
+    this.loadCvs(); // server-side pagination
+  }
+
+  /* ================= CHECKBOX ================= */
   toggleAll(e: any) {
     this.pagedData.forEach((x) => (x.checked = e.target.checked));
   }
 
-  get selectedCVs() {
+  get selectedCVs(): CV[] {
     return this.allData.filter((cv) => cv.checked);
   }
 
@@ -136,14 +171,14 @@ export class CvManagementComponent implements OnInit {
     this.showAddMenu = false;
   }
 
+  addCvNoFile() {
+    alert('Thêm CV không file');
+    this.showAddMenu = false;
+  }
+
   importExcel() {
     this.showAddMenu = false;
     this.router.navigate(['/cv/import-excel']);
-  }
-
-  addCvNoFile() {
-    alert('Thêm CV không có file');
-    this.showAddMenu = false;
   }
 
   /* ================= ASSIGN JOB ================= */
@@ -168,52 +203,59 @@ export class CvManagementComponent implements OnInit {
     this.showJobDropdown = false;
   }
 
-  /** ✅ HÀM DUY NHẤT GÁN JOB + HIỆN TOAST */
   confirmAssignJob() {
-    if (!this.selectedJob) {
-      alert('Vui lòng chọn job');
-      return;
-    }
+    if (!this.selectedJob) return;
 
     const selected = this.selectedCVs;
 
-    selected.forEach((cv) => (cv.job = this.selectedJob!));
+    selected.forEach((cv) => {
+      cv.job = this.selectedJob!;
+      this.cvService.assignJob(cv.id, this.selectedJob!).subscribe();
+    });
 
     this.assignedCount = selected.length;
     this.assignedJob = this.selectedJob;
 
-    // đóng modal
     this.showAssignModal = false;
-
-    // hiện toast
     this.showAssignToast = true;
 
-    // auto ẩn
-    setTimeout(() => {
-      this.showAssignToast = false;
-    }, 3000);
+    setTimeout(() => (this.showAssignToast = false), 3000);
 
-    // clear checkbox
     selected.forEach((cv) => (cv.checked = false));
-
-    // reset job
     this.selectedJob = null;
     this.jobKeyword = '';
   }
 
-  /* ================= ACTION TOOLBAR ================= */
+  /* ================= ACTION ================= */
   toggleAction(cv: CV) {
     this.openActionId = this.openActionId === cv.id ? null : cv.id;
   }
 
   setStatus(cv: CV, status: CV['status']) {
-    cv.status = status;
-    this.openActionId = null;
-  }
+    const apiStatusMap: Record<CV['status'], any> = {
+      Mới: 'NEW',
+      Duyệt: 'APPROVED',
+      'Không đạt': 'REJECTED',
+      'Lưu trữ': 'ARCHIVED',
+    };
 
-  @HostListener('document:click')
-  closeToolbar() {
-    this.openActionId = null;
+    const apiStatus = apiStatusMap[status];
+
+    this.cvService.updateStatus(cv.id, apiStatus).subscribe({
+      next: () => {
+        // ✅ update UI ngay
+        cv.status = status;
+
+        // ✅ reload lại từ server (QUAN TRỌNG)
+        this.loadCvs();
+
+        this.openActionId = null;
+      },
+      error: (err) => {
+        console.error('Update status failed', err);
+        alert('Cập nhật trạng thái thất bại');
+      },
+    });
   }
 
   view(cv: CV) {
@@ -235,32 +277,8 @@ export class CvManagementComponent implements OnInit {
     }
   }
 
-  // ===== MENU ACTION (ICON HÌNH NGƯỜI) =====
-  openUserMenuId: number | null = null;
-
-  toggleUserMenu(cv: CV) {
-    this.openUserMenuId = this.openUserMenuId === cv.id ? null : cv.id;
-  }
-
-  goDetail(cv: CV) {
-    alert('Xem chi tiết: ' + cv.fullName);
-    this.openUserMenuId = null;
-  }
-
-  assignJobFromRow(cv: CV) {
-    cv.checked = true;
-    this.openAssignModal();
-    this.openUserMenuId = null;
-  }
-
-  viewHistory(cv: CV) {
-    alert('Xem lịch sử: ' + cv.fullName);
-    this.openUserMenuId = null;
-  }
-
-  /** click ra ngoài thì đóng menu */
   @HostListener('document:click')
-  closeUserMenu() {
-    this.openUserMenuId = null;
+  closeToolbar() {
+    this.openActionId = null;
   }
 }

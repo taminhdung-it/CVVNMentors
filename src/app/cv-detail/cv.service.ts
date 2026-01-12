@@ -1,24 +1,43 @@
 import { Injectable } from '@angular/core';
-import { CV } from '../cv-management/cv-management.component';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { Observable } from 'rxjs';
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class CvService {
-  private cvs: CV[] = [];
+  private API = 'https://cvvnmentors.onrender.com/cv';
 
-  /** Lưu toàn bộ danh sách CV */
-  setCVs(cvs: CV[]) {
-    this.cvs = cvs;
+  constructor(private http: HttpClient) {}
+
+  private getHeaders() {
+    return new HttpHeaders({
+      Authorization: `Bearer ${sessionStorage.getItem('accesstoken')}`,
+      refreshtoken: sessionStorage.getItem('refreshtoken') || '',
+    });
   }
 
-  /** Lấy CV theo ID */
-  getCVById(id: number): CV | undefined {
-    return this.cvs.find(cv => cv.id === id);
+  /** GET CV – phân trang */
+  getCvs(page: number, limit: number): Observable<any> {
+    return this.http.get(`${this.API}?page=${page}&limit=${limit}`, {
+      headers: this.getHeaders(),
+    });
   }
 
-  /** (optional) lấy tất cả */
-  getAllCVs(): CV[] {
-    return this.cvs;
+  /** ASSIGN JOB */
+  assignJob(id: string, job: string) {
+    return this.http.patch(`/api/cvs/${id}/assign-job`, { job });
+  }
+
+  /** UPDATE STATUS */
+  updateStatus(
+    cvId: string,
+    status: 'NEW' | 'APPROVED' | 'REJECTED' | 'ARCHIVED'
+  ) {
+    return this.http.patch(
+      `${this.API}/${cvId}/status`,
+      { status },
+      { headers: this.getHeaders() }
+    );
   }
 }
