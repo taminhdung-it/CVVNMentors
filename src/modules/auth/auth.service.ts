@@ -1,5 +1,5 @@
 import {
-  BadRequestException,
+  BadRequestException, ForbiddenException,
   Injectable,
   InternalServerErrorException,
   UnauthorizedException,
@@ -12,6 +12,7 @@ import { FirebaseService } from '../../firebase/firebase.service';
 import { LoginDto } from './dto/login.dto';
 
 import { RegisterDto } from './dto/register.dto';
+import { async } from 'rxjs';
 
 @Injectable()
 export class AuthService {
@@ -56,8 +57,30 @@ export class AuthService {
         user_id: response.data.localId,
       };
     } catch (error) {
-      throw new UnauthorizedException(`Thông tin đăng nhập không hợp lệ. Báo lỗi: ${this.apiKey}`);
+      const firebaseError = error.response?.data?.error?.message;
+
+      console.error('Firebase Login Error:', firebaseError);
+
+      // Case 1: Tài khoản bị vô hiệu hóa (Disabled)
+      if (firebaseError === 'USER_DISABLED') {
+        throw new ForbiddenException('Tài khoản của bạn đã bị vô hiệu hóa. Vui lòng liên hệ quản trị viên.');
+      }
+
+      // Case 2: Sai thông tin đăng nhập (Email không tồn tại hoặc sai pass)
+      const invalidCredentialsErrors = [
+        'EMAIL_NOT_FOUND',
+        'INVALID_PASSWORD',
+        'INVALID_LOGIN_CREDENTIALS' // Firebase bản mới có thể trả về mã chung này
+      ];
+
+      if (invalidCredentialsErrors.includes(firebaseError)) {
+        throw new UnauthorizedException('Email hoặc mật khẩu không chính xác.');
+      }
+
+      // Case 3: Các lỗi khác (Lỗi server, quá nhiều lần thử, v.v.)
+      throw new InternalServerErrorException(`Đăng nhập thất bại: ${firebaseError || 'Lỗi không xác định'}`);
     }
+
   }
 
   async logout(uid: string) {

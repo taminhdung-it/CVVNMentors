@@ -404,6 +404,101 @@ export const document: OpenAPIObject = {
           }
         },
       },
+      get: {
+        tags: ['Quản lý CV'],
+        summary: 'Lấy danh sách CV (Phân trang)',
+        parameters: [
+          {
+            in: 'header',
+            name: 'refreshtoken',
+            required: true,
+            schema: { type: 'string', example: 'eyJhbGciOiJIUzI1Ni...' },
+            description: 'Refresh Token',
+          },
+          {
+            in: 'query',
+            name: 'page',
+            schema: { type: 'number', example: 1 },
+            description: 'Trang số (mặc định 1)',
+          },
+          {
+            in: 'query',
+            name: 'limit',
+            schema: { type: 'number', example: 10 },
+            description: 'Số lượng item/trang (mặc định 10)',
+          },
+        ],
+        responses: {
+          '200': {
+            description: 'Thành công',
+            content: {
+              'application/json': {
+                schema: {
+                  example: {
+                    data: [
+                      {
+                        "id": "WnLu5aPcFCwADV2KmyL1",
+                        "createdBy": null,
+                        "cvType": "Parsed Resume",
+                        "fullName": "Unknown",
+                        "email": "kazki_example@vietcv.io",
+                        "phone": null,
+                        "position": "N/A",
+                        "level": "N/A",
+                        "status": "NEW",
+                        "cvFileUrl": "https://res.cloudinary.com/dyedoswp3/image/upload/v1768191075/CV/qxkwormtso9gz7ouk3pb.pdf",
+                        "publicId": "CV/qxkwormtso9gz7ouk3pb",
+                        "createdAt": {
+                          "_seconds": 1768191076,
+                          "_nanoseconds": 261000000
+                        },
+                        "updatedAt": "2026-01-12T04:12:04.058Z",
+                        "skills": [
+                          "Pr",
+                          "P",
+                          "Php",
+                          "Github",
+                          "Adobe",
+                          "Illustrator",
+                          "Html",
+                          "Javascript",
+                          "Seo",
+                          "Ruby",
+                          "Programming",
+                          "Html5",
+                          "Ux",
+                          "Xml",
+                          "Ui",
+                          "Facebook",
+                          "R",
+                          "Css"
+                        ],
+                        "education": [],
+                        "experienceYears": 2,
+                        "experience": [
+                          {
+                            "title": "CTO",
+                            "dates": null,
+                            "location": null,
+                            "organization": "VietCV 2"
+                          },
+                          {
+                            "title": "Web Developer",
+                            "dates": "February 2001 - February 2001",
+                            "location": null,
+                            "organization": "VietCV 1"
+                          }
+                        ]
+                      },
+                    ],
+                    meta: { total: 50, page: 1, limit: 10 },
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
     },
     '/cv/{id}': {
       get: {
@@ -1960,6 +2055,411 @@ export const document: OpenAPIObject = {
               // }
             }
           },
+        },
+      },
+    },
+
+    // --- MODULE: QUẢN LÝ NHÂN VIÊN (USER) ---
+    '/users': {
+      post: {
+        tags: ['Quản lý Nhân viên'],
+        summary: 'Tạo nhân viên mới',
+        description: `
+          **Luồng xử lý:**
+          1. Hệ thống kiểm tra trùng Email hoặc SĐT.
+          2. Tạo tài khoản đăng nhập bên Firebase Authentication với mật khẩu mặc định: **User@123**
+          3. Lưu thông tin chi tiết vào Firestore.
+        `,
+        parameters: [
+          {
+            in: 'header',
+            name: 'refreshtoken',
+            required: true,
+            schema: { type: 'string', example: 'eyJhbGciOiJIUzI1Ni...' },
+            description: 'Refresh Token',
+          },
+        ],
+        requestBody: {
+          required: true,
+          content: {
+            'application/json': {
+              schema: {
+                type: 'object',
+                properties: {
+                  name: { type: 'string', example: 'Nguyễn Văn B' },
+                  email: { type: 'string', example: 'nguyenvanb@company.com' },
+                  phone: { type: 'string', example: '0909111222' },
+                  address: { type: 'string', example: '123 Lê Lợi, Q1, HCM' },
+                  dob: {
+                    type: 'string',
+                    format: 'date',
+                    example: '1998-05-20',
+                    description: 'Ngày sinh (YYYY-MM-DD hoặc ISO String)'
+                  },
+                  gender: { type: 'string', example: 'Nam' },
+                  role: { type: 'string', example: 'Kế toán' },
+                  departmentId: { type: 'string', example: 'dept_001' },
+                },
+                required: ['name', 'email', 'phone', 'address', 'dob', 'role', 'gender', 'departmentId'],
+              },
+            },
+          },
+        },
+        responses: {
+          '201': {
+            description: 'Tạo thành công',
+            content: {
+              'application/json': {
+                schema: {
+                  example: {
+                    id: 'firebase_uid_123456',
+                    message: 'Tạo nhân viên thành công',
+                    defaultPassword: 'User@123'
+                  },
+                },
+              },
+            },
+          },
+          '400': {
+            description: 'Lỗi Validation hoặc Trùng lặp',
+            content: {
+              'application/json': {
+                schema: { example: { message: 'Email hoặc Số điện thoại đã tồn tại trong hệ thống.' } }
+              }
+            },
+          }
+        },
+      },
+      get: {
+        tags: ['Quản lý Nhân viên'],
+        summary: 'Lấy danh sách nhân viên (Cơ bản)',
+        description: 'Lấy danh sách tất cả nhân viên, sắp xếp theo ngày tạo mới nhất (createdAt desc).',
+        parameters: [
+          {
+            in: 'header',
+            name: 'refreshtoken',
+            required: true,
+            schema: { type: 'string', example: 'eyJhbGciOiJIUzI1Ni...' },
+            description: 'Refresh Token',
+          },
+          {
+            in: 'query',
+            name: 'page',
+            schema: { type: 'number', example: 1 },
+            description: 'Trang hiện tại (Mặc định 1)',
+          },
+          {
+            in: 'query',
+            name: 'limit',
+            schema: { type: 'number', example: 10 },
+            description: 'Số lượng item/trang (Mặc định 10)',
+          },
+        ],
+        responses: {
+          '200': {
+            description: 'Thành công',
+            content: {
+              'application/json': {
+                schema: {
+                  example: {
+                    data: [
+                      {
+                        id: 'user_001',
+                        name: 'Nguyễn Văn A',
+                        email: 'a@gmail.com',
+                        phone: '0909000111',
+                        role: 'Dev',
+                        status: 'ACTIVE',
+                        departmentId: 'dept_tech',
+                        createdAt: '2025-01-10T08:00:00.000Z'
+                      },
+                    ],
+                    meta: { total: 50, page: 1, limit: 10, totalPages: 5 },
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+    },
+
+    '/users/search': {
+      get: {
+        tags: ['Quản lý Nhân viên'],
+        summary: 'Tìm kiếm nhân viên nâng cao',
+        description: `
+          **Cơ chế tìm kiếm:**
+          - **keyword:** Tìm theo tên (Name), cơ chế Prefix Search (vd: gõ "Nguy" ra "Nguyễn").
+          - **Các trường còn lại:** Tìm chính xác (Exact Match).
+          - Nếu có **keyword**, danh sách sẽ sắp xếp theo Tên (A-Z).
+          - Nếu **không có keyword**, danh sách sắp xếp theo Ngày tạo mới nhất.
+        `,
+        parameters: [
+          {
+            in: 'header',
+            name: 'refreshtoken',
+            required: true,
+            schema: { type: 'string', example: 'eyJhbGciOiJIUzI1Ni...' },
+            description: 'Refresh Token',
+          },
+          {
+            in: 'query',
+            name: 'keyword',
+            schema: { type: 'string', example: 'Nguyễn' },
+            description: 'Tìm theo tên nhân viên',
+          },
+          {
+            in: 'query',
+            name: 'email',
+            schema: { type: 'string', example: 'nguyenvanb@company.com' },
+            description: 'Tìm chính xác Email',
+          },
+          {
+            in: 'query',
+            name: 'phone',
+            schema: { type: 'string', example: '0909111222' },
+            description: 'Tìm chính xác SĐT',
+          },
+          {
+            in: 'query',
+            name: 'status',
+            schema: { type: 'string', enum: ['ACTIVE', 'INACTIVE'], example: 'ACTIVE' },
+            description: 'Lọc theo trạng thái',
+          },
+          {
+            in: 'query',
+            name: 'departmentId',
+            schema: { type: 'string', example: 'dept_001' },
+            description: 'Lọc theo phòng ban',
+          },
+          {
+            in: 'query',
+            name: 'role',
+            schema: { type: 'string', example: 'Kế toán' },
+            description: 'Lọc theo vai trò',
+          },
+          {
+            in: 'query',
+            name: 'page',
+            schema: { type: 'number', example: 1 },
+          },
+          {
+            in: 'query',
+            name: 'limit',
+            schema: { type: 'number', example: 10 },
+          },
+        ],
+        responses: {
+          '200': {
+            description: 'Trả về kết quả tìm kiếm',
+            content: {
+              'application/json': {
+                schema: {
+                  example: {
+                    data: [
+                      {
+                        id: 'user_002',
+                        name: 'Nguyễn Văn B',
+                        email: 'nguyenvanb@company.com',
+                        status: 'ACTIVE'
+                      }
+                    ],
+                    meta: { total: 1, page: 1, limit: 10, totalPages: 1 },
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+    },
+
+    '/users/{id}': {
+      get: {
+        tags: ['Quản lý Nhân viên'],
+        summary: 'Xem chi tiết nhân viên',
+        parameters: [
+          {
+            in: 'header',
+            name: 'refreshtoken',
+            required: true,
+            schema: { type: 'string', example: 'eyJhbGciOiJIUzI1Ni...' },
+            description: 'Refresh Token',
+          },
+          {
+            in: 'path',
+            name: 'id',
+            required: true,
+            schema: { type: 'string', example: 'user_001' },
+          },
+        ],
+        responses: {
+          '200': {
+            description: 'Thông tin chi tiết',
+            content: {
+              'application/json': {
+                schema: {
+                  example: {
+                    id: 'user_001',
+                    name: 'Nguyễn Văn B',
+                    email: 'nguyenvanb@company.com',
+                    phone: '0909111222',
+                    address: 'HCM',
+                    dob: '1998-05-20T00:00:00.000Z',
+                    role: 'Kế toán',
+                    gender: 'Nam',
+                    status: 'ACTIVE',
+                    departmentId: 'dept_001',
+                    createdAt: '2025-01-12T10:00:00.000Z',
+                    updatedAt: '2025-01-12T10:00:00.000Z'
+                  },
+                },
+              },
+            },
+          },
+          '404': {
+            description: 'Không tìm thấy',
+            content: {
+              'application/json': { schema: { example: { message: 'Không tìm thấy nhân viên' } } }
+            }
+          }
+        },
+      },
+      patch: {
+        tags: ['Quản lý Nhân viên'],
+        summary: 'Cập nhật thông tin nhân viên',
+        description: `
+          **Lưu ý:**
+          - Chỉ cần gửi các trường muốn thay đổi (Partial Update).
+          - Nếu thay đổi **Email**, hệ thống sẽ tự động đồng bộ sang Firebase Authentication (để user đăng nhập bằng email mới).
+          - Hệ thống sẽ chặn nếu Email hoặc SĐT mới bị trùng với nhân viên khác.
+        `,
+        parameters: [
+          {
+            in: 'header',
+            name: 'refreshtoken',
+            required: true,
+            schema: { type: 'string', example: 'eyJhbGciOiJIUzI1Ni...' },
+            description: 'Refresh Token',
+          },
+          {
+            in: 'path',
+            name: 'id',
+            required: true,
+            schema: { type: 'string', example: 'user_001' },
+          },
+        ],
+        requestBody: {
+          required: true,
+          content: {
+            'application/json': {
+              schema: {
+                type: 'object',
+                properties: {
+                  name: { type: 'string', example: 'Nguyễn Văn B (Updated)' },
+                  email: { type: 'string', example: 'new_email@company.com' },
+                  phone: { type: 'string', example: '0999888777' },
+                  address: { type: 'string', example: 'Hà Nội' },
+                  role: { type: 'string', example: 'Trưởng phòng Kế toán' },
+                  departmentId: { type: 'string', example: 'dept_002' },
+                },
+              },
+            },
+          },
+        },
+        responses: {
+          '200': {
+            description: 'Cập nhật thành công',
+            content: {
+              'application/json': {
+                schema: {
+                  example: {
+                    id: 'user_001',
+                    message: 'Cập nhật thành công'
+                  },
+                },
+              },
+            },
+          },
+          '400': {
+            description: 'Lỗi trùng lặp dữ liệu',
+            content: {
+              'application/json': {
+                schema: { example: { message: "Email 'new_email@company.com' đã được sử dụng bởi nhân viên khác." } }
+              }
+            }
+          }
+        },
+      },
+    },
+
+    '/users/{id}/status': {
+      patch: {
+        tags: ['Quản lý Nhân viên'],
+        summary: 'Đổi trạng thái (Khóa/Mở khóa tài khoản)',
+        description: `
+          **Tác động:**
+          - **INACTIVE**: Cập nhật DB và **Disabled** tài khoản bên Auth (User không thể đăng nhập).
+          - **ACTIVE**: Cập nhật DB và **Enabled** tài khoản bên Auth (Cho phép đăng nhập lại).
+        `,
+        parameters: [
+          {
+            in: 'header',
+            name: 'refreshtoken',
+            required: true,
+            schema: { type: 'string', example: 'eyJhbGciOiJIUzI1Ni...' },
+            description: 'Refresh Token',
+          },
+          {
+            in: 'path',
+            name: 'id',
+            required: true,
+            schema: { type: 'string', example: 'user_001' },
+          },
+        ],
+        requestBody: {
+          required: true,
+          content: {
+            'application/json': {
+              schema: {
+                type: 'object',
+                properties: {
+                  status: {
+                    type: 'string',
+                    enum: ['ACTIVE', 'INACTIVE'],
+                    example: 'INACTIVE',
+                  },
+                },
+                required: ['status'],
+              },
+            },
+          },
+        },
+        responses: {
+          '200': {
+            description: 'Đổi trạng thái thành công',
+            content: {
+              'application/json': {
+                schema: {
+                  example: {
+                    id: 'user_001',
+                    previousStatus: 'ACTIVE',
+                    currentStatus: 'INACTIVE',
+                    message: 'Đã chuyển trạng thái tài khoản sang INACTIVE'
+                  },
+                },
+              },
+            },
+          },
+          '400': {
+            description: 'Lỗi Logic',
+            content: {
+              'application/json': {
+                schema: { example: { message: "Tài khoản đang ở trạng thái INACTIVE, không cần cập nhật." } }
+              }
+            }
+          }
         },
       },
     },
