@@ -361,188 +361,233 @@ export class CvService {
     if (!file) {
       throw new BadRequestException('Không có file');
     }
-    let message="Đọc excel thành công";
-    // Đọc Excel từ buffer
-    const workbook = XLSX.read(file.buffer, {
-      type: 'buffer',
-    });
+    let message_value="";
+    let message = { message: 'Đọc excel thành công', email: { duplicate_data: "", duplicate_count: 0, duplicate_position: [] as Number[] }, phone: { duplicate_data: "", duplicate_count: 0, duplicate_position: [] as Number[] } };
 
-    // Lấy sheet đầu tiên
+    const workbook = XLSX.read(file.buffer, { type: 'buffer' });
     const sheetName = workbook.SheetNames[0];
     const sheet = workbook.Sheets[sheetName];
 
-    // Sheet → JSON
     const data = XLSX.utils.sheet_to_json(sheet) as Record<string, any>[];
+
     const list_cv = data.map(row => ({
-      id: row["Họ và tên"],
-      data: row
-    }))
-    const list_email:string[]=[];
-    const list_phone:string[]=[];
-    let count=0;
-    for (let i in list_cv){
-      list_email[count]=list_cv[count].data["email"];
-      list_phone[count]=list_cv[count].data["Số điện thoại"];
-      count++;
+      id: row['Họ và tên'],
+      data: row,
+    }));
+
+    // ===== XỬ LÝ TRÙNG LẶP NGAY TẠI ĐÂY =====
+    const emailMap = new Map<string, number[]>();
+    const phoneMap = new Map<string, number[]>();
+
+    list_cv.forEach((item, index) => {
+      const rowExcel = index + 2; // vì dòng 1 là header
+
+      const email = item.data['email'];
+      const phone = item.data['Số điện thoại'];
+
+      if (email) {
+        if (!emailMap.has(email)) emailMap.set(email, []);
+        emailMap.get(email)!.push(rowExcel);
+      }
+
+      if (phone) {
+        if (!phoneMap.has(phone)) phoneMap.set(phone, []);
+        phoneMap.get(phone)!.push(rowExcel);
+      }
+    });
+
+    const emailDuplicates = [...emailMap.entries()]
+      .filter(([, rows]) => rows.length > 1)
+      .map(([value, rows]) => ({
+        value,
+        count: rows.length,
+        rows,
+      }));
+
+    const phoneDuplicates = [...phoneMap.entries()]
+      .filter(([, rows]) => rows.length > 1)
+      .map(([value, rows]) => ({
+        value,
+        count: rows.length,
+        rows,
+      }));
+
+    if (emailDuplicates.length==1){
+      message_value+="email bị trùng lặp"
+      message.email = {
+        duplicate_data: emailDuplicates[0].value,
+        duplicate_count: emailDuplicates[0].count,
+        duplicate_position: emailDuplicates[0].rows
+      }
     }
-    if (list_email.length!== new Set(list_email).size){
-      message="Email bị trùng lặp";
+    if (phoneDuplicates.length==1) {
+      message_value+="Số điện thoại bị trùng lặp"
+      message.phone = {
+        duplicate_data: phoneDuplicates[0].value.toString(),
+        duplicate_count: phoneDuplicates[0].count,
+        duplicate_position: phoneDuplicates[0].rows
+      }
     }
-    if (list_phone.length!== new Set(list_phone).size){
-      message="Số điện thoại bị trùng lặp";
+    if (message_value!=""){
+      message.message=message_value;
     }
-    return {
-      message,
-      sheetName,
-      list_cv,
-    };
-  }
+  return {
+  message,
+  sheetName,
+  list_cv,
+};
+}
+
 
   async assignJob(dto: AssignJobDto) {
-    const { jobId, cvIds } = dto;
-    const batch = this.firebaseService.firestore.batch();
+  const { jobId, cvIds } = dto;
+  const batch = this.firebaseService.firestore.batch();
 
-    //check Job có tồn tại và đang OPEN không
-    const jobRef = this.firebaseService.firestore
-      .collection(this.jobCollection)
-      .doc(jobId);
-    const jobDoc = await jobRef.get();
+  //check Job có tồn tại và đang OPEN không
+  const jobRef = this.firebaseService.firestore
+    .collection(this.jobCollection)
+    .doc(jobId);
+  const jobDoc = await jobRef.get();
 
-    if (!jobDoc.exists) {
-      throw new NotFoundException(`Job ID ${jobId} không tồn tại`);
-    }
-
-    const jobData = JobEntity.fromFirestore(jobDoc);
-    //Không assign CV vào Job đã đóng hoặc lock
-    if (jobData.status !== JobStatus.OPEN) {
-      throw new BadRequestException(
-        'Không thể gán CV vào Job đã đóng hoặc bị khóa',
-      );
-    }
-
-    const successIds: string[] = [];
-    const errors: string[] = [];
-
-    // 2. Duyệt qua từng CV để xử lý
-    for (const cvId of cvIds) {
-      const cvRef = this.firebaseService.firestore
-        .collection(this.cvCollection)
-        .doc(cvId);
-      const cvDoc = await cvRef.get();
-
-      if (!cvDoc.exists) {
-        errors.push(`CV ID ${cvId} không tồn tại`);
-        continue;
-      }
-
-      const cvData = CvEntity.fromFirestore(cvDoc);
-
-      if (cvData.status !== CvStatus.APPROVED) {
-        errors.push(
-          `CV ${cvData.fullName} chưa được duyệt (Trạng thái: ${cvData.status})`,
-        );
-        continue;
-      }
-
-      //check trùng lặp (Đã apply job này chưa)
-      const duplicateCheck = await this.firebaseService.firestore
-        .collection(this.applicationCollection)
-        .where('jobId', '==', jobId)
-        .where('cvId', '==', cvId)
-        .limit(1)
-        .get();
-
-      if (!duplicateCheck.empty) {
-        errors.push(`CV ${cvData.fullName} đã ứng tuyển vào Job này rồi`);
-        continue;
-      }
-
-      const newAppRef = this.firebaseService.firestore
-        .collection(this.applicationCollection)
-        .doc();
-      const newApp = new ApplicationEntity({
-        cvId: cvId,
-        jobId: jobId,
-        status: ApplicationStatus.APPLIED, //  Default status
-        appliedAt: new Date(),
-        updatedAt: new Date(),
-      });
-
-      batch.set(newAppRef, newApp.toFirestore());
-      successIds.push(cvId);
-    }
-
-    // 5. Commit batch nếu có ít nhất 1 CV hợp lệ
-    if (successIds.length > 0) {
-      await batch.commit();
-    }
-
-    return {
-      success: successIds.length > 0,
-      assignedCount: successIds.length,
-      successIds,
-      errors, // Trả về danh sách lỗi để FE hiển thị
-    };
+  if (!jobDoc.exists) {
+    throw new NotFoundException(`Job ID ${jobId} không tồn tại`);
   }
+
+  const jobData = JobEntity.fromFirestore(jobDoc);
+  //Không assign CV vào Job đã đóng hoặc lock
+  if (jobData.status !== JobStatus.OPEN) {
+    throw new BadRequestException(
+      'Không thể gán CV vào Job đã đóng hoặc bị khóa',
+    );
+  }
+
+  const successIds: string[] = [];
+  const errors: string[] = [];
+
+  // 2. Duyệt qua từng CV để xử lý
+  for (const cvId of cvIds) {
+    const cvRef = this.firebaseService.firestore
+      .collection(this.cvCollection)
+      .doc(cvId);
+    const cvDoc = await cvRef.get();
+
+    if (!cvDoc.exists) {
+      errors.push(`CV ID ${cvId} không tồn tại`);
+      continue;
+    }
+
+    const cvData = CvEntity.fromFirestore(cvDoc);
+
+    if (cvData.status !== CvStatus.APPROVED) {
+      errors.push(
+        `CV ${cvData.fullName} chưa được duyệt (Trạng thái: ${cvData.status})`,
+      );
+      continue;
+    }
+
+    //check trùng lặp (Đã apply job này chưa)
+    const duplicateCheck = await this.firebaseService.firestore
+      .collection(this.applicationCollection)
+      .where('jobId', '==', jobId)
+      .where('cvId', '==', cvId)
+      .limit(1)
+      .get();
+
+    if (!duplicateCheck.empty) {
+      errors.push(`CV ${cvData.fullName} đã ứng tuyển vào Job này rồi`);
+      continue;
+    }
+
+    const newAppRef = this.firebaseService.firestore
+      .collection(this.applicationCollection)
+      .doc();
+    const newApp = new ApplicationEntity({
+      cvId: cvId,
+      jobId: jobId,
+      status: ApplicationStatus.APPLIED, //  Default status
+      appliedAt: new Date(),
+      updatedAt: new Date(),
+    });
+
+    batch.set(newAppRef, newApp.toFirestore());
+    successIds.push(cvId);
+  }
+
+  // 5. Commit batch nếu có ít nhất 1 CV hợp lệ
+  if (successIds.length > 0) {
+    await batch.commit();
+  }
+
+  return {
+    success: successIds.length > 0,
+    assignedCount: successIds.length,
+    successIds,
+    errors, // Trả về danh sách lỗi để FE hiển thị
+  };
+}
 
   private normalizeDate(dateInput: any): string | null {
-    if (!dateInput) return null;
+  if (!dateInput) return null;
 
-    // Trường hợp 1: Đã là String (VD: "2015 - 2017")
-    if (typeof dateInput === 'string') {
-      return dateInput.trim() === '' ? null : dateInput;
-    }
-
-    // Trường hợp 2: Là Mảng (VD: ["2015", "2017"])
-    if (Array.isArray(dateInput)) {
-      if (dateInput.length === 0) return null;
-      // Nối mảng thành chuỗi "Start - End"
-      return dateInput.filter((d) => d).join(' - ');
-    }
-
-    // Trường hợp 3: Là Object (VD: { startDate: "2015-01", endDate: "2020-12" })
-    if (typeof dateInput === 'object') {
-      const start = dateInput.startDate || dateInput.start || '';
-      const end =
-        dateInput.endDate ||
-        dateInput.end ||
-        (dateInput.isCurrent ? 'Present' : '');
-
-      // Nếu cả 2 đều rỗng
-      if (!start && !end) return null;
-
-      // Nếu chỉ có start (VD: "2015 - ") -> format lại thành "2015"
-      if (start && !end) return start.toString();
-
-      // Nếu chỉ có end (ít gặp)
-      if (!start && end) return end.toString();
-
-      return `${start} - ${end}`;
-    }
-
-    return null;
+  // Trường hợp 1: Đã là String (VD: "2015 - 2017")
+  if (typeof dateInput === 'string') {
+    return dateInput.trim() === '' ? null : dateInput;
   }
+
+  // Trường hợp 2: Là Mảng (VD: ["2015", "2017"])
+  if (Array.isArray(dateInput)) {
+    if (dateInput.length === 0) return null;
+    // Nối mảng thành chuỗi "Start - End"
+    return dateInput.filter((d) => d).join(' - ');
+  }
+
+  // Trường hợp 3: Là Object (VD: { startDate: "2015-01", endDate: "2020-12" })
+  if (typeof dateInput === 'object') {
+    const start = dateInput.startDate || dateInput.start || '';
+    const end =
+      dateInput.endDate ||
+      dateInput.end ||
+      (dateInput.isCurrent ? 'Present' : '');
+
+    // Nếu cả 2 đều rỗng
+    if (!start && !end) return null;
+
+    // Nếu chỉ có start (VD: "2015 - ") -> format lại thành "2015"
+    if (start && !end) return start.toString();
+
+    // Nếu chỉ có end (ít gặp)
+    if (!start && end) return end.toString();
+
+    return `${start} - ${end}`;
+  }
+
+  return null;
+}
   async add_cv_excel(addcvimportexcel: Addcvimportexcel[]) {
-    try {
-      const list_id: string[] = [];
-      const batch = await this.firebaseService.firestore.batch();
-      for (let i = 0; i < addcvimportexcel.length; i++) {
-        const createData = instanceToPlain(addcvimportexcel[i]);
-        const newCv = {
-          ...createData,
-          status: CvStatus.NEW,
-          createdAt: new Date(),
-          cvType: "excel",
-          updatedAt: new Date()
-        }
-        const docref = await this.firebaseService.firestore.collection(this.cvCollection).doc()
-        list_id[i] = docref.id;
-        batch.set(docref, newCv);
+  try {
+    const list_id: string[] = [];
+    const batch = await this.firebaseService.firestore.batch();
+    for (let i = 0; i < addcvimportexcel.length; i++) {
+      const createData = instanceToPlain(addcvimportexcel[i]);
+      const newCv = {
+        ...createData,
+        status: CvStatus.NEW,
+        createdAt: new Date(),
+        cvType: "excel",
+        updatedAt: new Date()
       }
-      await batch.commit();
-      return { message: "thêm thành công", data: list_id }
-    } catch (error) {
-      return { message: error, data: [] }
+      const docref = await this.firebaseService.firestore.collection(this.cvCollection).doc()
+      list_id[i] = docref.id;
+      batch.set(docref, newCv);
     }
+    await batch.commit();
+    return { message: "thêm thành công", data: list_id }
+  } catch (error) {
+    return { message: error, data: [] }
   }
+}
+}
+
+function findDuplicatesWithPositions(list_phone: string[]) {
+  throw new Error('Function not implemented.');
 }
