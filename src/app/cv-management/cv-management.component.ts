@@ -57,65 +57,45 @@ export class CvManagementComponent implements OnInit {
   selectedJob: string | null = null;
   showJobDropdown = false;
 
-  constructor(
-    private cvService: CvService,
-    private router: Router
-  ) {}
+  constructor(private cvService: CvService, private router: Router) {}
 
   ngOnInit(): void {
-  this.allData = this.mockData();
+    const baseData = this.mockData();
 
-  // 🔥 LƯU CV VÀO SERVICE
-  this.cvService.setCVs(this.allData);
+    const importedRaw = sessionStorage.getItem('importedCVs');
+    const imported: CV[] = importedRaw ? JSON.parse(importedRaw) : [];
 
-  this.applyFilter();
-}
+    // ❌ chống trùng Email / SĐT
+    const emailSet = new Set(baseData.map((c) => c.email.toLowerCase()));
+    const phoneSet = new Set(baseData.map((c) => c.phone));
 
+    const merged = [
+      ...baseData,
+      ...imported.filter(
+        (c) => !emailSet.has(c.email.toLowerCase()) && !phoneSet.has(c.phone)
+      ),
+    ];
+
+    this.allData = merged;
+
+    this.cvService.setCVs(this.allData);
+    this.applyFilter();
+  }
 
   mockData(): CV[] {
-    return [
-      {
-        id: 1,
-        fullName: 'Dũng Họ Cao',
-        email: 'nguyenvana@gmail.com',
-        phone: '0966381048',
-        cvType: 'Có CV',
-        status: 'Mới',
-        job: 'Senior Frontend Developer',
-        updatedAt: '07/01/2026',
-      },
-      {
-        id: 2,
-        fullName: 'Đào Quốc Sơn Hà',
-        email: 'nguyenvana@gmail.com',
-        phone: '0966381048',
-        cvType: 'Có CV',
-        status: 'Duyệt',
-        job: 'Senior Backend Developer',
-        updatedAt: '07/01/2026',
-      },
-      {
-        id: 3,
-        fullName: 'Nguyễn Minh Dương',
-        email: 'nguyenvana@gmail.com',
-        phone: '0966381048',
-        cvType: 'Có CV',
-        status: 'Mới',
-        job: 'Senior Frontend Developer',
-        updatedAt: '07/01/2026',
-      },
-    ];
+    return [];
   }
 
   /* ================= FILTER ================= */
   applyFilter() {
-    this.filteredData = this.allData.filter(cv =>
-      (!this.keyword ||
-        cv.fullName.toLowerCase().includes(this.keyword.toLowerCase()) ||
-        cv.email.toLowerCase().includes(this.keyword.toLowerCase()) ||
-        cv.phone.includes(this.keyword)) &&
-      (!this.cvType || cv.cvType === this.cvType) &&
-      (!this.status || cv.status === this.status)
+    this.filteredData = this.allData.filter(
+      (cv) =>
+        (!this.keyword ||
+          cv.fullName.toLowerCase().includes(this.keyword.toLowerCase()) ||
+          cv.email.toLowerCase().includes(this.keyword.toLowerCase()) ||
+          cv.phone.includes(this.keyword)) &&
+        (!this.cvType || cv.cvType === this.cvType) &&
+        (!this.status || cv.status === this.status)
     );
     this.page = 1;
     this.updatePage();
@@ -135,11 +115,11 @@ export class CvManagementComponent implements OnInit {
   }
 
   toggleAll(e: any) {
-    this.pagedData.forEach(x => (x.checked = e.target.checked));
+    this.pagedData.forEach((x) => (x.checked = e.target.checked));
   }
 
   get selectedCVs() {
-    return this.allData.filter(cv => cv.checked);
+    return this.allData.filter((cv) => cv.checked);
   }
 
   get selectedCount(): number {
@@ -157,10 +137,9 @@ export class CvManagementComponent implements OnInit {
   }
 
   importExcel() {
-  this.showAddMenu = false;
-  this.router.navigate(['/cv/import-excel']);
-}
-
+    this.showAddMenu = false;
+    this.router.navigate(['/cv/import-excel']);
+  }
 
   addCvNoFile() {
     alert('Thêm CV không có file');
@@ -178,7 +157,7 @@ export class CvManagementComponent implements OnInit {
   }
 
   filteredJobs() {
-    return this.jobs.filter(j =>
+    return this.jobs.filter((j) =>
       j.toLowerCase().includes(this.jobKeyword.toLowerCase())
     );
   }
@@ -198,7 +177,7 @@ export class CvManagementComponent implements OnInit {
 
     const selected = this.selectedCVs;
 
-    selected.forEach(cv => (cv.job = this.selectedJob!));
+    selected.forEach((cv) => (cv.job = this.selectedJob!));
 
     this.assignedCount = selected.length;
     this.assignedJob = this.selectedJob;
@@ -215,7 +194,7 @@ export class CvManagementComponent implements OnInit {
     }, 3000);
 
     // clear checkbox
-    selected.forEach(cv => (cv.checked = false));
+    selected.forEach((cv) => (cv.checked = false));
 
     // reset job
     this.selectedJob = null;
@@ -237,48 +216,51 @@ export class CvManagementComponent implements OnInit {
     this.openActionId = null;
   }
 
-
-view(cv: CV) {
-  this.router.navigate(['/cv', cv.id]);
-}
+  view(cv: CV) {
+    this.router.navigate(['/cv', cv.id]);
+  }
 
   getStatusClass(status: string): string {
     switch (status) {
-      case 'Mới': return 'status-new';
-      case 'Duyệt': return 'status-approved';
-      case 'Không đạt': return 'status-reject';
-      case 'Lưu trữ': return 'status-archived';
-      default: return '';
+      case 'Mới':
+        return 'status-new';
+      case 'Duyệt':
+        return 'status-approved';
+      case 'Không đạt':
+        return 'status-reject';
+      case 'Lưu trữ':
+        return 'status-archived';
+      default:
+        return '';
     }
   }
 
   // ===== MENU ACTION (ICON HÌNH NGƯỜI) =====
-openUserMenuId: number | null = null;
+  openUserMenuId: number | null = null;
 
-toggleUserMenu(cv: CV) {
-  this.openUserMenuId = this.openUserMenuId === cv.id ? null : cv.id;
-}
+  toggleUserMenu(cv: CV) {
+    this.openUserMenuId = this.openUserMenuId === cv.id ? null : cv.id;
+  }
 
-goDetail(cv: CV) {
-  alert('Xem chi tiết: ' + cv.fullName);
-  this.openUserMenuId = null;
-}
+  goDetail(cv: CV) {
+    alert('Xem chi tiết: ' + cv.fullName);
+    this.openUserMenuId = null;
+  }
 
-assignJobFromRow(cv: CV) {
-  cv.checked = true;
-  this.openAssignModal();
-  this.openUserMenuId = null;
-}
+  assignJobFromRow(cv: CV) {
+    cv.checked = true;
+    this.openAssignModal();
+    this.openUserMenuId = null;
+  }
 
-viewHistory(cv: CV) {
-  alert('Xem lịch sử: ' + cv.fullName);
-  this.openUserMenuId = null;
-}
+  viewHistory(cv: CV) {
+    alert('Xem lịch sử: ' + cv.fullName);
+    this.openUserMenuId = null;
+  }
 
-/** click ra ngoài thì đóng menu */
-@HostListener('document:click')
-closeUserMenu() {
-  this.openUserMenuId = null;
-}
-
+  /** click ra ngoài thì đóng menu */
+  @HostListener('document:click')
+  closeUserMenu() {
+    this.openUserMenuId = null;
+  }
 }

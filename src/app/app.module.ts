@@ -2,7 +2,7 @@
 import { NgModule } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
-import { HttpClientModule } from '@angular/common/http';
+import { HTTP_INTERCEPTORS, HttpClientModule } from '@angular/common/http';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { AppRoutingModule } from './app-routing.module'; 
 
@@ -49,6 +49,13 @@ import { CvService } from './services/cv.service';
 import { AuthService } from './services/auth.service';
 import { CvDetailComponent } from './cv-detail/cv-detail.component';
 import { CvImportExcelComponent } from './cv-import-excel/cv-import-excel.component';
+import { AuthInterceptor } from './auth/auth/auth.interceptor';
+import { NZ_I18N } from 'ng-zorro-antd/i18n';
+import { en_US } from 'ng-zorro-antd/i18n';
+import { registerLocaleData } from '@angular/common';
+import en from '@angular/common/locales/en';
+
+registerLocaleData(en);
 
 @NgModule({
   declarations: [
@@ -99,8 +106,17 @@ import { CvImportExcelComponent } from './cv-import-excel/cv-import-excel.compon
     MatBadgeModule,
     MatChipsModule
   ],
-  providers: [CvService,
-    AuthService],
+  providers: [
+    CvService,
+    AuthService,
+    {
+      provide: HTTP_INTERCEPTORS,
+      useClass: AuthInterceptor,
+      multi: true
+    },
+    { provide: NZ_I18N, useValue: en_US }
+  ],
   bootstrap: [AppComponent]
+  
 })
 export class AppModule { }

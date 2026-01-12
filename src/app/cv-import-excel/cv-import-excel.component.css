@@ -11,9 +11,10 @@
 
 .back-btn {
   border: 1px solid #d1d5db;
-  background: #fff;
+  background: #2563eb;
   padding: 6px 12px;
   border-radius: 6px;
+  color: #ffffff;
 }
 
 .tabs {
@@ -129,4 +130,219 @@ td {
 }
 .status-error {
   background: #ef4444;
+}
+
+/* DOWNLOAD CARD */
+.download-card {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: #f3f8ff;
+  border-radius: 12px;
+  padding: 16px;
+}
+
+.download-left {
+  display: flex;
+  gap: 12px;
+}
+
+.file-icon {
+  font-size: 32px;
+}
+
+/* UPLOAD */
+.upload-zone {
+  display: block;
+  margin-top: 16px;
+  background: #fafafa;
+  border: 2px dashed #d1d5db;
+  border-radius: 12px;
+  padding: 40px;
+  text-align: center;
+  cursor: pointer;
+}
+
+.upload-title {
+  font-weight: 600;
+  margin-top: 8px;
+}
+
+/* STATS */
+.stats {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 16px;
+  margin: 20px 0;
+}
+
+.stat-card {
+  padding: 16px;
+  border-radius: 12px;
+  font-size: 14px;
+}
+
+.stat-card.success {
+  background: #ecfdf5;
+  border-left: 5px solid #22c55e;
+}
+
+.stat-card.warning {
+  background: #fff7ed;
+  border-left: 5px solid #f97316;
+}
+
+.stat-value {
+  font-size: 22px;
+  font-weight: 700;
+}
+
+/* TABLE */
+.table-card {
+  background: #fff;
+  border-radius: 12px;
+  padding: 16px;
+}
+
+.search-input {
+  border: 1px solid #d1d5db;
+  padding: 6px 10px;
+  border-radius: 6px;
+  width: 220px;
+}
+
+.btn-collapse {
+  background: #2563eb;
+  color: #fff;
+  border: none;
+  padding: 6px 14px;
+  border-radius: 6px;
+}
+
+.cv-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 12px;
+}
+
+.cv-table thead {
+  background: #f9fafb;
+}
+
+.cv-table th,
+.cv-table td {
+  padding: 12px;
+  font-size: 13px;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.cv-table tbody tr:hover {
+  background: #f1f5f9;
+}
+
+/* STATUS */
+.status-pill {
+  padding: 4px 12px;
+  border-radius: 999px;
+  font-size: 12px;
+  color: #fff;
+}
+
+/* ACTION */
+.action-cell {
+  text-align: center;
+  cursor: pointer;
+}
+
+/* PAGINATION */
+.pagination {
+  display: flex;
+  justify-content: flex-end;
+  gap: 6px;
+  margin-top: 12px;
+}
+
+.pagination button {
+  border: 1px solid #d1d5db;
+  background: #fff;
+  padding: 4px 8px;
+  border-radius: 4px;
+}
+
+.pagination button.active {
+  background: #2563eb;
+  color: #fff;
+}
+
+/* ===== TABLE ALIGN CENTER ===== */
+.cv-table th,
+.cv-table td {
+  text-align: center;
+  vertical-align: middle;
+}
+
+/* Riêng cột Họ và tên căn trái cho dễ đọc */
+.cv-table td:nth-child(2),
+.cv-table th:nth-child(2) {
+  text-align: left;
+}
+
+/* ===== ZEBRA STRIPES ===== */
+.cv-table tbody tr:nth-child(even) {
+  background: #f9fafb;
+}
+
+.cv-table tbody tr:nth-child(odd) {
+  background: #ffffff;
+}
+
+/* Hover rõ hơn */
+.cv-table tbody tr:hover {
+  background: #e5effe;
+}
+
+/* Checkbox căn giữa */
+.cv-table input[type="checkbox"] {
+  transform: scale(1.1);
+  cursor: pointer;
+}
+
+.cv-table th,
+.cv-table td {
+  text-align: center;
+}
+
+.cv-table td:nth-child(2),
+.cv-table th:nth-child(2) {
+  text-align: left;
+}
+
+.cv-table tbody tr:nth-child(even) {
+  background: #f9fafb;
+}
+
+.cv-table tbody tr:nth-child(odd) {
+  background: #ffffff;
+}
+
+.cv-table tbody tr:hover {
+  background: #e5effe;
+}
+
+.alt {
+  background: #f9fafb;
+}
+
+.action-bar {
+  position: fixed;
+  bottom: 24px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: #ecfeff;
+  padding: 16px 24px;
+  border-radius: 12px;
+  display: flex;
+  gap: 16px;
+  align-items: center;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
 }
