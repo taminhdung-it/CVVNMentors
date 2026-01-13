@@ -1,14 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
-
-interface CV {
-  id: number;
-  fullName: string;
-  email: string;
-  phone: string;
-  position: string;
-  status: string;
-}
+import { CvService, CvDetailResponse } from '../auth/auth/cv.service';
 
 @Component({
   selector: 'app-cv-detail',
@@ -16,64 +8,88 @@ interface CV {
   styleUrls: ['./cv-detail.component.css'],
 })
 export class CvDetailComponent implements OnInit {
-  activeTab: 'profile' | 'jobs' | 'history' = 'profile';
+  cvId!: string;
+  cv!: CvDetailResponse;
+  loading = true;
 
-  cv!: CV;
+  /** EDIT MODE */
+  isEditing = false;
+  editModel: Partial<CvDetailResponse> = {};
 
-  jobs = [
-    {
-      name: 'Job #1',
-      department: 'IT',
-      status: 'Phỏng vấn',
-      assignedAt: '31/12/2025',
-      updatedAt: '01/01/2026',
-    },
-    {
-      name: 'Job #2',
-      department: 'IT',
-      status: 'Ứng tuyển',
-      assignedAt: '31/12/2025',
-      updatedAt: '01/01/2026',
-    },
-  ];
-
-  histories = [
-    {
-      time: '21/10/2025 14:30',
-      user: 'Admin User',
-      action: 'Phê duyệt CV',
-      status: 'Đã duyệt',
-    },
-    {
-      time: '21/10/2025 10:15',
-      user: 'Admin User',
-      action: 'Tải lên file CV_DungHoCao.pdf',
-    },
-    {
-      time: '21/10/2025 09:00',
-      user: 'System',
-      action: 'Tạo CV mới',
-      status: 'Mới',
-    },
-  ];
-
-  constructor(private route: ActivatedRoute) {}
+  constructor(private route: ActivatedRoute, private cvService: CvService) {}
 
   ngOnInit(): void {
-    const id = Number(this.route.snapshot.paramMap.get('id'));
+    this.cvId = this.route.snapshot.paramMap.get('id')!;
+    this.loadCv();
+  }
 
-    // MOCK – sau này thay bằng service
-    this.cv = {
-      id,
-      fullName: 'Dũng Họ Cao',
-      email: 'nguyenvana@gmail.com',
-      phone: '0966381048',
-      position: 'Senior Frontend Developer',
-      status: 'Mới',
+  loadCv() {
+    this.cvService.getCvDetail(this.cvId).subscribe({
+      next: (res) => {
+        this.cv = res;
+        this.loading = false;
+      },
+      error: () => (this.loading = false),
+    });
+  }
+
+  /* ===== STATUS ===== */
+  getStatusLabel(status: string): string {
+    return (
+      {
+        NEW: 'Mới',
+        APPROVED: 'Đã duyệt',
+        REJECTED: 'Không đạt',
+        ARCHIVED: 'Lưu trữ',
+      } as any
+    )[status];
+  }
+
+  statusClass(status: string) {
+    return `status-${status.toLowerCase()}`;
+  }
+
+  /* ===== DATE ===== */
+  get createdDate(): string {
+    if (!this.cv?.createdAt?._seconds) return '-';
+    return new Date(this.cv.createdAt._seconds * 1000).toLocaleDateString(
+      'vi-VN'
+    );
+  }
+
+  /* ===== PDF ===== */
+  viewPdf() {
+    window.open(this.cv.cvFileUrl, '_blank');
+  }
+
+  downloadPdf() {
+    const a = document.createElement('a');
+    a.href = this.cv.cvFileUrl;
+    a.download = '';
+    a.click();
+  }
+
+  /* ===== EDIT INFO ===== */
+  enableEdit() {
+    this.isEditing = true;
+    this.editModel = {
+      email: this.cv.email,
+      phone: this.cv.phone,
+      position: this.cv.position,
+      level: this.cv.level,
     };
   }
 
-  setTab(tab: 'profile' | 'jobs' | 'history') {
-    this.activeTab = tab;
+  cancelEdit() {
+    this.isEditing = false;
+  }
+
+  saveInfo() {
+    this.cvService.updateCvInfo(this.cvId, this.editModel).subscribe({
+      next: () => {
+        Object.assign(this.cv, this.editModel);
+        this.isEditing = false;
+      },
+    });
   }
 }

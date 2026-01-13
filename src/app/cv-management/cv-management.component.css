@@ -625,3 +625,32 @@ tbody tr:hover {
   opacity: 0.4;
   cursor: not-allowed;
 }
+
+.badge.status {
+  font-size: 12px;
+  padding: 4px 10px;
+  border-radius: 999px;
+  margin-left: 8px;
+  font-weight: 500;
+}
+
+/* STATUS COLORS (GIỐNG ẢNH 1) */
+.status-new {
+  background: #fde68a;
+  color: #92400e;
+}
+
+.status-approved {
+  background: #bbf7d0;
+  color: #065f46;
+}
+
+.status-rejected {
+  background: #fecaca;
+  color: #7f1d1d;
+}
+
+.status-archived {
+  background: #e5e7eb;
+  color: #374151;
+}

@@ -1,100 +1,163 @@
-<div class="cv-detail-page">
-  <h2>Xem chi tiết</h2>
-
+<div class="cv-detail-page" *ngIf="!loading && cv">
   <!-- HEADER -->
-  <div class="cv-header">
+  <div class="detail-header">
+    <h2>Xem chi tiết</h2>
+    <button class="btn-back" routerLink="/cv">
+      <span class="material-symbols-outlined">arrow_back</span>
+      Quay lại
+    </button>
+  </div>
+
+  <!-- BASIC -->
+  <div class="cv-basic">
     <div class="avatar"></div>
-    <div>
+
+    <div class="basic-info">
       <h3>
-        {{ cv.fullName }} <span class="badge">{{ cv.status }}</span>
+        {{ cv.fullName || "Unknown" }}
+        <span class="badge status" [ngClass]="statusClass(cv.status)">
+          {{ getStatusLabel(cv.status) }}
+        </span>
       </h3>
-      <div class="sub">Nguồn: TopCV • ID: #CAND-2023-892</div>
+      <div class="sub">{{ cv.email }}</div>
     </div>
   </div>
 
-  <div class="content">
+  <!-- CONTENT -->
+  <div class="detail-content">
     <!-- LEFT -->
     <div class="left-card">
-      <h4>Thông tin chung</h4>
-      <div class="info"><label>Email</label>{{ cv.email }}</div>
-      <div class="info"><label>Số điện thoại</label>{{ cv.phone }}</div>
-      <div class="info"><label>Vị trí mong muốn</label>{{ cv.position }}</div>
+      <div class="card-header">
+        <span class="material-symbols-outlined">home</span>
+        Thông tin chung
+
+        <span class="edit-btn" *ngIf="!isEditing" (click)="enableEdit()">
+          <span class="material-symbols-outlined">edit</span>
+        </span>
+      </div>
+
+      <!-- VIEW MODE -->
+      <ng-container *ngIf="!isEditing">
+        <div class="info-item">
+          <label>Email</label>
+          <div class="value link">{{ cv.email }}</div>
+        </div>
+
+        <div class="info-item">
+          <label>Số điện thoại</label>
+          <div class="value">{{ cv.phone || "-" }}</div>
+        </div>
+
+        <div class="info-item">
+          <label>Vị trí</label>
+          <div class="value">{{ cv.position }}</div>
+        </div>
+
+        <div class="info-item">
+          <label>Cấp bậc</label>
+          <div class="value">{{ cv.level }}</div>
+        </div>
+
+        <div class="info-row">
+          <div>
+            <label>Ngày tạo</label>
+            <div class="value">{{ createdDate }}</div>
+          </div>
+          <div>
+            <label>Cập nhật</label>
+            <div class="value">
+              {{ cv.updatedAt | date : "dd/MM/yyyy" }}
+            </div>
+          </div>
+        </div>
+      </ng-container>
+
+      <!-- EDIT MODE -->
+      <ng-container *ngIf="isEditing">
+        <div class="info-item">
+          <label>Email</label>
+          <input [(ngModel)]="editModel.email" />
+        </div>
+
+        <div class="info-item">
+          <label>SĐT</label>
+          <input [(ngModel)]="editModel.phone" />
+        </div>
+
+        <div class="info-item">
+          <label>Vị trí</label>
+          <input [(ngModel)]="editModel.position" />
+        </div>
+
+        <div class="info-item">
+          <label>Cấp bậc</label>
+          <input [(ngModel)]="editModel.level" />
+        </div>
+
+        <div class="edit-actions">
+          <button class="btn cancel" (click)="cancelEdit()">Hủy</button>
+          <button class="btn save" (click)="saveInfo()">Lưu</button>
+        </div>
+      </ng-container>
     </div>
 
     <!-- RIGHT -->
     <div class="right-card">
       <!-- TABS -->
       <div class="tabs">
-        <span
-          [class.active]="activeTab === 'profile'"
-          (click)="setTab('profile')"
-          >Chi tiết hồ sơ</span
-        >
-        <span [class.active]="activeTab === 'jobs'" (click)="setTab('jobs')"
-          >Job đã gán {{ jobs.length }}</span
-        >
-        <span
-          [class.active]="activeTab === 'history'"
-          (click)="setTab('history')"
-          >Lịch sử hoạt động</span
-        >
+        <span class="active">Chi tiết hồ sơ</span>
+        <span>Job đã gán</span>
+        <span>Lịch sử hoạt động</span>
       </div>
 
-      <!-- TAB 1 -->
-      <div *ngIf="activeTab === 'profile'" class="tab-box">
-        <div class="note">
-          Trạng thái tuyển dụng theo từng job không ảnh hưởng trạng thái CV
-          tổng.
-        </div>
-
-        <div class="section">
-          <h5>Kỹ năng chuyên môn</h5>
-          <div class="tags">
-            <span>ReactJS</span>
-            <span>TypeScript</span>
-            <span>Tailwind CSS</span>
-            <span>NodeJS</span>
-            <span>Git</span>
+      <!-- FILE -->
+      <div class="file-card">
+        <div class="file-left">
+          <div class="pdf-icon">PDF</div>
+          <div>
+            <div class="file-name">CV File</div>
+            <div class="file-sub">
+              {{ cv.updatedAt | date : "HH:mm dd/MM/yyyy" }}
+            </div>
           </div>
         </div>
+
+        <div class="file-actions">
+          <span class="action-icon view" (click)="viewPdf()">
+            <span class="material-symbols-outlined">visibility</span>
+          </span>
+          <span class="action-icon download" (click)="downloadPdf()">
+            <span class="material-symbols-outlined">download</span>
+          </span>
+        </div>
       </div>
 
-      <!-- TAB 2 -->
-      <div *ngIf="activeTab === 'jobs'" class="tab-box">
-        <table>
-          <thead>
-            <tr>
-              <th>Tên Job</th>
-              <th>Phòng ban</th>
-              <th>Trạng thái</th>
-              <th>Ngày gán</th>
-              <th>Cập nhật</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr *ngFor="let j of jobs">
-              <td>{{ j.name }}</td>
-              <td>{{ j.department }}</td>
-              <td>
-                <span class="status">{{ j.status }}</span>
-              </td>
-              <td>{{ j.assignedAt }}</td>
-              <td>{{ j.updatedAt }}</td>
-            </tr>
-          </tbody>
-        </table>
+      <!-- SKILLS -->
+      <div class="section">
+        <h4>
+          <span class="material-symbols-outlined">sell</span>
+          KỸ NĂNG CHUYÊN MÔN
+        </h4>
+        <div class="tags">
+          <span *ngFor="let s of cv.skills">{{ s }}</span>
+        </div>
       </div>
 
-      <!-- TAB 3 -->
-      <div *ngIf="activeTab === 'history'" class="tab-box">
-        <div class="timeline">
-          <div class="item" *ngFor="let h of histories">
-            <div class="dot"></div>
-            <div>
-              <div class="time">{{ h.time }} • {{ h.user }}</div>
-              <div class="action">{{ h.action }}</div>
-              <span *ngIf="h.status" class="badge small">{{ h.status }}</span>
+      <!-- EXPERIENCE -->
+      <div class="section">
+        <h4>
+          <span class="material-symbols-outlined">work</span>
+          KINH NGHIỆM LÀM VIỆC
+        </h4>
+
+        <div class="timeline-item" *ngFor="let e of cv.experience">
+          <div class="dot"></div>
+          <div class="timeline-content">
+            <div class="exp-header">
+              <strong>{{ e.title }}</strong>
+              <span class="time">{{ e.dates }}</span>
             </div>
+            <div class="company">{{ e.organization }}</div>
           </div>
         </div>
       </div>

@@ -1,6 +1,6 @@
 import { Component, OnInit, HostListener } from '@angular/core';
 import { Router } from '@angular/router';
-import { CvService } from '../cv-detail/cv.service';
+import { CvService } from '../auth/auth/cv.service';
 
 export interface CV {
   id: string;
