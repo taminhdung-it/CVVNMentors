@@ -361,9 +361,6 @@ export class CvService {
     if (!file) {
       throw new BadRequestException('Không có file');
     }
-    let message_value="";
-    let message = { message: 'Đọc excel thành công', email: { duplicate_data: "", duplicate_count: 0, duplicate_position: [] as Number[] }, phone: { duplicate_data: "", duplicate_count: 0, duplicate_position: [] as Number[] } };
-
     const workbook = XLSX.read(file.buffer, { type: 'buffer' });
     const sheetName = workbook.SheetNames[0];
     const sheet = workbook.Sheets[sheetName];
@@ -375,64 +372,7 @@ export class CvService {
       data: row,
     }));
 
-    // ===== XỬ LÝ TRÙNG LẶP NGAY TẠI ĐÂY =====
-    const emailMap = new Map<string, number[]>();
-    const phoneMap = new Map<string, number[]>();
-
-    list_cv.forEach((item, index) => {
-      const rowExcel = index + 2; // vì dòng 1 là header
-
-      const email = item.data['email'];
-      const phone = item.data['Số điện thoại'];
-
-      if (email) {
-        if (!emailMap.has(email)) emailMap.set(email, []);
-        emailMap.get(email)!.push(rowExcel);
-      }
-
-      if (phone) {
-        if (!phoneMap.has(phone)) phoneMap.set(phone, []);
-        phoneMap.get(phone)!.push(rowExcel);
-      }
-    });
-
-    const emailDuplicates = [...emailMap.entries()]
-      .filter(([, rows]) => rows.length > 1)
-      .map(([value, rows]) => ({
-        value,
-        count: rows.length,
-        rows,
-      }));
-
-    const phoneDuplicates = [...phoneMap.entries()]
-      .filter(([, rows]) => rows.length > 1)
-      .map(([value, rows]) => ({
-        value,
-        count: rows.length,
-        rows,
-      }));
-
-    if (emailDuplicates.length==1){
-      message_value+="email bị trùng lặp"
-      message.email = {
-        duplicate_data: emailDuplicates[0].value,
-        duplicate_count: emailDuplicates[0].count,
-        duplicate_position: emailDuplicates[0].rows
-      }
-    }
-    if (phoneDuplicates.length==1) {
-      message_value+="Số điện thoại bị trùng lặp"
-      message.phone = {
-        duplicate_data: phoneDuplicates[0].value.toString(),
-        duplicate_count: phoneDuplicates[0].count,
-        duplicate_position: phoneDuplicates[0].rows
-      }
-    }
-    if (message_value!=""){
-      message.message=message_value;
-    }
   return {
-  message,
   sheetName,
   list_cv,
 };
