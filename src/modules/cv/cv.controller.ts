@@ -96,7 +96,7 @@ export class CvController {
   @UseInterceptors(FileInterceptor('file'))
   async readcvexcel(@UploadedFile() file: Express.Multer.File, @Res() res: express.Response) {
     const data = await this.cvService.Readexcel(file);
-    res.status(HttpStatus.OK).json({ message:data.message,sheetName: data.sheetName, data: data.list_cv })
+    res.status(HttpStatus.OK).json({sheetName: data.sheetName, data: data.list_cv })
   }
 
   @UseGuards(AuthGuard)
