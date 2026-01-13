@@ -10,6 +10,7 @@ import { LogoutComponent } from './auth/logout/logout.component';
 import { JobManagementComponent } from './job-management/job-management.component';
 import { CvDetailComponent } from './cv-detail/cv-detail.component';
 import { CvImportExcelComponent } from './cv-import-excel/cv-import-excel.component';
+import { CvImportFileComponent } from './cv-import-file/cv-import-file.component';
 
 const routes: Routes = [
   { path: 'login', component: LoginComponent },
@@ -21,19 +22,33 @@ const routes: Routes = [
     canActivate: [AuthGuard],
     children: [
       { path: '', redirectTo: 'dashboard', pathMatch: 'full' },
-      { path: 'dashboard', component: DashboardComponent, data: { title: 'Dashboard' } },
-      { path: 'cv', component: CvManagementComponent, data: { title: 'Quản lý CV' } },
+      {
+        path: 'dashboard',
+        component: DashboardComponent,
+        data: { title: 'Dashboard' },
+      },
+      {
+        path: 'cv',
+        component: CvManagementComponent,
+        data: { title: 'Quản lý CV' },
+      },
       { path: 'cv/import-excel', component: CvImportExcelComponent },
+      { path: 'cv/import-file', component: CvImportFileComponent },
       { path: 'cv/:id', component: CvDetailComponent },
-      { path: 'jobmanagement', component: JobManagementComponent, data: { title: 'Quản lý Job' } }
-    ]
+
+      {
+        path: 'jobmanagement',
+        component: JobManagementComponent,
+        data: { title: 'Quản lý Job' },
+      },
+    ],
   },
 
-  { path: '**', redirectTo: 'dashboard' }
+  { path: '**', redirectTo: 'dashboard' },
 ];
 
 @NgModule({
   imports: [RouterModule.forRoot(routes)],
-  exports: [RouterModule]
+  exports: [RouterModule],
 })
 export class AppRoutingModule {}

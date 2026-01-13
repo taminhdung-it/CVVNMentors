@@ -4,7 +4,7 @@ import { BrowserModule } from '@angular/platform-browser';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { HTTP_INTERCEPTORS, HttpClientModule } from '@angular/common/http';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
-import { AppRoutingModule } from './app-routing.module'; 
+import { AppRoutingModule } from './app-routing.module';
 
 // ============================================
 // ANGULAR MATERIAL MODULES
@@ -42,7 +42,10 @@ import { HeaderComponent } from './layout/header/header.component';
 import { SidebarComponent } from './layout/sidebar/sidebar.component';
 import { DashboardComponent } from './dashboard/dashboard.component';
 import { CvManagementComponent } from './cv-management/cv-management.component';
-import { ForgotPasswordDialog, LoginComponent } from './auth/login/login.component';
+import {
+  ForgotPasswordDialog,
+  LoginComponent,
+} from './auth/login/login.component';
 import { JobManagementComponent } from './job-management/job-management.component';
 
 import { CvService } from './services/cv.service';
@@ -54,6 +57,7 @@ import { NZ_I18N } from 'ng-zorro-antd/i18n';
 import { en_US } from 'ng-zorro-antd/i18n';
 import { registerLocaleData } from '@angular/common';
 import en from '@angular/common/locales/en';
+import { CvImportFileComponent } from './cv-import-file/cv-import-file.component';
 
 registerLocaleData(en);
 
@@ -69,7 +73,8 @@ registerLocaleData(en);
     LoginComponent,
     ForgotPasswordDialog,
     CvDetailComponent,
-    CvImportExcelComponent
+    CvImportExcelComponent,
+    CvImportFileComponent,
   ],
   imports: [
     BrowserModule,
@@ -104,7 +109,7 @@ registerLocaleData(en);
     MatProgressSpinnerModule,
     MatDividerModule,
     MatBadgeModule,
-    MatChipsModule
+    MatChipsModule,
   ],
   providers: [
     CvService,
@@ -112,11 +117,10 @@ registerLocaleData(en);
     {
       provide: HTTP_INTERCEPTORS,
       useClass: AuthInterceptor,
-      multi: true
+      multi: true,
     },
-    { provide: NZ_I18N, useValue: en_US }
+    { provide: NZ_I18N, useValue: en_US },
   ],
-  bootstrap: [AppComponent]
-  
+  bootstrap: [AppComponent],
 })
-export class AppModule { }
+export class AppModule {}

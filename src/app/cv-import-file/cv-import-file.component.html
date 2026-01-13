@@ -1,0 +1,55 @@
+<div class="page">
+  <!-- HEADER -->
+  <div class="page-header">
+    <h2>Thêm CV</h2>
+    <button class="back-btn" (click)="goBack()">← Quay lại</button>
+  </div>
+
+  <!-- TABS -->
+  <div class="tabs">
+    <div class="tab active">Thêm File</div>
+    <div class="tab" routerLink="/cv/import-excel">Import Excel</div>
+    <div class="tab">Thêm thủ công</div>
+  </div>
+
+  <!-- DOWNLOAD CARD (GIỐNG EXCEL) -->
+  <div class="download-card">
+    <div class="download-left">
+      <div class="file-icon">📄</div>
+      <div>
+        <strong>Tải xuống mẫu</strong>
+        <div>Sử dụng file mẫu để upload CV</div>
+      </div>
+    </div>
+    <button class="btn-primary" (click)="downloadTemplate()">Tải xuống</button>
+  </div>
+
+  <!-- UPLOAD (GIỐNG EXCEL, KHÁC ACCEPT) -->
+  <label class="upload-zone">
+    <input
+      type="file"
+      hidden
+      multiple
+      accept=".pdf,.doc,.docx"
+      (change)="onFileSelected($event)"
+    />
+    <div>
+      ⬆️
+      <div class="upload-title">Tải lên CV của bạn</div>
+      <small>Hỗ trợ PDF, DOC, DOCX</small>
+    </div>
+  </label>
+
+  <!-- STATS (CHỈ ĐỂ UI, KHÔNG LOGIC EXCEL) -->
+  <div class="stats">
+    <div class="stat-card success">
+      File tìm thấy
+      <div class="stat-value">{{ selectedFiles.length }}</div>
+    </div>
+
+    <div class="stat-card warning">
+      File lỗi
+      <div class="stat-value">0</div>
+    </div>
+  </div>
+</div>

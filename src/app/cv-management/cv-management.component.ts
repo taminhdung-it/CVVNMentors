@@ -167,8 +167,8 @@ export class CvManagementComponent implements OnInit {
   }
 
   addCvWithFile() {
-    alert('Thêm CV bằng file');
     this.showAddMenu = false;
+    this.router.navigate(['/cv/import-file']);
   }
 
   addCvNoFile() {
