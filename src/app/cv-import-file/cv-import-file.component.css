@@ -1,6 +1,7 @@
 .page {
   padding: 24px;
   background: #f5f7fb;
+  width: 100%;
 }
 
 /* HEADER */
@@ -11,19 +12,19 @@
 }
 
 .back-btn {
-  border: none;
   background: #2563eb;
   color: #fff;
+  border: none;
   padding: 6px 14px;
   border-radius: 6px;
 }
 
-/* TABS */
+/* Tabs */
 .tabs {
   display: flex;
   gap: 24px;
-  border-bottom: 1px solid #e5e7eb;
   margin: 16px 0;
+  border-bottom: 1px solid #e5e7eb;
 }
 
 .tab {
@@ -37,43 +38,29 @@
   font-weight: 600;
 }
 
-/* DOWNLOAD */
-.download-card {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  background: #f3f8ff;
-  border-radius: 12px;
-  padding: 16px;
-}
-
-.download-left {
-  display: flex;
-  gap: 12px;
-}
-
-.file-icon {
-  font-size: 32px;
-}
-
-.btn-primary {
-  background: #2563eb;
-  color: #fff;
-  border: none;
-  padding: 8px 16px;
-  border-radius: 8px;
-}
-
-/* UPLOAD */
+/* Upload */
 .upload-zone {
-  display: block;
-  margin-top: 16px;
-  background: #fafafa;
-  border: 2px dashed #d1d5db;
-  border-radius: 12px;
+  position: relative;
+  width: 100%;
+  margin-top: 20px;
   padding: 40px;
+  border: 2px dashed #cbd5e1;
+  border-radius: 12px;
   text-align: center;
+  background: #fff;
   cursor: pointer;
+}
+
+/* input phủ full zone */
+.upload-zone input[type="file"] {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  cursor: pointer;
+}
+
+.upload-content {
+  pointer-events: none;
 }
 
 .upload-title {
@@ -81,10 +68,15 @@
   margin-top: 8px;
 }
 
-/* STATS */
+.uploading {
+  font-weight: 600;
+  color: #2563eb;
+}
+
+/* Stats */
 .stats {
   display: grid;
-  grid-template-columns: repeat(2, 1fr);
+  grid-template-columns: 1fr 1fr;
   gap: 16px;
   margin: 20px 0;
 }
@@ -92,7 +84,6 @@
 .stat-card {
   padding: 16px;
   border-radius: 12px;
-  font-size: 14px;
 }
 
 .stat-card.success {
@@ -108,4 +99,57 @@
 .stat-value {
   font-size: 22px;
   font-weight: 700;
+}
+
+/* Table */
+.result-table {
+  width: 100%;
+  background: #fff;
+  border-radius: 12px;
+  overflow: hidden;
+  margin-top: 16px;
+}
+
+.result-table th,
+.result-table td {
+  padding: 12px;
+  border-bottom: 1px solid #e5e7eb;
+  font-size: 14px;
+}
+
+/* Badge */
+.badge.success {
+  background: #dcfce7;
+  color: #166534;
+  padding: 4px 10px;
+  border-radius: 999px;
+}
+
+/* Action bar */
+.action-bar {
+  position: fixed;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: #ecfeff;
+  padding: 12px 20px;
+  border-radius: 12px;
+  display: flex;
+  gap: 16px;
+  align-items: center;
+}
+
+.btn-primary {
+  background: #2563eb;
+  color: #fff;
+  border: none;
+  padding: 8px 18px;
+  border-radius: 8px;
+}
+
+.icon-btn {
+  border: none;
+  background: none;
+  cursor: pointer;
+  font-size: 16px;
 }

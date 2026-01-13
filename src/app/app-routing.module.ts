@@ -11,6 +11,7 @@ import { JobManagementComponent } from './job-management/job-management.componen
 import { CvDetailComponent } from './cv-detail/cv-detail.component';
 import { CvImportExcelComponent } from './cv-import-excel/cv-import-excel.component';
 import { CvImportFileComponent } from './cv-import-file/cv-import-file.component';
+import { CvAddManualComponent } from './cv-add-manual/cv-add-manual.component';
 
 const routes: Routes = [
   { path: 'login', component: LoginComponent },
@@ -32,8 +33,9 @@ const routes: Routes = [
         component: CvManagementComponent,
         data: { title: 'Quản lý CV' },
       },
-      { path: 'cv/import-excel', component: CvImportExcelComponent },
       { path: 'cv/import-file', component: CvImportFileComponent },
+      { path: 'cv/import-excel', component: CvImportExcelComponent },
+      { path: 'cv/add-manual', component: CvAddManualComponent },
       { path: 'cv/:id', component: CvDetailComponent },
 
       {

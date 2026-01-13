@@ -9,47 +9,83 @@
   <div class="tabs">
     <div class="tab active">Thêm File</div>
     <div class="tab" routerLink="/cv/import-excel">Import Excel</div>
-    <div class="tab">Thêm thủ công</div>
+    <div class="tab" routerLink="/cv/add-manual">Thêm thủ công</div>
   </div>
 
-  <!-- DOWNLOAD CARD (GIỐNG EXCEL) -->
-  <div class="download-card">
-    <div class="download-left">
-      <div class="file-icon">📄</div>
-      <div>
-        <strong>Tải xuống mẫu</strong>
-        <div>Sử dụng file mẫu để upload CV</div>
-      </div>
-    </div>
-    <button class="btn-primary" (click)="downloadTemplate()">Tải xuống</button>
-  </div>
+  <!-- UPLOAD -->
 
-  <!-- UPLOAD (GIỐNG EXCEL, KHÁC ACCEPT) -->
-  <label class="upload-zone">
+  <div class="upload-zone">
     <input
       type="file"
-      hidden
       multiple
       accept=".pdf,.doc,.docx"
       (change)="onFileSelected($event)"
     />
-    <div>
+
+    <div class="upload-content" *ngIf="!loading">
       ⬆️
       <div class="upload-title">Tải lên CV của bạn</div>
       <small>Hỗ trợ PDF, DOC, DOCX</small>
     </div>
-  </label>
 
-  <!-- STATS (CHỈ ĐỂ UI, KHÔNG LOGIC EXCEL) -->
+    <div class="uploading" *ngIf="loading">
+      ⏳ Đang upload CV, vui lòng chờ...
+    </div>
+  </div>
+
+  <!-- STATS (LUÔN HIỆN) -->
   <div class="stats">
     <div class="stat-card success">
-      File tìm thấy
-      <div class="stat-value">{{ selectedFiles.length }}</div>
+      CV tìm thấy
+      <div class="stat-value">{{ success }}</div>
     </div>
 
     <div class="stat-card warning">
-      File lỗi
-      <div class="stat-value">0</div>
+      CV trùng lặp
+      <div class="stat-value">{{ failed }}</div>
     </div>
+  </div>
+
+  <!-- TABLE -->
+  <table class="result-table" *ngIf="results.length">
+    <thead>
+      <tr>
+        <th></th>
+        <th>File</th>
+        <th>Họ tên</th>
+        <th>Email</th>
+        <th>Vị trí</th>
+        <th>Kinh nghiệm</th>
+        <th>Trạng thái</th>
+        <th>Hành động</th>
+      </tr>
+    </thead>
+
+    <tbody>
+      <tr *ngFor="let r of results">
+        <td>
+          <input type="checkbox" (change)="toggleSelect(r.id, $event)" />
+        </td>
+        <td>{{ r.fileName }}</td>
+        <td>{{ r.data?.fullName }}</td>
+        <td>{{ r.data?.email }}</td>
+        <td>{{ r.data?.position }}</td>
+        <td>{{ r.data?.experienceYears }} năm</td>
+        <td>
+          <span class="badge success">{{ r.status }}</span>
+        </td>
+        <td>
+          <button class="icon-btn" (click)="openPdf(r.data?.cvFileUrl)">
+            👁
+          </button>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+
+  <!-- ACTION BAR -->
+  <div class="action-bar" *ngIf="selectedIds.size">
+    <span>{{ selectedIds.size }} CV đã chọn</span>
+    <button class="btn-primary" (click)="addCv()">Thêm CV</button>
   </div>
 </div>

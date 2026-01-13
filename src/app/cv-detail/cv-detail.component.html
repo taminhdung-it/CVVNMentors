@@ -54,6 +54,11 @@
         </div>
 
         <div class="info-item">
+          <label>Kinh nghiệm</label>
+          <div class="value">{{ cv.experienceYears }} năm</div>
+        </div>
+
+        <div class="info-item">
           <label>Cấp bậc</label>
           <div class="value">{{ cv.level }}</div>
         </div>
@@ -87,6 +92,11 @@
         <div class="info-item">
           <label>Vị trí</label>
           <input [(ngModel)]="editModel.position" />
+        </div>
+
+        <div class="info-item">
+          <label>Kinh nghiệm</label>
+          <input [(ngModel)]="editModel.experienceYears" />
         </div>
 
         <div class="info-item">

@@ -1,0 +1,92 @@
+<div class="page">
+  <!-- HEADER -->
+  <div class="page-header">
+    <h2>Thêm CV</h2>
+    <button class="btn-back" (click)="goBack()">← Quay lại</button>
+  </div>
+
+  <!-- TABS -->
+  <div class="tabs">
+    <div class="tab" routerLink="/cv/import-file">Thêm File</div>
+    <div class="tab" routerLink="/cv/import-excel">Import Excel</div>
+    <div class="tab active">Thêm thủ công</div>
+  </div>
+
+  <form [formGroup]="form">
+    <!-- BASIC -->
+    <div class="basic-card">
+      <input placeholder="Họ và tên" formControlName="fullName" />
+      <input placeholder="Email" formControlName="email" />
+      <input placeholder="Số điện thoại" formControlName="phone" />
+      <input placeholder="Vị trí" formControlName="position" />
+      <input placeholder="Cấp bậc" formControlName="level" />
+      <input
+        type="number"
+        placeholder="Số năm kinh nghiệm"
+        formControlName="experienceYears"
+      />
+    </div>
+
+    <div class="content">
+      <!-- LEFT -->
+      <div class="col">
+        <div class="card">
+          <h3>Kỹ năng</h3>
+          <textarea
+            placeholder="Mỗi kỹ năng 1 dòng (Java, NestJS...)"
+            formControlName="skills"
+          ></textarea>
+        </div>
+
+        <div class="card">
+          <h3>Học vấn</h3>
+          <textarea
+            placeholder="Mỗi dòng 1 học vấn"
+            formControlName="education"
+          ></textarea>
+        </div>
+      </div>
+
+      <!-- RIGHT -->
+      <div class="col">
+        <div class="card">
+          <div class="card-header">
+            <h3>Kinh nghiệm làm việc</h3>
+            <button type="button" class="btn-plus" (click)="addExperience()">
+              ＋
+            </button>
+          </div>
+
+          <div
+            class="exp"
+            *ngFor="let exp of experiences.controls; let i = index"
+            [formGroup]="exp"
+          >
+            <input placeholder="Chức danh" formControlName="title" />
+            <input
+              placeholder="Thời gian (VD: 2022-2023)"
+              formControlName="dates"
+            />
+            <input placeholder="Địa điểm" formControlName="location" />
+            <input placeholder="Công ty" formControlName="organization" />
+
+            <button
+              type="button"
+              class="btn-remove"
+              (click)="removeExperience(i)"
+            >
+              Xóa
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ACTION -->
+    <div class="action-footer">
+      <button type="button" class="btn-add" (click)="submit()">
+        ＋ Thêm CV
+      </button>
+    </div>
+  </form>
+</div>

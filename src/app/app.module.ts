@@ -58,6 +58,7 @@ import { en_US } from 'ng-zorro-antd/i18n';
 import { registerLocaleData } from '@angular/common';
 import en from '@angular/common/locales/en';
 import { CvImportFileComponent } from './cv-import-file/cv-import-file.component';
+import { CvAddManualComponent } from './cv-add-manual/cv-add-manual.component';
 
 registerLocaleData(en);
 
@@ -75,6 +76,7 @@ registerLocaleData(en);
     CvDetailComponent,
     CvImportExcelComponent,
     CvImportFileComponent,
+    CvAddManualComponent,
   ],
   imports: [
     BrowserModule,
