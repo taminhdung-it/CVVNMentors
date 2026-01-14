@@ -291,6 +291,128 @@ export const document: OpenAPIObject = {
         },
       },
     },
+    '/cv/addcvexcel': {
+      post: {
+        tags: ['Quản lý CV'],
+        summary: 'Thêm cv khi xem trước file excel vào database',
+        parameters: [
+          {
+            in: 'header',
+            name: 'refreshtoken',
+            required: true,
+            schema: {
+              type: 'string',
+              example: 'eyJhbGciOiJIUzI1Ni...',
+            },
+            description: 'Refresh Token',
+          },
+        ],
+
+        requestBody: {
+          required: true,
+          content: {
+            'application/json': {
+              schema: {
+                // ✅ BODY LÀ ARRAY
+                type: 'array',
+                items: {
+                  type: 'object',
+                  properties: {
+                    full_name: {
+                      type: 'string',
+                      description: 'Họ và tên',
+                    },
+                    position: {
+                      type: 'string',
+                      description: 'Vị trí',
+                    },
+                    level: {
+                      type: 'string',
+                      description: 'Cấp độ',
+                    },
+                    experience_year: {
+                      type: 'integer',
+                      description: 'Số năm kinh nghiệm',
+                    },
+                    phone: {
+                      type: 'string',
+                      description: 'Số điện thoại',
+                    },
+                    email: {
+                      type: 'string',
+                      description: 'Email',
+                    },
+                  },
+                  required: [
+                    'full_name',
+                    'position',
+                    'level',
+                    'experience_year',
+                    'phone',
+                    'email',
+                  ],
+                },
+
+                // ✅ example đặt ở schema level
+                example: [
+                  {
+                    full_name: 'Nguyen Van 1',
+                    position: 'Software Engineer',
+                    level: 'Junior',
+                    experience_year: 3,
+                    phone: '0900000001',
+                    email: 'user1@example.com',
+                  },
+                  {
+                    full_name: 'Nguyen Van 2',
+                    position: 'Software Engineer',
+                    level: 'Junior',
+                    experience_year: 3,
+                    phone: '0900000002',
+                    email: 'user2@example.com',
+                  },
+                  {
+                    full_name: 'Nguyen Van 3',
+                    position: 'Software Engineer',
+                    level: 'Junior',
+                    experience_year: 3,
+                    phone: '0900000003',
+                    email: 'user3@example.com',
+                  },
+                  {
+                    full_name: 'Nguyen Van 4',
+                    position: 'Software Engineer',
+                    level: 'Junior',
+                    experience_year: 4,
+                    phone: '0900000004',
+                    email: 'user4@example.com',
+                  },
+                ],
+              },
+            },
+          },
+        },
+
+        responses: {
+          '200': {
+            description: 'Đọc file thành công',
+            content: {
+              'application/json': {
+                schema: {
+                  type: 'object',
+                  example: {
+                    success: true,
+                    message: 'Thêm CV thành công',
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+    },
+
+
     '/cv': {
       post: {
         tags: ['Quản lý CV'],
