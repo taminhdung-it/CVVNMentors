@@ -20,7 +20,7 @@ export const document: OpenAPIObject = {
       description: 'Trang quản lý Ứng tuyển(application)',
     },
     {
-      name:'Quản lý Nhân viên',
+      name: 'Quản lý Nhân viên',
       description: 'Trang quản lý',
     }
   ],
@@ -467,6 +467,15 @@ export const document: OpenAPIObject = {
                 },
               },
             },
+            links: {
+              // GetUserDetail: {
+              //   operationId: 'getUser',
+              //   parameters: {
+              //     id: '$response.body#/user_id'
+              //   },
+              //   description: 'Lấy thông tin user vừa đăng nhập'
+              // }
+            }
           },
         },
       },
@@ -707,6 +716,15 @@ export const document: OpenAPIObject = {
                 },
               },
             },
+            links: {
+              // GetUserDetail: {
+              //   operationId: 'getUser',
+              //   parameters: {
+              //     id: '$response.body#/user_id'
+              //   },
+              //   description: 'Lấy thông tin user vừa đăng nhập'
+              // }
+            }
           },
         },
       },
@@ -1534,7 +1552,7 @@ export const document: OpenAPIObject = {
             required: true,
             schema: { type: 'string', example: 'eyJhbGciOiJIUzI1Ni...' },
             description: 'Refresh Token',
-          },          
+          },
           {
             in: 'header',
             name: 'accountid',
@@ -1610,7 +1628,7 @@ export const document: OpenAPIObject = {
             required: true,
             schema: { type: 'string', example: 'eyJhbGciOiJIUzI1Ni...' },
             description: 'Refresh Token',
-          },          
+          },
           {
             in: 'header',
             name: 'accountid',
@@ -1672,7 +1690,7 @@ export const document: OpenAPIObject = {
             required: true,
             schema: { type: 'string', example: 'eyJhbGciOiJIUzI1Ni...' },
             description: 'Refresh Token',
-          },          
+          },
           {
             in: 'header',
             name: 'accountid',
@@ -1736,7 +1754,7 @@ export const document: OpenAPIObject = {
             required: true,
             schema: { type: 'string', example: 'eyJhbGciOiJIUzI1Ni...' },
             description: 'Refresh Token',
-          },          
+          },
           {
             in: 'header',
             name: 'accountid',
@@ -1807,7 +1825,7 @@ export const document: OpenAPIObject = {
             required: true,
             schema: { type: 'string', example: 'eyJhbGciOiJIUzI1Ni...' },
             description: 'Refresh Token',
-          },          
+          },
           {
             in: 'header',
             name: 'accountid',
@@ -1880,7 +1898,7 @@ export const document: OpenAPIObject = {
             required: true,
             schema: { type: 'string', example: 'eyJhbGciOiJIUzI1Ni...' },
             description: 'Refresh Token',
-          },          
+          },
           {
             in: 'header',
             name: 'accountid',
@@ -1965,7 +1983,7 @@ export const document: OpenAPIObject = {
             required: true,
             schema: { type: 'string', example: 'eyJhbGciOiJIUzI1Ni...' },
             description: 'Refresh Token',
-          },          
+          },
           {
             in: 'header',
             name: 'accountid',
@@ -2038,7 +2056,7 @@ export const document: OpenAPIObject = {
             required: true,
             schema: { type: 'string', example: 'eyJhbGciOiJIUzI1Ni...' },
             description: 'Refresh Token',
-          },          
+          },
           {
             in: 'header',
             name: 'accountid',
@@ -2113,7 +2131,7 @@ export const document: OpenAPIObject = {
             required: true,
             schema: { type: 'string', example: 'eyJhbGciOiJIUzI1Ni...' },
             description: 'Refresh Token',
-          },          
+          },
           {
             in: 'header',
             name: 'accountid',
@@ -2218,7 +2236,7 @@ export const document: OpenAPIObject = {
             required: true,
             schema: { type: 'string', example: 'eyJhbGciOiJIUzI1Ni...' },
             description: 'Refresh Token',
-          },          
+          },
           {
             in: 'header',
             name: 'accountid',
@@ -2303,57 +2321,70 @@ export const document: OpenAPIObject = {
         },
       },
     },
-    // '/applications/{id}': {
-    //   get: {
-    //     tags: ['Quản lý Ứng tuyển'],
-    //     summary: 'Xem chi tiết một hồ sơ ứng tuyển',
-    //     parameters: [
-    //       {
-    //         in: 'header',
-    //         name: 'refreshtoken',
-    //         required: true,
-    //         schema: { type: 'string', example: 'eyJhbGciOiJIUzI1Ni...' },
-    //         description: 'Refresh Token',
-    //       },
-    //       {
-    //         in: 'path',
-    //         name: 'id',
-    //         required: true,
-    //         schema: { type: 'string', example: 'app_001' },
-    //         description: 'ID của Application (Không phải ID CV)',
-    //       },
-    //     ],
-    //     responses: {
-    //       '200': {
-    //         description: 'Chi tiết hồ sơ',
-    //         content: {
-    //           'application/json': {
-    //             schema: {
-    //               example: {
-    //                 id: 'app_001',
-    //                 cvId: 'cv_123',
-    //                 status: 'INTERVIEW',
-    //                 interviewScheduled: '2025-01-10T14:00:00.000Z',
-    //                 feedback: 'Ứng viên giao tiếp tốt, tiếng Anh khá.',
-    //                 rating: 4,
-    //                 appliedAt: '2025-01-01T00:00:00.000Z',
-    //               },
-    //             },
-    //           },
-    //         },
-    //         links: {
-    //           // GetUserDetail: {
-    //           //   operationId: 'getUser',
-    //           //   parameters: {
-    //           //     id: '$response.body#/user_id'
-    //           //   },
-    //           //   description: 'Lấy thông tin user vừa đăng nhập'
-    //           // }
-    //         }
-    //       },
-    //     },
-    //   },
-    "/applications/{id}":{
+    '/applications/{id}': {
+      get: {
+        tags: ['Quản lý Ứng tuyển'],
+        summary: 'Xem chi tiết một hồ sơ ứng tuyển',
+        parameters: [
+          {
+            in: 'header',
+            name: 'refreshtoken',
+            required: true,
+            schema: { type: 'string', example: 'eyJhbGciOiJIUzI1Ni...' },
+            description: 'Refresh Token',
+          },
+          {
+            in: 'header',
+            name: 'accountid',
+            required: true,
+            schema: { type: 'string', example: '<Nhập accountid>' },
+            description: 'accountid',
+          },
+          {
+            in: 'header',
+            name: 'router',
+            required: true,
+            schema: { type: 'string', example: 'application/getone' },
+            description: 'router',
+          },
+          {
+            in: 'path',
+            name: 'id',
+            required: true,
+            schema: { type: 'string', example: 'app_001' },
+            description: 'ID của Application (Không phải ID CV)',
+          },
+        ],
+        responses: {
+          '200': {
+            description: 'Chi tiết hồ sơ',
+            content: {
+              'application/json': {
+                schema: {
+                  example: {
+                    id: 'app_001',
+                    cvId: 'cv_123',
+                    status: 'INTERVIEW',
+                    interviewScheduled: '2025-01-10T14:00:00.000Z',
+                    feedback: 'Ứng viên giao tiếp tốt, tiếng Anh khá.',
+                    rating: 4,
+                    appliedAt: '2025-01-01T00:00:00.000Z',
+                  },
+                },
+              },
+            },
+            links: {
+              // GetUserDetail: {
+              //   operationId: 'getUser',
+              //   parameters: {
+              //     id: '$response.body#/user_id'
+              //   },
+              //   description: 'Lấy thông tin user vừa đăng nhập'
+              // }
+            }
+          },
+        },
+      },
       patch: {
         tags: ['Quản lý Ứng tuyển'],
         summary: 'Cập nhật thông tin chi tiết (Lịch PV/Feedback)',
@@ -2366,7 +2397,7 @@ export const document: OpenAPIObject = {
             required: true,
             schema: { type: 'string', example: 'eyJhbGciOiJIUzI1Ni...' },
             description: 'Refresh Token',
-          },          
+          },
           {
             in: 'header',
             name: 'accountid',
@@ -2461,7 +2492,7 @@ export const document: OpenAPIObject = {
             required: true,
             schema: { type: 'string', example: 'eyJhbGciOiJIUzI1Ni...' },
             description: 'Refresh Token',
-          }, 
+          },
           {
             in: 'header',
             name: 'accountid',
@@ -2583,7 +2614,7 @@ export const document: OpenAPIObject = {
             required: true,
             schema: { type: 'string', example: 'eyJhbGciOiJIUzI1Ni...' },
             description: 'Refresh Token',
-          },          
+          },
           {
             in: 'header',
             name: 'accountid',
@@ -2639,6 +2670,15 @@ export const document: OpenAPIObject = {
                 },
               },
             },
+            links: {
+              // GetUserDetail: {
+              //   operationId: 'getUser',
+              //   parameters: {
+              //     id: '$response.body#/user_id'
+              //   },
+              //   description: 'Lấy thông tin user vừa đăng nhập'
+              // }
+            }
           },
           '400': {
             description: 'Lỗi Validation hoặc Trùng lặp',
@@ -2647,6 +2687,15 @@ export const document: OpenAPIObject = {
                 schema: { example: { message: 'Email hoặc Số điện thoại đã tồn tại trong hệ thống.' } }
               }
             },
+            links: {
+              // GetUserDetail: {
+              //   operationId: 'getUser',
+              //   parameters: {
+              //     id: '$response.body#/user_id'
+              //   },
+              //   description: 'Lấy thông tin user vừa đăng nhập'
+              // }
+            }
           }
         },
       },
@@ -2661,7 +2710,7 @@ export const document: OpenAPIObject = {
             required: true,
             schema: { type: 'string', example: 'eyJhbGciOiJIUzI1Ni...' },
             description: 'Refresh Token',
-          },          
+          },
           {
             in: 'header',
             name: 'accountid',
@@ -2713,6 +2762,15 @@ export const document: OpenAPIObject = {
                 },
               },
             },
+            links: {
+              // GetUserDetail: {
+              //   operationId: 'getUser',
+              //   parameters: {
+              //     id: '$response.body#/user_id'
+              //   },
+              //   description: 'Lấy thông tin user vừa đăng nhập'
+              // }
+            }
           },
         },
       },
@@ -2735,7 +2793,7 @@ export const document: OpenAPIObject = {
             required: true,
             schema: { type: 'string', example: 'eyJhbGciOiJIUzI1Ni...' },
             description: 'Refresh Token',
-          },          
+          },
           {
             in: 'header',
             name: 'accountid',
@@ -2817,6 +2875,15 @@ export const document: OpenAPIObject = {
                 },
               },
             },
+            links: {
+              // GetUserDetail: {
+              //   operationId: 'getUser',
+              //   parameters: {
+              //     id: '$response.body#/user_id'
+              //   },
+              //   description: 'Lấy thông tin user vừa đăng nhập'
+              // }
+            }
           },
         },
       },
@@ -2833,7 +2900,7 @@ export const document: OpenAPIObject = {
             required: true,
             schema: { type: 'string', example: 'eyJhbGciOiJIUzI1Ni...' },
             description: 'Refresh Token',
-          },          
+          },
           {
             in: 'header',
             name: 'accountid',
@@ -2878,11 +2945,29 @@ export const document: OpenAPIObject = {
                 },
               },
             },
+            links: {
+              // GetUserDetail: {
+              //   operationId: 'getUser',
+              //   parameters: {
+              //     id: '$response.body#/user_id'
+              //   },
+              //   description: 'Lấy thông tin user vừa đăng nhập'
+              // }
+            }
           },
           '404': {
             description: 'Không tìm thấy',
             content: {
               'application/json': { schema: { example: { message: 'Không tìm thấy nhân viên' } } }
+            },
+            links: {
+              // GetUserDetail: {
+              //   operationId: 'getUser',
+              //   parameters: {
+              //     id: '$response.body#/user_id'
+              //   },
+              //   description: 'Lấy thông tin user vừa đăng nhập'
+              // }
             }
           }
         },
@@ -2903,7 +2988,7 @@ export const document: OpenAPIObject = {
             required: true,
             schema: { type: 'string', example: 'eyJhbGciOiJIUzI1Ni...' },
             description: 'Refresh Token',
-          },          
+          },
           {
             in: 'header',
             name: 'accountid',
@@ -2956,6 +3041,15 @@ export const document: OpenAPIObject = {
                 },
               },
             },
+            links: {
+              // GetUserDetail: {
+              //   operationId: 'getUser',
+              //   parameters: {
+              //     id: '$response.body#/user_id'
+              //   },
+              //   description: 'Lấy thông tin user vừa đăng nhập'
+              // }
+            }
           },
           '400': {
             description: 'Lỗi trùng lặp dữ liệu',
@@ -2963,6 +3057,15 @@ export const document: OpenAPIObject = {
               'application/json': {
                 schema: { example: { message: "Email 'new_email@company.com' đã được sử dụng bởi nhân viên khác." } }
               }
+            },
+            links: {
+              // GetUserDetail: {
+              //   operationId: 'getUser',
+              //   parameters: {
+              //     id: '$response.body#/user_id'
+              //   },
+              //   description: 'Lấy thông tin user vừa đăng nhập'
+              // }
             }
           }
         },
@@ -2985,7 +3088,7 @@ export const document: OpenAPIObject = {
             required: true,
             schema: { type: 'string', example: 'eyJhbGciOiJIUzI1Ni...' },
             description: 'Refresh Token',
-          },          
+          },
           {
             in: 'header',
             name: 'accountid',
@@ -3040,6 +3143,15 @@ export const document: OpenAPIObject = {
                 },
               },
             },
+            links: {
+              // GetUserDetail: {
+              //   operationId: 'getUser',
+              //   parameters: {
+              //     id: '$response.body#/user_id'
+              //   },
+              //   description: 'Lấy thông tin user vừa đăng nhập'
+              // }
+            }
           },
           '400': {
             description: 'Lỗi Logic',
@@ -3047,6 +3159,15 @@ export const document: OpenAPIObject = {
               'application/json': {
                 schema: { example: { message: "Tài khoản đang ở trạng thái INACTIVE, không cần cập nhật." } }
               }
+            },
+            links: {
+              // GetUserDetail: {
+              //   operationId: 'getUser',
+              //   parameters: {
+              //     id: '$response.body#/user_id'
+              //   },
+              //   description: 'Lấy thông tin user vừa đăng nhập'
+              // }
             }
           }
         },
