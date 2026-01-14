@@ -23,7 +23,6 @@ const routes: Routes = [
     canActivate: [AuthGuard],
     children: [
       { path: '', redirectTo: 'dashboard', pathMatch: 'full' },
-
       { path: 'dashboard', component: DashboardComponent, data: { title: 'Dashboard' } },
       { path: 'cv', component: CvManagementComponent, data: { title: 'Quản lý CV' } },
       { path: 'cv/import-excel', component: CvImportExcelComponent },
@@ -42,7 +41,6 @@ const routes: Routes = [
 
   { path: '**', redirectTo: 'dashboard' }
 ];
-
 
 @NgModule({
   imports: [RouterModule.forRoot(routes)],
