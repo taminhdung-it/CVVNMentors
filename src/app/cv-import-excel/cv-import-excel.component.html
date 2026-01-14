@@ -73,11 +73,11 @@
           <tr>
             <th>
               <input
-                #checkAll
                 type="checkbox"
-                (change)="toggleSelectAll(checkAll.checked)"
+                (change)="toggleSelectAll($any($event.target).checked)"
               />
             </th>
+
             <th>Họ và tên</th>
             <th>Email</th>
             <th>Vị trí</th>
@@ -98,25 +98,35 @@
           >
             <td>
               <input
-                #rowCheck
                 type="checkbox"
                 [checked]="isSelected(cv)"
-                (change)="toggleSelect(cv, rowCheck.checked)"
+                [disabled]="cv.status === 'Lỗi'"
+                (change)="toggleSelect(cv, $any($event.target).checked)"
               />
             </td>
-            <td>
-              <strong>{{ cv.fullName }}</strong>
+
+            <td>{{ cv.fullName }}</td>
+
+            <td [class.duplicate-email]="cv.isDuplicateEmail">
+              {{ cv.email }}
             </td>
-            <td>{{ cv.email }}</td>
+
             <td>{{ cv.position || "-" }}</td>
             <td>{{ cv.level || "-" }}</td>
-            <td>{{ cv.experience ?? "-" }}</td>
+            <td>{{ cv.experience || "-" }}</td>
+
             <td>
-              <span class="status-pill status-new">{{ cv.status }}</span>
+              <span class="status-pill" [ngClass]="getStatusClass(cv.status)">
+                {{ cv.status }}
+              </span>
             </td>
+
             <td>{{ cv.job }}</td>
             <td>{{ cv.updatedAt }}</td>
-            <td>{{ cv.phone }}</td>
+
+            <td [class.duplicate-phone]="cv.isDuplicatePhone">
+              {{ cv.phone }}
+            </td>
             <td class="action-cell">👁</td>
           </tr>
         </tbody>

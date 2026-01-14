@@ -13,6 +13,16 @@
   </div>
 
   <form [formGroup]="form">
+    <!-- FILE UPLOAD -->
+    <div class="card">
+      <h3>File CV (PDF, DOCX)</h3>
+      <input
+        type="file"
+        accept=".pdf,.doc,.docx"
+        (change)="onFileChange($event)"
+      />
+    </div>
+
     <!-- BASIC -->
     <div class="basic-card">
       <input placeholder="Họ và tên" formControlName="fullName" />
@@ -33,7 +43,7 @@
         <div class="card">
           <h3>Kỹ năng</h3>
           <textarea
-            placeholder="Mỗi kỹ năng 1 dòng (Java, NestJS...)"
+            placeholder="Mỗi kỹ năng 1 dòng"
             formControlName="skills"
           ></textarea>
         </div>
@@ -57,26 +67,29 @@
             </button>
           </div>
 
-          <div
-            class="exp"
-            *ngFor="let exp of experiences.controls; let i = index"
-            [formGroup]="exp"
-          >
-            <input placeholder="Chức danh" formControlName="title" />
-            <input
-              placeholder="Thời gian (VD: 2022-2023)"
-              formControlName="dates"
-            />
-            <input placeholder="Địa điểm" formControlName="location" />
-            <input placeholder="Công ty" formControlName="organization" />
-
-            <button
-              type="button"
-              class="btn-remove"
-              (click)="removeExperience(i)"
+          <!-- ✅ FORM ARRAY ĐÚNG CHUẨN -->
+          <div formArrayName="experience">
+            <div
+              class="exp"
+              *ngFor="let exp of experiences.controls; let i = index"
+              [formGroupName]="i"
             >
-              Xóa
-            </button>
+              <input placeholder="Chức danh" formControlName="title" />
+              <input
+                placeholder="Thời gian (VD: 2022-2023)"
+                formControlName="dates"
+              />
+              <input placeholder="Địa điểm" formControlName="location" />
+              <input placeholder="Công ty" formControlName="organization" />
+
+              <button
+                type="button"
+                class="btn-remove"
+                (click)="removeExperience(i)"
+              >
+                Xóa
+              </button>
+            </div>
           </div>
         </div>
       </div>

@@ -11,7 +11,8 @@ export class CvUploadFileService {
   uploadFiles(
     files: File[],
     accessToken: string,
-    refreshToken: string
+    refreshToken: string,
+    accountId: string
   ): Observable<any> {
     const formData = new FormData();
     files.forEach((f) => formData.append('files', f));
@@ -19,6 +20,8 @@ export class CvUploadFileService {
     const headers = new HttpHeaders({
       Authorization: `Bearer ${accessToken}`,
       refreshtoken: refreshToken,
+      accountid: accountId,
+      router: 'cv/readpdfdoc',
     });
 
     return this.http.post(this.API, formData, { headers });

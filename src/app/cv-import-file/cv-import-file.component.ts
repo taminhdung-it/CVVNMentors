@@ -6,6 +6,8 @@ interface UploadResult {
   fileName: string;
   status: string;
   id: string;
+  isDuplicate?: boolean; // ✅ thêm
+  duplicateWith?: string[]; // ✅ thêm
   data?: {
     fullName: string;
     email: string;
@@ -26,17 +28,20 @@ interface UploadResult {
   styleUrls: ['./cv-import-file.component.css'],
 })
 export class CvImportFileComponent {
-  selectedFiles: File[] = [];
   loading = false;
 
-  total = 0;
+  /** thống kê */
   success = 0;
   failed = 0;
 
+  /** kết quả parse */
   results: UploadResult[] = [];
 
-  /** LƯU ID CÁC CV ĐƯỢC CHỌN */
-  selectedIds = new Set<string>();
+  /** 🔍 tìm kiếm */
+  keyword = '';
+
+  /** 🔽 filter */
+  filterType: 'ALL' | 'DUPLICATE' = 'ALL';
 
   constructor(
     private location: Location,
@@ -52,62 +57,81 @@ export class CvImportFileComponent {
     window.open(url, '_blank');
   }
 
-  /** CHỌN FILE → AUTO UPLOAD */
+  /** upload */
   onFileSelected(event: Event) {
     const input = event.target as HTMLInputElement;
     if (!input.files || !input.files.length) return;
 
-    this.selectedFiles = Array.from(input.files);
+    const files = Array.from(input.files);
+
+    if (files.length > 10) {
+      alert('Chỉ được upload tối đa 10 file');
+      input.value = '';
+      return;
+    }
+
     input.value = '';
-
-    this.uploadFiles(); // 🔥 AUTO UPLOAD
-  }
-
-  uploadFiles() {
     this.loading = true;
 
     const accessToken = sessionStorage.getItem('accesstoken') || '';
     const refreshToken = sessionStorage.getItem('refreshtoken') || '';
+    const accountId = sessionStorage.getItem('accountid') || '';
 
     this.uploadService
-      .uploadFiles(this.selectedFiles, accessToken, refreshToken)
+      .uploadFiles(files, accessToken, refreshToken, accountId)
       .subscribe({
-        next: (res: {
-          total: number;
-          success: number;
-          failed: number;
-          details: UploadResult[];
-        }) => {
-          this.total = res.total;
-          this.success = res.success;
-          this.failed = res.failed;
-          this.results = res.details || [];
+        next: (res) => {
+          this.results = this.markDuplicate(res.details || []);
+          this.success = this.results.length;
+          this.failed = this.results.filter((r) => r.isDuplicate).length;
           this.loading = false;
         },
-        error: () => {
-          alert('Upload thất bại – kiểm tra token');
+        error: (err) => {
+          console.error(err);
+          alert('Upload thất bại');
           this.loading = false;
         },
       });
   }
 
-  /** CHECKBOX */
-  toggleSelect(id: string, event: Event) {
-    const checked = (event.target as HTMLInputElement).checked;
+  /** ✅ đánh dấu trùng lặp theo email */
+  private markDuplicate(list: UploadResult[]): UploadResult[] {
+    const map = new Map<string, UploadResult[]>();
 
-    if (checked) {
-      this.selectedIds.add(id);
-    } else {
-      this.selectedIds.delete(id);
-    }
+    list.forEach((r) => {
+      const email = r.data?.email;
+      if (!email) return;
+      if (!map.has(email)) map.set(email, []);
+      map.get(email)!.push(r);
+    });
+
+    map.forEach((arr) => {
+      if (arr.length > 1) {
+        arr.forEach((r) => {
+          r.isDuplicate = true;
+          r.duplicateWith = arr
+            .filter((x) => x.id !== r.id)
+            .map((x) => x.fileName);
+        });
+      }
+    });
+
+    return list;
   }
 
-  /** THÊM CV */
-  addCv() {
-    const selected = this.results.filter((r) => this.selectedIds.has(r.id));
+  /** ✅ danh sách sau filter + search (DÙNG TRONG HTML) */
+  get filteredResults(): UploadResult[] {
+    return this.results.filter((r) => {
+      if (this.filterType === 'DUPLICATE' && !r.isDuplicate) return false;
 
-    console.log('CV ĐƯỢC THÊM:', selected);
+      if (!this.keyword) return true;
 
-    alert(`Đã thêm ${selected.length} CV (demo)`);
+      const kw = this.keyword.toLowerCase();
+      return (
+        r.fileName.toLowerCase().includes(kw) ||
+        r.data?.email?.toLowerCase().includes(kw) ||
+        r.data?.fullName?.toLowerCase().includes(kw)
+      );
+    });
   }
 }

@@ -11,6 +11,9 @@ export interface CvDetailResponse {
   level: string;
   status: 'NEW' | 'APPROVED' | 'REJECTED' | 'ARCHIVED';
   cvFileUrl: string;
+  cvType?: string; // ✅ THÊM DÒNG NÀY
+  publicId?: string; // (optional – backend có)
+  createdBy?: any;
   createdAt: any;
   updatedAt: string;
   skills: string[];
@@ -36,6 +39,8 @@ export class CvService {
     return new HttpHeaders({
       Authorization: `Bearer ${sessionStorage.getItem('accesstoken')}`,
       refreshtoken: sessionStorage.getItem('refreshtoken') || '',
+      accountid: sessionStorage.getItem('accountid') || '',
+      router: 'cv/get',
     });
   }
 
@@ -48,7 +53,11 @@ export class CvService {
 
   /** ASSIGN JOB */
   assignJob(id: string, job: string) {
-    return this.http.patch(`/api/cvs/${id}/assign-job`, { job });
+    return this.http.patch(
+      `${this.API}/${id}/assign-job`,
+      { job },
+      { headers: this.getHeaders() }
+    );
   }
 
   /** UPDATE STATUS */

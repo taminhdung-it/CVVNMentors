@@ -346,3 +346,17 @@ td {
   align-items: center;
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
 }
+
+/* Email trùng */
+.duplicate-email {
+  background: #fff7ed;
+  color: #c2410c;
+  font-weight: 600;
+}
+
+/* SĐT trùng */
+.duplicate-phone {
+  background: #fef2f2;
+  color: #b91c1c;
+  font-weight: 600;
+}

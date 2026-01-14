@@ -13,27 +13,28 @@
   </div>
 
   <!-- UPLOAD -->
-
-  <div class="upload-zone">
+  <div class="upload-zone" (click)="fileInput.click()">
     <input
+      #fileInput
       type="file"
+      class="file-input"
       multiple
       accept=".pdf,.doc,.docx"
       (change)="onFileSelected($event)"
     />
 
-    <div class="upload-content" *ngIf="!loading">
+    <div *ngIf="!loading" class="upload-content">
       ⬆️
       <div class="upload-title">Tải lên CV của bạn</div>
       <small>Hỗ trợ PDF, DOC, DOCX</small>
     </div>
 
-    <div class="uploading" *ngIf="loading">
+    <div *ngIf="loading" class="uploading">
       ⏳ Đang upload CV, vui lòng chờ...
     </div>
   </div>
 
-  <!-- STATS (LUÔN HIỆN) -->
+  <!-- STATS – LUÔN HIỆN -->
   <div class="stats">
     <div class="stat-card success">
       CV tìm thấy
@@ -46,11 +47,10 @@
     </div>
   </div>
 
-  <!-- TABLE -->
+  <!-- RESULT TABLE -->
   <table class="result-table" *ngIf="results.length">
     <thead>
       <tr>
-        <th></th>
         <th>File</th>
         <th>Họ tên</th>
         <th>Email</th>
@@ -62,18 +62,31 @@
     </thead>
 
     <tbody>
-      <tr *ngFor="let r of results">
+      <tr *ngFor="let r of results" [class.duplicate-row]="r.isDuplicate">
         <td>
-          <input type="checkbox" (change)="toggleSelect(r.id, $event)" />
+          {{ r.fileName }}
+
+          <!-- 🔴 ghi rõ trùng với file nào -->
+          <div class="dup-text" *ngIf="r.isDuplicate">
+            Trùng với: {{ r.duplicateWith?.join(", ") }}
+          </div>
         </td>
-        <td>{{ r.fileName }}</td>
-        <td>{{ r.data?.fullName }}</td>
-        <td>{{ r.data?.email }}</td>
-        <td>{{ r.data?.position }}</td>
-        <td>{{ r.data?.experienceYears }} năm</td>
+
+        <td>{{ r.data?.fullName || "Unknown" }}</td>
+        <td>{{ r.data?.email || "-" }}</td>
+        <td>{{ r.data?.position || "N/A" }}</td>
+        <td>{{ r.data?.experienceYears || "-" }} năm</td>
+
         <td>
-          <span class="badge success">{{ r.status }}</span>
+          <span
+            class="badge"
+            [class.success]="!r.isDuplicate"
+            [class.warning]="r.isDuplicate"
+          >
+            {{ r.isDuplicate ? "TRÙNG LẶP" : "SUCCESS" }}
+          </span>
         </td>
+
         <td>
           <button class="icon-btn" (click)="openPdf(r.data?.cvFileUrl)">
             👁
@@ -82,10 +95,4 @@
       </tr>
     </tbody>
   </table>
-
-  <!-- ACTION BAR -->
-  <div class="action-bar" *ngIf="selectedIds.size">
-    <span>{{ selectedIds.size }} CV đã chọn</span>
-    <button class="btn-primary" (click)="addCv()">Thêm CV</button>
-  </div>
 </div>

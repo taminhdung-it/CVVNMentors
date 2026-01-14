@@ -12,6 +12,9 @@ interface ImportCV {
   status: 'Mới' | 'Lỗi' | 'Trùng lặp';
   job?: string;
   updatedAt: string;
+
+  isDuplicateEmail?: boolean;
+  isDuplicatePhone?: boolean;
 }
 
 interface CVManagement {
@@ -60,10 +63,21 @@ export class CvImportExcelComponent {
     private router: Router
   ) {}
 
+  /* ================= NAV ================= */
+  goBack() {
+    this.router.navigate(['/cv']);
+  }
+
+  toggleExpand() {
+    this.expanded = !this.expanded;
+  }
+
   /* ================= READ EXCEL ================= */
-  onFileSelected(event: any) {
-    const file = event.target.files[0];
-    if (!file) return;
+  onFileSelected(event: Event) {
+    const input = event.target as HTMLInputElement;
+    if (!input.files || !input.files.length) return;
+
+    const file = input.files[0];
 
     this.cvImportService.readExcel(file).subscribe((res) => {
       const rows = res.data || [];
@@ -74,8 +88,8 @@ export class CvImportExcelComponent {
       const existedEmails = new Set(existed.map((c) => c.email.toLowerCase()));
       const existedPhones = new Set(existed.map((c) => c.phone));
 
-      const seenEmail = new Set<string>();
-      const seenPhone = new Set<string>();
+      const seenEmail = new Map<string, number>();
+      const seenPhone = new Map<string, number>();
 
       this.cvs = rows.map((item: any): ImportCV => {
         const r = item.data || {};
@@ -83,20 +97,34 @@ export class CvImportExcelComponent {
         const phone = r['Số điện thoại'] || '';
 
         let status: ImportCV['status'] = 'Mới';
+        let isDuplicateEmail = false;
+        let isDuplicatePhone = false;
 
         if (!r['Họ và tên'] || !email || !phone) {
           status = 'Lỗi';
-        } else if (
-          existedEmails.has(email) ||
-          existedPhones.has(phone) ||
-          seenEmail.has(email) ||
-          seenPhone.has(phone)
-        ) {
-          status = 'Trùng lặp';
         }
 
-        seenEmail.add(email);
-        seenPhone.add(phone);
+        // EMAIL
+        if (email) {
+          if (seenEmail.has(email)) {
+            isDuplicateEmail = true;
+            status = 'Trùng lặp';
+            seenEmail.set(email, seenEmail.get(email)! + 1);
+          } else {
+            seenEmail.set(email, 1);
+          }
+        }
+
+        // PHONE
+        if (phone) {
+          if (seenPhone.has(phone)) {
+            isDuplicatePhone = true;
+            status = 'Trùng lặp';
+            seenPhone.set(phone, seenPhone.get(phone)! + 1);
+          } else {
+            seenPhone.set(phone, 1);
+          }
+        }
 
         return {
           fullName: r['Họ và tên'] || '',
@@ -108,6 +136,8 @@ export class CvImportExcelComponent {
           job: '-',
           updatedAt: new Date().toLocaleDateString('vi-VN'),
           status,
+          isDuplicateEmail,
+          isDuplicatePhone,
         };
       });
 
@@ -151,10 +181,11 @@ export class CvImportExcelComponent {
 
   toggleSelectAll(checked: boolean) {
     this.selectedCvs.clear();
+
     if (checked) {
       this.paginatedCvs
-        .filter((c) => c.status === 'Mới')
-        .forEach((c) => this.selectedCvs.add(c));
+        .filter((cv) => cv.status !== 'Lỗi') // ✅ chỉ chặn Lỗi
+        .forEach((cv) => this.selectedCvs.add(cv));
     }
   }
 
@@ -165,38 +196,29 @@ export class CvImportExcelComponent {
   /* ================= ACTION ================= */
   addToCvList() {
     const valid = Array.from(this.selectedCvs).filter(
-      (c) => c.status === 'Mới'
+      (c) => c.status !== 'Lỗi'
     );
+
     if (!valid.length) return;
 
-    const storedRaw = sessionStorage.getItem('importedCVs');
-    const stored: CVManagement[] = storedRaw ? JSON.parse(storedRaw) : [];
-
-    const newCVs: CVManagement[] = valid.map((cv, i) => ({
-      id: Date.now() + i,
-      fullName: cv.fullName,
+    const payload = valid.map((cv) => ({
+      full_name: cv.fullName,
       email: cv.email,
       phone: cv.phone,
-      cvType: 'Có CV',
-      status: 'Mới',
-      job: cv.position || '-',
-      updatedAt: cv.updatedAt,
+      position: cv.position,
+      level: cv.level,
+      experience_year: cv.experience,
     }));
 
-    sessionStorage.setItem(
-      'importedCVs',
-      JSON.stringify([...stored, ...newCVs])
-    );
-
-    this.router.navigate(['/cv']);
-  }
-
-  goBack() {
-    this.router.navigate(['/cv']);
-  }
-
-  toggleExpand() {
-    this.expanded = !this.expanded;
+    this.cvImportService.importCVs(payload).subscribe({
+      next: () => {
+        this.router.navigate(['/cv']);
+      },
+      error: (err) => {
+        console.error('Lưu CV thất bại', err);
+        alert('Lưu CV thất bại – kiểm tra API backend');
+      },
+    });
   }
 
   /* ================= STATS ================= */

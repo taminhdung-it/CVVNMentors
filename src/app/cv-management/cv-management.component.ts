@@ -66,7 +66,7 @@ export class CvManagementComponent implements OnInit {
         this.allData = data.map(
           (c: any): CV => ({
             id: c.id,
-            fullName: c.fullName || 'Unknown',
+            fullName: c.full_name || c.fullName || 'Unknown',
             email: c.email || '-',
             phone: c.phone || '-',
             cvType: 'Có CV',

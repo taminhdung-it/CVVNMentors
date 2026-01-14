@@ -1,45 +1,62 @@
+/* ================= BASE ================= */
 .cv-detail-page {
   padding: 24px;
   background: #f5f7fb;
+  min-height: 100vh;
+  font-size: 14px;
+  color: #111827;
+  overflow-x: hidden; /* QUAN TRỌNG: không bị kéo ngang */
 }
 
-/* HEADER */
+* {
+  box-sizing: border-box;
+}
+
+/* ================= HEADER ================= */
 .detail-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 20px;
+  margin-bottom: 16px;
+}
+
+.detail-header h2 {
+  font-size: 20px;
+  font-weight: 600;
 }
 
 .btn-back {
-  display: flex;
-  align-items: center;
-  gap: 6px;
   background: #2563eb;
   color: #fff;
   border: none;
-  border-radius: 6px;
-  padding: 6px 12px;
+  border-radius: 8px;
+  padding: 6px 14px;
+  font-weight: 500;
   cursor: pointer;
 }
 
-/* BASIC */
-.cv-basic {
+/* ================= PROFILE ================= */
+.profile-summary {
   display: flex;
   gap: 16px;
+  align-items: center;
+  background: #fff;
+  padding: 16px;
+  border-radius: 12px;
   margin-bottom: 20px;
 }
 
 .avatar {
-  width: 48px;
-  height: 48px;
+  width: 52px;
+  height: 52px;
   border-radius: 50%;
   background: #e5e7eb;
 }
 
-.basic-info h3 {
+.profile-info h3 {
   margin: 0;
   font-size: 18px;
+  font-weight: 600;
 }
 
 .sub {
@@ -47,75 +64,117 @@
   color: #6b7280;
 }
 
-/* STATUS */
-.badge.status {
-  font-size: 12px;
-  padding: 2px 8px;
-  border-radius: 999px;
-  margin-left: 8px;
+.meta {
+  font-size: 13px;
+  color: #374151;
 }
 
-.status-new {
+/* ================= STATUS ================= */
+.badge.status {
+  margin-left: 6px;
+  padding: 2px 8px;
+  font-size: 12px;
+  border-radius: 999px;
   background: #fde68a;
 }
-.status-approved {
-  background: #bbf7d0;
-}
-.status-rejected {
-  background: #fecaca;
-}
-.status-archived {
-  background: #e5e7eb;
-}
 
-/* LAYOUT */
-.detail-content {
+/* ================= LAYOUT ================= */
+.detail-layout {
   display: grid;
-  grid-template-columns: 320px 1fr;
-  gap: 20px;
+  grid-template-columns: 300px minmax(0, 1fr);
+  gap: 24px;
+  align-items: flex-start;
 }
 
-/* CARDS */
-.left-card,
-.right-card {
+/* ================= LEFT CARD ================= */
+.info-card {
   background: #fff;
   border-radius: 12px;
   padding: 16px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
 }
 
-/* LEFT */
-.card-header {
+.info-header {
   display: flex;
+  justify-content: space-between;
   align-items: center;
-  gap: 6px;
   font-weight: 600;
   margin-bottom: 14px;
 }
 
-.info-item {
-  margin-bottom: 10px;
-}
-
-.info-item label {
-  font-size: 12px;
+.edit-btn {
+  cursor: pointer;
   color: #6b7280;
 }
 
-.value {
-  font-size: 14px;
-}
-
-.value.link {
+.edit-btn:hover {
   color: #2563eb;
 }
 
+/* INFO ROW */
 .info-row {
+  display: grid;
+  grid-template-columns: 110px 1fr;
+  gap: 12px;
+  margin-bottom: 10px;
+}
+
+.info-row label {
+  color: #6b7280;
+  font-size: 13px;
+}
+
+.info-row span {
+  font-weight: 500;
+}
+
+.info-row input {
+  width: 100%;
+  padding: 6px 8px;
+  border-radius: 6px;
+  border: 1px solid #e5e7eb;
+}
+
+/* EDIT ACTION */
+.edit-actions {
   display: flex;
-  justify-content: space-between;
+  justify-content: flex-end;
+  gap: 8px;
   margin-top: 12px;
 }
 
-/* TABS */
+.btn.save {
+  background: #2563eb;
+  color: #fff;
+  border: none;
+  padding: 6px 14px;
+  border-radius: 6px;
+}
+
+.btn.cancel {
+  background: #e5e7eb;
+  border: none;
+  padding: 6px 14px;
+  border-radius: 6px;
+}
+
+/* FOOTER */
+.info-footer {
+  display: flex;
+  justify-content: space-between;
+  border-top: 1px solid #e5e7eb;
+  margin-top: 14px;
+  padding-top: 10px;
+  font-size: 13px;
+  color: #6b7280;
+}
+
+/* ================= RIGHT PANEL ================= */
+.right-panel {
+  min-width: 0;
+}
+
+/* ================= TABS ================= */
 .tabs {
   display: flex;
   gap: 24px;
@@ -132,22 +191,25 @@
 .tabs .active {
   color: #2563eb;
   border-bottom: 2px solid #2563eb;
+  font-weight: 600;
 }
 
-/* FILE */
+/* ================= FILE CARD ================= */
 .file-card {
+  background: #fff;
+  border-radius: 12px;
+  padding: 14px 16px;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  background: #f9fafb;
-  border-radius: 10px;
-  padding: 12px;
   margin-bottom: 20px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
 }
 
 .file-left {
   display: flex;
   gap: 12px;
+  align-items: center;
 }
 
 .pdf-icon {
@@ -156,79 +218,84 @@
   background: #fee2e2;
   color: #dc2626;
   font-weight: 700;
+  border-radius: 8px;
   display: flex;
   align-items: center;
   justify-content: center;
-  border-radius: 8px;
 }
 
+/* ICON DỌC – GIỐNG ẢNH 3 */
 .file-actions {
   display: flex;
+  flex-direction: column;
   gap: 8px;
 }
 
-/* ACTION ICON (GIỐNG BẢNG LIST) */
-.action-icon {
-  width: 32px;
-  height: 32px;
-  border-radius: 6px;
-  background: #e5e7eb;
+.file-actions button {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  border: 1px solid #e5e7eb;
+  background: #fff;
+  cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
-  cursor: pointer;
 }
 
-.action-icon.download {
+.file-actions button:last-child {
   background: #2563eb;
   color: #fff;
+  border-color: #2563eb;
 }
 
-/* SECTIONS */
+/* ================= SECTION ================= */
 .section {
+  background: #fff;
+  border-radius: 12px;
+  padding: 16px;
   margin-bottom: 20px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
 }
 
 .section h4 {
-  display: flex;
-  align-items: center;
-  gap: 6px;
   font-size: 14px;
-  margin-bottom: 10px;
+  font-weight: 600;
+  margin-bottom: 12px;
 }
 
-/* TAGS */
+/* ================= TAGS ================= */
 .tags span {
   display: inline-block;
   background: #f3f4f6;
-  padding: 6px 10px;
-  border-radius: 8px;
+  padding: 6px 12px;
+  border-radius: 999px;
   margin: 6px 6px 0 0;
   font-size: 13px;
 }
 
-/* TIMELINE */
-.timeline-item {
+/* ================= TIMELINE ================= */
+.timeline {
   display: flex;
   gap: 12px;
-  margin-bottom: 16px;
+  margin-bottom: 18px;
+  position: relative;
 }
 
-.dot {
-  width: 10px;
-  height: 10px;
+.timeline-dot {
+  width: 12px;
+  height: 12px;
   background: #2563eb;
   border-radius: 50%;
-  margin-top: 6px;
+  margin-top: 4px;
 }
 
 .timeline-content {
-  flex: 1;
+  padding-left: 12px;
+  border-left: 2px solid #e5e7eb;
 }
 
-.exp-header {
-  display: flex;
-  justify-content: space-between;
+.timeline-content strong {
   font-size: 14px;
 }
 
@@ -242,34 +309,295 @@
   color: #6b7280;
 }
 
-.edit-btn {
-  margin-left: auto;
-  cursor: pointer;
+/* ================= EDITOR COMMON ================= */
+.skill-editor,
+.experience-editor {
+  margin-top: 8px;
+}
+
+.editor-label {
+  font-size: 13px;
+  font-weight: 500;
+  color: #374151;
+  display: block;
+  margin-bottom: 6px;
+}
+
+.editor-hint {
+  font-size: 12px;
   color: #6b7280;
+  margin-top: 4px;
+  display: block;
 }
 
-.edit-btn:hover {
-  color: #2563eb;
-}
-
-input {
+/* ================= SKILL EDIT ================= */
+.skill-editor textarea {
   width: 100%;
-  padding: 6px 8px;
+  min-height: 72px;
+  padding: 10px 12px;
+  border-radius: 8px;
+  border: 1px solid #e5e7eb;
+  font-size: 13px;
+  resize: vertical;
+}
+
+.skill-editor textarea:focus {
+  outline: none;
+  border-color: #2563eb;
+  box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.15);
+}
+
+/* ================= EXPERIENCE EDIT ================= */
+.experience-editor {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.exp-card {
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  padding: 14px;
+  background: #f9fafb;
+}
+
+.exp-header {
+  font-weight: 600;
+  font-size: 14px;
+  color: #2563eb;
+  margin-bottom: 12px;
+}
+
+/* grid 2 cột */
+.exp-row {
+  display: grid;
+  grid-template-columns: 110px 1fr;
+  gap: 12px;
+  margin-bottom: 10px;
+}
+
+.exp-row label {
+  font-size: 13px;
+  color: #6b7280;
+  align-self: center;
+}
+
+.exp-row input {
+  width: 100%;
+  padding: 8px 10px;
+  border-radius: 8px;
+  border: 1px solid #e5e7eb;
+  font-size: 13px;
+}
+
+.exp-row input:focus {
+  outline: none;
+  border-color: #2563eb;
+  box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.15);
+}
+
+/* location hiển thị đẹp khi view */
+.timeline-content .location {
+  font-size: 12px;
+  color: #6b7280;
+  margin-top: 2px;
+}
+
+/* ================= JOB ASSIGNED ================= */
+
+/* note box */
+.job-note {
+  background: #eaf3ff;
+  border-radius: 12px;
+  padding: 14px 16px;
+  margin-bottom: 16px;
+  color: #1e3a8a;
+  font-size: 13px;
+}
+
+/* filter bar */
+.job-filter {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.job-filter input,
+.job-filter select {
+  padding: 6px 10px;
   border-radius: 6px;
   border: 1px solid #e5e7eb;
+  font-size: 13px;
 }
 
-.edit-actions {
+/* table */
+.job-table {
+  width: 100%;
+  border-collapse: collapse;
+  background: #fff;
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.job-table th {
+  text-align: left;
+  padding: 10px 12px;
+  font-size: 13px;
+  color: #6b7280;
+  background: #f9fafb;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.job-table td {
+  padding: 12px;
+  font-size: 14px;
+  border-bottom: 1px solid #f1f5f9;
+}
+
+.job-table tr:hover {
+  background: #f8fafc;
+}
+
+/* job name link */
+.job-name {
+  color: #2563eb;
+  font-weight: 500;
+  cursor: pointer;
+}
+
+.job-name:hover {
+  text-decoration: underline;
+}
+
+/* status badge */
+.job-status {
+  padding: 4px 10px;
+  font-size: 12px;
+  border-radius: 999px;
+  font-weight: 500;
+  display: inline-block;
+}
+
+.job-status.phỏng {
+  background: #fef3c7;
+  color: #92400e;
+}
+
+.job-status.ứng {
+  background: #dbeafe;
+  color: #1e40af;
+}
+
+.job-status.đạt {
+  background: #dcfce7;
+  color: #166534;
+}
+
+.job-status.không {
+  background: #fee2e2;
+  color: #991b1b;
+}
+
+/* pagination */
+.job-pagination {
   display: flex;
-  gap: 10px;
-  margin-top: 10px;
+  justify-content: center;
+  align-items: center;
+  gap: 8px;
+  margin-top: 14px;
 }
 
-.btn.save {
+.job-pagination button {
+  width: 28px;
+  height: 28px;
+  border-radius: 6px;
+  border: 1px solid #e5e7eb;
+  background: #fff;
+  cursor: pointer;
+}
+
+.job-pagination button:hover {
   background: #2563eb;
   color: #fff;
 }
 
-.btn.cancel {
-  background: #e5e7eb;
+.job-pagination span {
+  font-size: 13px;
+  color: #374151;
+}
+
+/* ===== FIX TEXT TRÀN (EMAIL, TEXT DÀI) ===== */
+.info-row span,
+.profile-info .sub {
+  display: block;
+  max-width: 100%;
+  white-space: nowrap; /* không xuống dòng */
+  overflow: hidden; /* ẩn phần dư */
+  text-overflow: ellipsis; /* hiện ... */
+}
+
+.section-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12px;
+}
+
+.add-exp-icon {
+  width: 36px;
+  height: 36px;
+  border-radius: 8px;
+  border: none;
+  background: #2563eb; /* xanh */
+  color: #fff;
+  font-size: 22px;
+  font-weight: 600;
+  cursor: pointer;
+  line-height: 1;
+}
+
+.add-exp-icon:hover {
+  background: #1d4ed8;
+}
+
+.remove-exp {
+  background: transparent;
+  border: none;
+  color: #ef4444;
+  font-size: 16px;
+  cursor: pointer;
+  margin-left: 8px;
+}
+
+.section-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12px;
+}
+
+.add-exp-icon {
+  width: 36px;
+  height: 36px;
+  border-radius: 8px;
+  border: none;
+  background: #2563eb; /* xanh */
+  color: #fff;
+  font-size: 22px;
+  font-weight: 600;
+  cursor: pointer;
+  line-height: 1;
+}
+
+.add-exp-icon:hover {
+  background: #1d4ed8;
+}
+
+.remove-exp {
+  background: transparent;
+  border: none;
+  color: #ef4444;
+  font-size: 16px;
+  cursor: pointer;
+  margin-left: 8px;
 }
