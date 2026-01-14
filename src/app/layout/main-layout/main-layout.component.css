@@ -1,0 +1,49 @@
+:root {
+  --sidebar-width: 260px;
+  --sidebar-collapsed-width: 72px;
+  --header-height: 64px;
+  --bg: #f5f6f8;
+  --card-bg: #fff;
+  --muted: #8a8a8a;
+  --accent: #0b5ed7;
+}
+
+* {
+  box-sizing: border-box;
+}
+html,
+body,
+#app-root {
+  height: 100%;
+}
+.app-layout {
+  display: flex;
+  min-height: 100vh;
+  background: var(--bg);
+}
+
+/* sidebar is fixed in DOM order; main-area grows */
+app-sidebar {
+  flex: 0 0 auto;
+}
+
+/* main area */
+.main-area {
+  flex: 1 1 auto;
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  transition: margin-left 0.22s ease;
+}
+
+/* when sidebar collapsed, we still keep header aligned */
+.main-area.sidebar-collapsed {
+  /* no need to change margin if sidebar positioned statically;
+     content area has padding left handled by content padding */
+}
+
+/* content (below header) */
+.content {
+  padding: 24px 32px 80px 32px;
+  width: 100%;
+}

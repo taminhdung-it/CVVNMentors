@@ -1,0 +1,12 @@
+<div class="app-layout">
+  <app-sidebar [collapsed]="collapsed"></app-sidebar>
+
+  <div class="main-area" [class.sidebar-collapsed]="collapsed">
+    <app-header [collapsed]="collapsed" (toggleSidebar)="onToggle()"></app-header>
+
+    <main class="content">
+      <!-- nơi chứa trang con (dashboard, pages) -->
+      <router-outlet></router-outlet>
+    </main>
+  </div>
+</div>

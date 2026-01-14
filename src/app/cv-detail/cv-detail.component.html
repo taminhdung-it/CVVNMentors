@@ -1,0 +1,103 @@
+<div class="cv-detail-page">
+  <h2>Xem chi tiết</h2>
+
+  <!-- HEADER -->
+  <div class="cv-header">
+    <div class="avatar"></div>
+    <div>
+      <h3>
+        {{ cv.fullName }} <span class="badge">{{ cv.status }}</span>
+      </h3>
+      <div class="sub">Nguồn: TopCV • ID: #CAND-2023-892</div>
+    </div>
+  </div>
+
+  <div class="content">
+    <!-- LEFT -->
+    <div class="left-card">
+      <h4>Thông tin chung</h4>
+      <div class="info"><label>Email</label>{{ cv.email }}</div>
+      <div class="info"><label>Số điện thoại</label>{{ cv.phone }}</div>
+      <div class="info"><label>Vị trí mong muốn</label>{{ cv.position }}</div>
+    </div>
+
+    <!-- RIGHT -->
+    <div class="right-card">
+      <!-- TABS -->
+      <div class="tabs">
+        <span
+          [class.active]="activeTab === 'profile'"
+          (click)="setTab('profile')"
+          >Chi tiết hồ sơ</span
+        >
+        <span [class.active]="activeTab === 'jobs'" (click)="setTab('jobs')"
+          >Job đã gán {{ jobs.length }}</span
+        >
+        <span
+          [class.active]="activeTab === 'history'"
+          (click)="setTab('history')"
+          >Lịch sử hoạt động</span
+        >
+      </div>
+
+      <!-- TAB 1 -->
+      <div *ngIf="activeTab === 'profile'" class="tab-box">
+        <div class="note">
+          Trạng thái tuyển dụng theo từng job không ảnh hưởng trạng thái CV
+          tổng.
+        </div>
+
+        <div class="section">
+          <h5>Kỹ năng chuyên môn</h5>
+          <div class="tags">
+            <span>ReactJS</span>
+            <span>TypeScript</span>
+            <span>Tailwind CSS</span>
+            <span>NodeJS</span>
+            <span>Git</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- TAB 2 -->
+      <div *ngIf="activeTab === 'jobs'" class="tab-box">
+        <table>
+          <thead>
+            <tr>
+              <th>Tên Job</th>
+              <th>Phòng ban</th>
+              <th>Trạng thái</th>
+              <th>Ngày gán</th>
+              <th>Cập nhật</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let j of jobs">
+              <td>{{ j.name }}</td>
+              <td>{{ j.department }}</td>
+              <td>
+                <span class="status">{{ j.status }}</span>
+              </td>
+              <td>{{ j.assignedAt }}</td>
+              <td>{{ j.updatedAt }}</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- TAB 3 -->
+      <div *ngIf="activeTab === 'history'" class="tab-box">
+        <div class="timeline">
+          <div class="item" *ngFor="let h of histories">
+            <div class="dot"></div>
+            <div>
+              <div class="time">{{ h.time }} • {{ h.user }}</div>
+              <div class="action">{{ h.action }}</div>
+              <span *ngIf="h.status" class="badge small">{{ h.status }}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
