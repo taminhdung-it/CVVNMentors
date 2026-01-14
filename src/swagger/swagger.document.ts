@@ -19,6 +19,10 @@ export const document: OpenAPIObject = {
       name: 'Quản lý Ứng tuyển',
       description: 'Trang quản lý Ứng tuyển(application)',
     },
+    {
+      name:'Quản lý Nhân viên',
+      description: 'Trang quản lý',
+    }
   ],
   paths: {
     '/auth/login': {
@@ -104,6 +108,20 @@ export const document: OpenAPIObject = {
             schema: { type: 'string', example: '<Nhập token refresh>' },
             description: 'Refresh Token',
           },
+          {
+            in: 'header',
+            name: 'accountid',
+            required: true,
+            schema: { type: 'string', example: '<Nhập accountid>' },
+            description: 'accountid',
+          },
+          {
+            in: 'header',
+            name: 'router',
+            required: true,
+            schema: { type: 'string', example: 'account/logout' },
+            description: 'router',
+          },
         ],
         requestBody: {
           required: true,
@@ -165,6 +183,20 @@ export const document: OpenAPIObject = {
             required: true,
             schema: { type: 'string', example: 'eyJhbGciOiJIUzI1Ni...' },
             description: 'Refresh Token',
+          },
+          {
+            in: 'header',
+            name: 'accountid',
+            required: true,
+            schema: { type: 'string', example: '<Nhập accountid>' },
+            description: 'accountid',
+          },
+          {
+            in: 'header',
+            name: 'router',
+            required: true,
+            schema: { type: 'string', example: 'cv/readpdfdoc' },
+            description: 'router',
           },
         ],
         requestBody: {
@@ -239,6 +271,20 @@ export const document: OpenAPIObject = {
             schema: { type: 'string', example: 'eyJhbGciOiJIUzI1Ni...' },
             description: 'Refresh Token',
           },
+          {
+            in: 'header',
+            name: 'accountid',
+            required: true,
+            schema: { type: 'string', example: '<Nhập accountid>' },
+            description: 'accountid',
+          },
+          {
+            in: 'header',
+            name: 'router',
+            required: true,
+            schema: { type: 'string', example: 'cv/readexcel' },
+            description: 'router',
+          },
         ],
         requestBody: {
           required: true,
@@ -305,6 +351,20 @@ export const document: OpenAPIObject = {
               example: 'eyJhbGciOiJIUzI1Ni...',
             },
             description: 'Refresh Token',
+          },
+          {
+            in: 'header',
+            name: 'accountid',
+            required: true,
+            schema: { type: 'string', example: '<Nhập accountid>' },
+            description: 'accountid',
+          },
+          {
+            in: 'header',
+            name: 'router',
+            required: true,
+            schema: { type: 'string', example: 'cv/addexcel' },
+            description: 'router',
           },
         ],
 
@@ -436,6 +496,20 @@ export const document: OpenAPIObject = {
             schema: { type: 'string', example: 'eyJhbGciOiJIUzI1Ni...' },
             description: 'Refresh Token',
           },
+          {
+            in: 'header',
+            name: 'accountid',
+            required: true,
+            schema: { type: 'string', example: '<Nhập accountid>' },
+            description: 'accountid',
+          },
+          {
+            in: 'header',
+            name: 'router',
+            required: true,
+            schema: { type: 'string', example: 'cv/addcv' },
+            description: 'router',
+          },
         ],
         requestBody: {
           required: true,
@@ -537,6 +611,21 @@ export const document: OpenAPIObject = {
             schema: { type: 'string', example: 'eyJhbGciOiJIUzI1Ni...' },
             description: 'Refresh Token',
           },
+
+          {
+            in: 'header',
+            name: 'accountid',
+            required: true,
+            schema: { type: 'string', example: '<Nhập accountid>' },
+            description: 'accountid',
+          },
+          {
+            in: 'header',
+            name: 'router',
+            required: true,
+            schema: { type: 'string', example: 'cv/get' },
+            description: 'router',
+          },
           {
             in: 'query',
             name: 'page',
@@ -622,140 +711,140 @@ export const document: OpenAPIObject = {
         },
       },
     },
-    '/cv/{id}': {
-      get: {
-        tags: ['Quản lý CV'],
-        summary: 'Xem chi tiết một CV',
-        parameters: [
-          {
-            in: 'header',
-            name: 'refreshtoken',
-            required: true,
-            schema: { type: 'string', example: 'eyJhbGciOiJIUzI1Ni...' },
-            description: 'Refresh Token',
-          },
-          {
-            in: 'path',
-            name: 'id',
-            required: true,
-            schema: { type: 'string', example: 'cv_123' },
-          },
-        ],
-        responses: {
-          '200': {
-            description: 'Trả về object CV đầy đủ',
-            content: {
-              'application/json': {
-                schema: { example: { id: 'cv_123', fullName: 'Trần Văn C' } },
-              },
-            },
-            links: {
-              // GetUserDetail: {
-              //   operationId: 'getUser',
-              //   parameters: {
-              //     id: '$response.body#/user_id'
-              //   },
-              //   description: 'Lấy thông tin user vừa đăng nhập'
-              // }
-            }
-          },
-        },
-      },
-      patch: {
-        tags: ['Quản lý CV'],
-        summary: 'Cập nhật thông tin CV (JSON)',
-        description: `
-      **Lưu ý:**
-      - Các trường như education, skill có thể gửi dạng Array hoặc String cách nhau bởi dấu phẩy (vd: "Java, AWS")
-      - Dữ liệu gửi lên là Partial (gửi trường nào update trường đó).
-    `,
-        parameters: [
-          {
-            in: 'header',
-            name: 'refreshtoken',
-            required: true,
-            schema: { type: 'string', example: 'eyJhbGciOiJIUzI1Ni...' },
-            description: 'Refresh Token',
-          },
-          {
-            in: 'path',
-            name: 'id',
-            required: true,
-            schema: { type: 'string', example: 'cv_123' },
-          },
-        ],
-        requestBody: {
-          required: true,
-          content: {
-            'application/json': {
-              schema: {
-                type: 'object',
-                properties: {
-                  fullName: { type: 'string', example: 'Nguyễn Văn A (Updated)' },
-                  email: { type: 'string', example: 'new_email@gmail.com' },
-                  phone: { type: 'string', example: '0988888888' },
-                  position: { type: 'string', example: 'Fullstack Dev' },
-                  level: { type: 'string', example: 'Senior' },
-                  experienceYears: { type: 'number', example: 5 },
-                  // JSON Body hỗ trợ mảng trực tiếp, không cần stringify như FormData
-                  skills: {
-                    type: 'array',
-                    items: { type: 'string' },
-                    example: ['Java', 'Go', 'AWS']
-                  },
-                  education: {
-                    type: 'array',
-                    items: { type: 'string' },
-                    example: ['Thạc sĩ KHMT']
-                  },
-                  experience: {
-                    type: 'array',
-                    items: {
-                      type: 'object',
-                      properties: {
-                        title: { type: 'string' },
-                        dates: { type: 'string' },
-                        location: { type: 'string' },
-                        organization: { type: 'string' }
-                      }
-                    },
-                    example: [
-                      {
-                        title: "Tech Lead",
-                        dates: "2023 - Present",
-                        organization: "VNG",
-                        location: "HCM"
-                      }
-                    ]
-                  }
-                },
-              },
-            },
-          },
-        },
-        responses: {
-          '200': {
-            description: 'Cập nhật thành công',
-            content: {
-              'application/json': {
-                schema: {
-                  example: { id: 'cv_123', message: 'Cập nhật thành công' },
-                },
-              },
-            },
-            links: {
-              // GetUserDetail: {
-              //   operationId: 'getUser',
-              //   parameters: {
-              //     id: '$response.body#/user_id'
-              //   },
-              //   description: 'Lấy thông tin user vừa đăng nhập'
-              // }
-            }
-          },
-        },
-      },
-    },
+    // '/cv/{id}': {
+    //   get: {
+    //     tags: ['Quản lý CV'],
+    //     summary: 'Xem chi tiết một CV',
+    //     parameters: [
+    //       {
+    //         in: 'header',
+    //         name: 'refreshtoken',
+    //         required: true,
+    //         schema: { type: 'string', example: 'eyJhbGciOiJIUzI1Ni...' },
+    //         description: 'Refresh Token',
+    //       },
+    //       {
+    //         in: 'path',
+    //         name: 'id',
+    //         required: true,
+    //         schema: { type: 'string', example: 'cv_123' },
+    //       },
+    //     ],
+    //     responses: {
+    //       '200': {
+    //         description: 'Trả về object CV đầy đủ',
+    //         content: {
+    //           'application/json': {
+    //             schema: { example: { id: 'cv_123', fullName: 'Trần Văn C' } },
+    //           },
+    //         },
+    //         links: {
+    //           // GetUserDetail: {
+    //           //   operationId: 'getUser',
+    //           //   parameters: {
+    //           //     id: '$response.body#/user_id'
+    //           //   },
+    //           //   description: 'Lấy thông tin user vừa đăng nhập'
+    //           // }
+    //         }
+    //       },
+    //     },
+    //   },
+    //   patch: {
+    //     tags: ['Quản lý CV'],
+    //     summary: 'Cập nhật thông tin CV (JSON)',
+    //     description: `
+    //   **Lưu ý:**
+    //   - Các trường như education, skill có thể gửi dạng Array hoặc String cách nhau bởi dấu phẩy (vd: "Java, AWS")
+    //   - Dữ liệu gửi lên là Partial (gửi trường nào update trường đó).
+    // `,
+    //     parameters: [
+    //       {
+    //         in: 'header',
+    //         name: 'refreshtoken',
+    //         required: true,
+    //         schema: { type: 'string', example: 'eyJhbGciOiJIUzI1Ni...' },
+    //         description: 'Refresh Token',
+    //       },
+    //       {
+    //         in: 'path',
+    //         name: 'id',
+    //         required: true,
+    //         schema: { type: 'string', example: 'cv_123' },
+    //       },
+    //     ],
+    //     requestBody: {
+    //       required: true,
+    //       content: {
+    //         'application/json': {
+    //           schema: {
+    //             type: 'object',
+    //             properties: {
+    //               fullName: { type: 'string', example: 'Nguyễn Văn A (Updated)' },
+    //               email: { type: 'string', example: 'new_email@gmail.com' },
+    //               phone: { type: 'string', example: '0988888888' },
+    //               position: { type: 'string', example: 'Fullstack Dev' },
+    //               level: { type: 'string', example: 'Senior' },
+    //               experienceYears: { type: 'number', example: 5 },
+    //               // JSON Body hỗ trợ mảng trực tiếp, không cần stringify như FormData
+    //               skills: {
+    //                 type: 'array',
+    //                 items: { type: 'string' },
+    //                 example: ['Java', 'Go', 'AWS']
+    //               },
+    //               education: {
+    //                 type: 'array',
+    //                 items: { type: 'string' },
+    //                 example: ['Thạc sĩ KHMT']
+    //               },
+    //               experience: {
+    //                 type: 'array',
+    //                 items: {
+    //                   type: 'object',
+    //                   properties: {
+    //                     title: { type: 'string' },
+    //                     dates: { type: 'string' },
+    //                     location: { type: 'string' },
+    //                     organization: { type: 'string' }
+    //                   }
+    //                 },
+    //                 example: [
+    //                   {
+    //                     title: "Tech Lead",
+    //                     dates: "2023 - Present",
+    //                     organization: "VNG",
+    //                     location: "HCM"
+    //                   }
+    //                 ]
+    //               }
+    //             },
+    //           },
+    //         },
+    //       },
+    //     },
+    //     responses: {
+    //       '200': {
+    //         description: 'Cập nhật thành công',
+    //         content: {
+    //           'application/json': {
+    //             schema: {
+    //               example: { id: 'cv_123', message: 'Cập nhật thành công' },
+    //             },
+    //           },
+    //         },
+    //         links: {
+    //           // GetUserDetail: {
+    //           //   operationId: 'getUser',
+    //           //   parameters: {
+    //           //     id: '$response.body#/user_id'
+    //           //   },
+    //           //   description: 'Lấy thông tin user vừa đăng nhập'
+    //           // }
+    //         }
+    //       },
+    //     },
+    //   },
+    // },
     '/cv/{id}/status': {
       patch: {
         tags: ['Quản lý CV'],
@@ -767,6 +856,20 @@ export const document: OpenAPIObject = {
             required: true,
             schema: { type: 'string', example: 'eyJhbGciOiJIUzI1Ni...' },
             description: 'Refresh Token',
+          },
+          {
+            in: 'header',
+            name: 'accountid',
+            required: true,
+            schema: { type: 'string', example: '<Nhập accountid>' },
+            description: 'accountid',
+          },
+          {
+            in: 'header',
+            name: 'router',
+            required: true,
+            schema: { type: 'string', example: 'cv/changestatus' },
+            description: 'router',
           },
           {
             in: 'path',
@@ -826,6 +929,20 @@ export const document: OpenAPIObject = {
             schema: { type: 'string', example: 'eyJhbGciOiJIUzI1Ni...' },
             description: 'Refresh Token',
           },
+          {
+            in: 'header',
+            name: 'accountid',
+            required: true,
+            schema: { type: 'string', example: '<Nhập accountid>' },
+            description: 'accountid',
+          },
+          {
+            in: 'header',
+            name: 'router',
+            required: true,
+            schema: { type: 'string', example: 'cv/assign' },
+            description: 'router',
+          },
         ],
         requestBody: {
           required: true,
@@ -884,6 +1001,20 @@ export const document: OpenAPIObject = {
             required: true,
             schema: { type: 'string', example: 'eyJhbGciOiJIUzI1Ni...' },
             description: 'Refresh Token để xác thực',
+          },
+          {
+            in: 'header',
+            name: 'accountid',
+            required: true,
+            schema: { type: 'string', example: '<Nhập accountid>' },
+            description: 'accountid',
+          },
+          {
+            in: 'header',
+            name: 'router',
+            required: true,
+            schema: { type: 'string', example: 'job/get' },
+            description: 'router',
           },
           {
             in: 'query',
@@ -950,6 +1081,20 @@ export const document: OpenAPIObject = {
             required: true,
             schema: { type: 'string', example: 'eyJhbGciOiJIUzI1Ni...' },
             description: 'Refresh Token',
+          },
+          {
+            in: 'header',
+            name: 'accountid',
+            required: true,
+            schema: { type: 'string', example: '<Nhập accountid>' },
+            description: 'accountid',
+          },
+          {
+            in: 'header',
+            name: 'router',
+            required: true,
+            schema: { type: 'string', example: 'job/add' },
+            description: 'router',
           },
         ],
         requestBody: {
@@ -1063,6 +1208,20 @@ export const document: OpenAPIObject = {
             description: 'Refresh Token',
           },
           {
+            in: 'header',
+            name: 'accountid',
+            required: true,
+            schema: { type: 'string', example: '<Nhập accountid>' },
+            description: 'accountid',
+          },
+          {
+            in: 'header',
+            name: 'router',
+            required: true,
+            schema: { type: 'string', example: 'job/search' },
+            description: 'router',
+          },
+          {
             in: 'query',
             name: 'keyword',
             schema: { type: 'string', example: 'Java' },
@@ -1154,61 +1313,62 @@ export const document: OpenAPIObject = {
         },
       },
     },
-    '/jobs/{id}': {
-      get: {
-        tags: ['Quản lý Job'],
-        summary: 'Xem chi tiết Job',
-        parameters: [
-          {
-            in: 'header',
-            name: 'refreshtoken',
-            required: true,
-            schema: { type: 'string', example: 'eyJhbGciOiJIUzI1Ni...' },
-            description: 'Refresh Token',
-          },
-          {
-            in: 'path',
-            name: 'id',
-            required: true,
-            schema: { type: 'string', example: 'job_001' },
-            description: 'ID của Job cần xem',
-          },
-        ],
-        responses: {
-          '200': {
-            description: 'Thông tin chi tiết Job',
-            content: {
-              'application/json': {
-                schema: {
-                  type: 'object',
-                  example: {
-                    id: 'job_001',
-                    name: 'Java Developer',
-                    description: 'Full description...',
-                    skills: ['Java', 'Spring'],
-                    headcountTarget: 5,
-                    headcountHired: 2,
-                    status: 'OPEN',
-                    jdFileUrl: 'https://cloudinary...',
-                    applyStart: '2025-01-01',
-                    applyEnd: '2025-02-01',
-                    createdAt: '2025-01-01T08:00:00Z',
-                  },
-                },
-              },
-            },
-            links: {
-              // GetUserDetail: {
-              //   operationId: 'getUser',
-              //   parameters: {
-              //     id: '$response.body#/user_id'
-              //   },
-              //   description: 'Lấy thông tin user vừa đăng nhập'
-              // }
-            }
-          },
-        },
-      },
+    // '/jobs/{id}': {
+    //   get: {
+    //     tags: ['Quản lý Job'],
+    //     summary: 'Xem chi tiết Job',
+    //     parameters: [
+    //       {
+    //         in: 'header',
+    //         name: 'refreshtoken',
+    //         required: true,
+    //         schema: { type: 'string', example: 'eyJhbGciOiJIUzI1Ni...' },
+    //         description: 'Refresh Token',
+    //       },
+    //       {
+    //         in: 'path',
+    //         name: 'id',
+    //         required: true,
+    //         schema: { type: 'string', example: 'job_001' },
+    //         description: 'ID của Job cần xem',
+    //       },
+    //     ],
+    //     responses: {
+    //       '200': {
+    //         description: 'Thông tin chi tiết Job',
+    //         content: {
+    //           'application/json': {
+    //             schema: {
+    //               type: 'object',
+    //               example: {
+    //                 id: 'job_001',
+    //                 name: 'Java Developer',
+    //                 description: 'Full description...',
+    //                 skills: ['Java', 'Spring'],
+    //                 headcountTarget: 5,
+    //                 headcountHired: 2,
+    //                 status: 'OPEN',
+    //                 jdFileUrl: 'https://cloudinary...',
+    //                 applyStart: '2025-01-01',
+    //                 applyEnd: '2025-02-01',
+    //                 createdAt: '2025-01-01T08:00:00Z',
+    //               },
+    //             },
+    //           },
+    //         },
+    //         links: {
+    //           // GetUserDetail: {
+    //           //   operationId: 'getUser',
+    //           //   parameters: {
+    //           //     id: '$response.body#/user_id'
+    //           //   },
+    //           //   description: 'Lấy thông tin user vừa đăng nhập'
+    //           // }
+    //         }
+    //       },
+    //     },
+    //   },
+    "/jobs/{id}": {
       patch: {
         tags: ['Quản lý Job'],
         summary: 'Cập nhật thông tin Job (Có upload file)',
@@ -1221,6 +1381,20 @@ export const document: OpenAPIObject = {
             required: true,
             schema: { type: 'string', example: 'eyJhbGciOiJIUzI1Ni...' },
             description: 'Refresh Token',
+          },
+          {
+            in: 'header',
+            name: 'accountid',
+            required: true,
+            schema: { type: 'string', example: '<Nhập accountid>' },
+            description: 'accountid',
+          },
+          {
+            in: 'header',
+            name: 'router',
+            required: true,
+            schema: { type: 'string', example: 'job/edit' },
+            description: 'router',
           },
           {
             in: 'path',
@@ -1319,6 +1493,20 @@ export const document: OpenAPIObject = {
             required: true,
             schema: { type: 'string', example: 'eyJhbGciOiJIUzI1Ni...' },
             description: 'Refresh Token',
+          },          
+          {
+            in: 'header',
+            name: 'accountid',
+            required: true,
+            schema: { type: 'string', example: '<Nhập accountid>' },
+            description: 'accountid',
+          },
+          {
+            in: 'header',
+            name: 'router',
+            required: true,
+            schema: { type: 'string', example: 'job/close' },
+            description: 'router',
           },
           {
             in: 'path',
@@ -1381,6 +1569,20 @@ export const document: OpenAPIObject = {
             required: true,
             schema: { type: 'string', example: 'eyJhbGciOiJIUzI1Ni...' },
             description: 'Refresh Token',
+          },          
+          {
+            in: 'header',
+            name: 'accountid',
+            required: true,
+            schema: { type: 'string', example: '<Nhập accountid>' },
+            description: 'accountid',
+          },
+          {
+            in: 'header',
+            name: 'router',
+            required: true,
+            schema: { type: 'string', example: 'job/open' },
+            description: 'router',
           },
           {
             in: 'path',
@@ -1429,6 +1631,20 @@ export const document: OpenAPIObject = {
             required: true,
             schema: { type: 'string', example: 'eyJhbGciOiJIUzI1Ni...' },
             description: 'Refresh Token',
+          },          
+          {
+            in: 'header',
+            name: 'accountid',
+            required: true,
+            schema: { type: 'string', example: '<Nhập accountid>' },
+            description: 'accountid',
+          },
+          {
+            in: 'header',
+            name: 'router',
+            required: true,
+            schema: { type: 'string', example: 'job/lock' },
+            description: 'router',
           },
           {
             in: 'path',
@@ -1479,6 +1695,20 @@ export const document: OpenAPIObject = {
             required: true,
             schema: { type: 'string', example: 'eyJhbGciOiJIUzI1Ni...' },
             description: 'Refresh Token',
+          },          
+          {
+            in: 'header',
+            name: 'accountid',
+            required: true,
+            schema: { type: 'string', example: '<Nhập accountid>' },
+            description: 'accountid',
+          },
+          {
+            in: 'header',
+            name: 'router',
+            required: true,
+            schema: { type: 'string', example: 'departments/get' },
+            description: 'router',
           },
           {
             in: 'query',
@@ -1536,6 +1766,20 @@ export const document: OpenAPIObject = {
             required: true,
             schema: { type: 'string', example: 'eyJhbGciOiJIUzI1Ni...' },
             description: 'Refresh Token',
+          },          
+          {
+            in: 'header',
+            name: 'accountid',
+            required: true,
+            schema: { type: 'string', example: '<Nhập accountid>' },
+            description: 'accountid',
+          },
+          {
+            in: 'header',
+            name: 'router',
+            required: true,
+            schema: { type: 'string', example: 'departments/add' },
+            description: 'router',
           },
         ],
         requestBody: {
@@ -1595,6 +1839,20 @@ export const document: OpenAPIObject = {
             required: true,
             schema: { type: 'string', example: 'eyJhbGciOiJIUzI1Ni...' },
             description: 'Refresh Token',
+          },          
+          {
+            in: 'header',
+            name: 'accountid',
+            required: true,
+            schema: { type: 'string', example: '<Nhập accountid>' },
+            description: 'accountid',
+          },
+          {
+            in: 'header',
+            name: 'router',
+            required: true,
+            schema: { type: 'string', example: 'departments/search' },
+            description: 'router',
           },
           {
             in: 'query',
@@ -1655,66 +1913,67 @@ export const document: OpenAPIObject = {
         },
       },
     },
-    '/departments/{id}': {
-      get: {
-        tags: ['Quản lý Phòng ban'],
-        summary: 'Xem chi tiết Phòng ban',
-        parameters: [
-          {
-            in: 'header',
-            name: 'refreshtoken',
-            required: true,
-            schema: { type: 'string', example: 'eyJhbGciOiJIUzI1Ni...' },
-            description: 'Refresh Token',
-          },
-          {
-            in: 'path',
-            name: 'id',
-            required: true,
-            schema: { type: 'string', example: 'dept_001' },
-          },
-        ],
-        responses: {
-          '200': {
-            description: 'Thông tin chi tiết',
-            content: {
-              'application/json': {
-                schema: {
-                  example: {
-                    id: 'dept_001',
-                    name: 'Phòng Công nghệ',
-                    description: 'Full description...',
-                    status: 'ACTIVE',
-                    createdBy: 'admin_01',
-                    createdAt: '2025-01-01T00:00:00.000Z',
-                  },
-                },
-              },
-              links: {
-                // GetUserDetail: {
-                //   operationId: 'getUser',
-                //   parameters: {
-                //     id: '$response.body#/user_id'
-                //   },
-                //   description: 'Lấy thông tin user vừa đăng nhập'
-                // }
-              }
-            },
-          },
-          '404': {
-            description: 'Không tìm thấy phòng ban',
-            links: {
-              // GetUserDetail: {
-              //   operationId: 'getUser',
-              //   parameters: {
-              //     id: '$response.body#/user_id'
-              //   },
-              //   description: 'Lấy thông tin user vừa đăng nhập'
-              // }
-            }
-          },
-        },
-      },
+    // '/departments/{id}': {
+    //   get: {
+    //     tags: ['Quản lý Phòng ban'],
+    //     summary: 'Xem chi tiết Phòng ban',
+    //     parameters: [
+    //       {
+    //         in: 'header',
+    //         name: 'refreshtoken',
+    //         required: true,
+    //         schema: { type: 'string', example: 'eyJhbGciOiJIUzI1Ni...' },
+    //         description: 'Refresh Token',
+    //       },
+    //       {
+    //         in: 'path',
+    //         name: 'id',
+    //         required: true,
+    //         schema: { type: 'string', example: 'dept_001' },
+    //       },
+    //     ],
+    //     responses: {
+    //       '200': {
+    //         description: 'Thông tin chi tiết',
+    //         content: {
+    //           'application/json': {
+    //             schema: {
+    //               example: {
+    //                 id: 'dept_001',
+    //                 name: 'Phòng Công nghệ',
+    //                 description: 'Full description...',
+    //                 status: 'ACTIVE',
+    //                 createdBy: 'admin_01',
+    //                 createdAt: '2025-01-01T00:00:00.000Z',
+    //               },
+    //             },
+    //           },
+    //           links: {
+    //             // GetUserDetail: {
+    //             //   operationId: 'getUser',
+    //             //   parameters: {
+    //             //     id: '$response.body#/user_id'
+    //             //   },
+    //             //   description: 'Lấy thông tin user vừa đăng nhập'
+    //             // }
+    //           }
+    //         },
+    //       },
+    //       '404': {
+    //         description: 'Không tìm thấy phòng ban',
+    //         links: {
+    //           // GetUserDetail: {
+    //           //   operationId: 'getUser',
+    //           //   parameters: {
+    //           //     id: '$response.body#/user_id'
+    //           //   },
+    //           //   description: 'Lấy thông tin user vừa đăng nhập'
+    //           // }
+    //         }
+    //       },
+    //     },
+    //   },
+    "/departments/{id}":{
       patch: {
         tags: ['Quản lý Phòng ban'],
         summary: 'Cập nhật thông tin (Tên, Mô tả)',
@@ -1725,6 +1984,20 @@ export const document: OpenAPIObject = {
             required: true,
             schema: { type: 'string', example: 'eyJhbGciOiJIUzI1Ni...' },
             description: 'Refresh Token',
+          },          
+          {
+            in: 'header',
+            name: 'accountid',
+            required: true,
+            schema: { type: 'string', example: '<Nhập accountid>' },
+            description: 'accountid',
+          },
+          {
+            in: 'header',
+            name: 'router',
+            required: true,
+            schema: { type: 'string', example: 'departments/edit' },
+            description: 'router',
           },
           {
             in: 'path',
@@ -1786,6 +2059,20 @@ export const document: OpenAPIObject = {
             required: true,
             schema: { type: 'string', example: 'eyJhbGciOiJIUzI1Ni...' },
             description: 'Refresh Token',
+          },          
+          {
+            in: 'header',
+            name: 'accountid',
+            required: true,
+            schema: { type: 'string', example: '<Nhập accountid>' },
+            description: 'accountid',
+          },
+          {
+            in: 'header',
+            name: 'router',
+            required: true,
+            schema: { type: 'string', example: 'departments/changestatus' },
+            description: 'router',
           },
           {
             in: 'path',
@@ -1877,6 +2164,20 @@ export const document: OpenAPIObject = {
             required: true,
             schema: { type: 'string', example: 'eyJhbGciOiJIUzI1Ni...' },
             description: 'Refresh Token',
+          },          
+          {
+            in: 'header',
+            name: 'accountid',
+            required: true,
+            schema: { type: 'string', example: '<Nhập accountid>' },
+            description: 'accountid',
+          },
+          {
+            in: 'header',
+            name: 'router',
+            required: true,
+            schema: { type: 'string', example: 'application/get' },
+            description: 'router',
           },
           {
             in: 'path',
@@ -1948,56 +2249,57 @@ export const document: OpenAPIObject = {
         },
       },
     },
-    '/applications/{id}': {
-      get: {
-        tags: ['Quản lý Ứng tuyển'],
-        summary: 'Xem chi tiết một hồ sơ ứng tuyển',
-        parameters: [
-          {
-            in: 'header',
-            name: 'refreshtoken',
-            required: true,
-            schema: { type: 'string', example: 'eyJhbGciOiJIUzI1Ni...' },
-            description: 'Refresh Token',
-          },
-          {
-            in: 'path',
-            name: 'id',
-            required: true,
-            schema: { type: 'string', example: 'app_001' },
-            description: 'ID của Application (Không phải ID CV)',
-          },
-        ],
-        responses: {
-          '200': {
-            description: 'Chi tiết hồ sơ',
-            content: {
-              'application/json': {
-                schema: {
-                  example: {
-                    id: 'app_001',
-                    cvId: 'cv_123',
-                    status: 'INTERVIEW',
-                    interviewScheduled: '2025-01-10T14:00:00.000Z',
-                    feedback: 'Ứng viên giao tiếp tốt, tiếng Anh khá.',
-                    rating: 4,
-                    appliedAt: '2025-01-01T00:00:00.000Z',
-                  },
-                },
-              },
-            },
-            links: {
-              // GetUserDetail: {
-              //   operationId: 'getUser',
-              //   parameters: {
-              //     id: '$response.body#/user_id'
-              //   },
-              //   description: 'Lấy thông tin user vừa đăng nhập'
-              // }
-            }
-          },
-        },
-      },
+    // '/applications/{id}': {
+    //   get: {
+    //     tags: ['Quản lý Ứng tuyển'],
+    //     summary: 'Xem chi tiết một hồ sơ ứng tuyển',
+    //     parameters: [
+    //       {
+    //         in: 'header',
+    //         name: 'refreshtoken',
+    //         required: true,
+    //         schema: { type: 'string', example: 'eyJhbGciOiJIUzI1Ni...' },
+    //         description: 'Refresh Token',
+    //       },
+    //       {
+    //         in: 'path',
+    //         name: 'id',
+    //         required: true,
+    //         schema: { type: 'string', example: 'app_001' },
+    //         description: 'ID của Application (Không phải ID CV)',
+    //       },
+    //     ],
+    //     responses: {
+    //       '200': {
+    //         description: 'Chi tiết hồ sơ',
+    //         content: {
+    //           'application/json': {
+    //             schema: {
+    //               example: {
+    //                 id: 'app_001',
+    //                 cvId: 'cv_123',
+    //                 status: 'INTERVIEW',
+    //                 interviewScheduled: '2025-01-10T14:00:00.000Z',
+    //                 feedback: 'Ứng viên giao tiếp tốt, tiếng Anh khá.',
+    //                 rating: 4,
+    //                 appliedAt: '2025-01-01T00:00:00.000Z',
+    //               },
+    //             },
+    //           },
+    //         },
+    //         links: {
+    //           // GetUserDetail: {
+    //           //   operationId: 'getUser',
+    //           //   parameters: {
+    //           //     id: '$response.body#/user_id'
+    //           //   },
+    //           //   description: 'Lấy thông tin user vừa đăng nhập'
+    //           // }
+    //         }
+    //       },
+    //     },
+    //   },
+    "/applications/{id}":{
       patch: {
         tags: ['Quản lý Ứng tuyển'],
         summary: 'Cập nhật thông tin chi tiết (Lịch PV/Feedback)',
@@ -2010,6 +2312,20 @@ export const document: OpenAPIObject = {
             required: true,
             schema: { type: 'string', example: 'eyJhbGciOiJIUzI1Ni...' },
             description: 'Refresh Token',
+          },          
+          {
+            in: 'header',
+            name: 'accountid',
+            required: true,
+            schema: { type: 'string', example: '<Nhập accountid>' },
+            description: 'accountid',
+          },
+          {
+            in: 'header',
+            name: 'router',
+            required: true,
+            schema: { type: 'string', example: 'application/edit' },
+            description: 'router',
           },
           {
             in: 'path',
@@ -2091,6 +2407,20 @@ export const document: OpenAPIObject = {
             required: true,
             schema: { type: 'string', example: 'eyJhbGciOiJIUzI1Ni...' },
             description: 'Refresh Token',
+          }, 
+          {
+            in: 'header',
+            name: 'accountid',
+            required: true,
+            schema: { type: 'string', example: '<Nhập accountid>' },
+            description: 'accountid',
+          },
+          {
+            in: 'header',
+            name: 'router',
+            required: true,
+            schema: { type: 'string', example: 'application/changestatus' },
+            description: 'router',
           },
           {
             in: 'path',
@@ -2199,6 +2529,20 @@ export const document: OpenAPIObject = {
             required: true,
             schema: { type: 'string', example: 'eyJhbGciOiJIUzI1Ni...' },
             description: 'Refresh Token',
+          },          
+          {
+            in: 'header',
+            name: 'accountid',
+            required: true,
+            schema: { type: 'string', example: '<Nhập accountid>' },
+            description: 'accountid',
+          },
+          {
+            in: 'header',
+            name: 'router',
+            required: true,
+            schema: { type: 'string', example: 'user/add' },
+            description: 'router',
           },
         ],
         requestBody: {
@@ -2263,6 +2607,20 @@ export const document: OpenAPIObject = {
             required: true,
             schema: { type: 'string', example: 'eyJhbGciOiJIUzI1Ni...' },
             description: 'Refresh Token',
+          },          
+          {
+            in: 'header',
+            name: 'accountid',
+            required: true,
+            schema: { type: 'string', example: '<Nhập accountid>' },
+            description: 'accountid',
+          },
+          {
+            in: 'header',
+            name: 'router',
+            required: true,
+            schema: { type: 'string', example: 'user/get' },
+            description: 'router',
           },
           {
             in: 'query',
@@ -2305,7 +2663,6 @@ export const document: OpenAPIObject = {
         },
       },
     },
-
     '/users/search': {
       get: {
         tags: ['Quản lý Nhân viên'],
@@ -2324,6 +2681,20 @@ export const document: OpenAPIObject = {
             required: true,
             schema: { type: 'string', example: 'eyJhbGciOiJIUzI1Ni...' },
             description: 'Refresh Token',
+          },          
+          {
+            in: 'header',
+            name: 'accountid',
+            required: true,
+            schema: { type: 'string', example: '<Nhập accountid>' },
+            description: 'accountid',
+          },
+          {
+            in: 'header',
+            name: 'router',
+            required: true,
+            schema: { type: 'string', example: 'user/search' },
+            description: 'router',
           },
           {
             in: 'query',
@@ -2397,57 +2768,58 @@ export const document: OpenAPIObject = {
       },
     },
 
-    '/users/{id}': {
-      get: {
-        tags: ['Quản lý Nhân viên'],
-        summary: 'Xem chi tiết nhân viên',
-        parameters: [
-          {
-            in: 'header',
-            name: 'refreshtoken',
-            required: true,
-            schema: { type: 'string', example: 'eyJhbGciOiJIUzI1Ni...' },
-            description: 'Refresh Token',
-          },
-          {
-            in: 'path',
-            name: 'id',
-            required: true,
-            schema: { type: 'string', example: 'user_001' },
-          },
-        ],
-        responses: {
-          '200': {
-            description: 'Thông tin chi tiết',
-            content: {
-              'application/json': {
-                schema: {
-                  example: {
-                    id: 'user_001',
-                    name: 'Nguyễn Văn B',
-                    email: 'nguyenvanb@company.com',
-                    phone: '0909111222',
-                    address: 'HCM',
-                    dob: '1998-05-20T00:00:00.000Z',
-                    role: 'Kế toán',
-                    gender: 'Nam',
-                    status: 'ACTIVE',
-                    departmentId: 'dept_001',
-                    createdAt: '2025-01-12T10:00:00.000Z',
-                    updatedAt: '2025-01-12T10:00:00.000Z'
-                  },
-                },
-              },
-            },
-          },
-          '404': {
-            description: 'Không tìm thấy',
-            content: {
-              'application/json': { schema: { example: { message: 'Không tìm thấy nhân viên' } } }
-            }
-          }
-        },
-      },
+    // '/users/{id}': {
+    //   get: {
+    //     tags: ['Quản lý Nhân viên'],
+    //     summary: 'Xem chi tiết nhân viên',
+    //     parameters: [
+    //       {
+    //         in: 'header',
+    //         name: 'refreshtoken',
+    //         required: true,
+    //         schema: { type: 'string', example: 'eyJhbGciOiJIUzI1Ni...' },
+    //         description: 'Refresh Token',
+    //       },
+    //       {
+    //         in: 'path',
+    //         name: 'id',
+    //         required: true,
+    //         schema: { type: 'string', example: 'user_001' },
+    //       },
+    //     ],
+    //     responses: {
+    //       '200': {
+    //         description: 'Thông tin chi tiết',
+    //         content: {
+    //           'application/json': {
+    //             schema: {
+    //               example: {
+    //                 id: 'user_001',
+    //                 name: 'Nguyễn Văn B',
+    //                 email: 'nguyenvanb@company.com',
+    //                 phone: '0909111222',
+    //                 address: 'HCM',
+    //                 dob: '1998-05-20T00:00:00.000Z',
+    //                 role: 'Kế toán',
+    //                 gender: 'Nam',
+    //                 status: 'ACTIVE',
+    //                 departmentId: 'dept_001',
+    //                 createdAt: '2025-01-12T10:00:00.000Z',
+    //                 updatedAt: '2025-01-12T10:00:00.000Z'
+    //               },
+    //             },
+    //           },
+    //         },
+    //       },
+    //       '404': {
+    //         description: 'Không tìm thấy',
+    //         content: {
+    //           'application/json': { schema: { example: { message: 'Không tìm thấy nhân viên' } } }
+    //         }
+    //       }
+    //     },
+    //   },
+    "/users/{id}":{
       patch: {
         tags: ['Quản lý Nhân viên'],
         summary: 'Cập nhật thông tin nhân viên',
@@ -2464,6 +2836,20 @@ export const document: OpenAPIObject = {
             required: true,
             schema: { type: 'string', example: 'eyJhbGciOiJIUzI1Ni...' },
             description: 'Refresh Token',
+          },          
+          {
+            in: 'header',
+            name: 'accountid',
+            required: true,
+            schema: { type: 'string', example: '<Nhập accountid>' },
+            description: 'accountid',
+          },
+          {
+            in: 'header',
+            name: 'router',
+            required: true,
+            schema: { type: 'string', example: 'user/edit' },
+            description: 'router',
           },
           {
             in: 'path',
@@ -2532,6 +2918,20 @@ export const document: OpenAPIObject = {
             required: true,
             schema: { type: 'string', example: 'eyJhbGciOiJIUzI1Ni...' },
             description: 'Refresh Token',
+          },          
+          {
+            in: 'header',
+            name: 'accountid',
+            required: true,
+            schema: { type: 'string', example: '<Nhập accountid>' },
+            description: 'accountid',
+          },
+          {
+            in: 'header',
+            name: 'router',
+            required: true,
+            schema: { type: 'string', example: 'user/changestatus' },
+            description: 'router',
           },
           {
             in: 'path',

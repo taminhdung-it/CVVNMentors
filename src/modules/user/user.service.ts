@@ -40,7 +40,7 @@ export class UserService {
 
 
         // Mật khẩu mặc định: User@123
-        const defaultPassword = 'User@123';
+        const defaultPassword = '123456';
         let userRecord: admin.auth.UserRecord;
 
         try {

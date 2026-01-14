@@ -14,7 +14,7 @@ async function bootstrap() {
       'https://cvvnmentors.pages.dev'
     ],
     methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
-    allowedHeaders: ['Content-Type', 'Authorization','refreshtoken'],
+    allowedHeaders: ['Content-Type', 'Authorization','refreshtoken',"accountid","router"],
     credentials: true,
     preflightContinue: false,
     optionsSuccessStatus: 204,
