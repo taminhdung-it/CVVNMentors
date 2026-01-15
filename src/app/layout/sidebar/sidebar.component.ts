@@ -17,7 +17,7 @@ export class SidebarComponent {
     { title: 'Quản lý CV', icon: 'user', route: '/cv' },
     { title: 'Quản lý Job', icon: 'store', route: '/jobmanagement' },
     { title: 'Quản lý phòng ban', icon: 'staff', route: '/department' },
-    { title: 'Tài khoản', icon: 'account', route: '/accounts' },
+    { title: 'Quản lý nhân viên', icon: 'account', route: '/employee' },
 
     { heading: 'HỆ THỐNG' },
     { title: 'Cài đặt', icon: 'settings', route: '/settings' },
