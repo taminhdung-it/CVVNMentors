@@ -3401,7 +3401,7 @@ export const document: OpenAPIObject = {
                     cv: {
                       addcv: 1,
                       addexcel: 1,
-                      assing: 1,
+                      assign: 1,
                       changestatus: 1,
                       edit: 1,
                       get: 1,
