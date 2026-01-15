@@ -52,7 +52,7 @@ async createRoleGroup(groupName: string) {
     cv: [
       "addcv",
       "addexcel",
-      "assing",
+      "assign",
       "changestatus",
       "edit",
       "get",

@@ -3322,26 +3322,39 @@ export const document: OpenAPIObject = {
       put: {
         tags: ['Quản lý quyền truy cập'],
         summary: 'Cập nhật quyền (bật / tắt chức năng) cho nhóm',
+        description:
+          'API dùng để cập nhật quyền cho một nhóm role. ' +
+          'Dữ liệu gửi lên là cây phân quyền, mỗi chức năng có giá trị 0 (không cho) hoặc 1 (cho).',
+
         parameters: [
           {
             in: 'header',
             name: 'refreshtoken',
             required: true,
-            schema: { type: 'string', example: 'eyJhbGciOiJIUzI1Ni...' },
+            schema: {
+              type: 'string',
+              example: 'eyJhbGciOiJIUzI1Ni...',
+            },
             description: 'Refresh Token',
           },
           {
             in: 'header',
             name: 'accountid',
             required: true,
-            schema: { type: 'string', example: '<Nhập accountid>' },
+            schema: {
+              type: 'string',
+              example: '<Nhập accountid>',
+            },
             description: 'accountid',
           },
           {
             in: 'header',
             name: 'router',
             required: true,
-            schema: { type: 'string', example: 'role/edit' },
+            schema: {
+              type: 'string',
+              example: 'role/edit',
+            },
             description: 'router',
           },
         ],
@@ -3355,31 +3368,79 @@ export const document: OpenAPIObject = {
                 properties: {
                   groupName: {
                     type: 'string',
-                    description: 'Tên nhóm quyền (role/<groupName>)',
+                    description: 'Tên nhóm quyền (document trong collection role)',
+                    example: 'default',
                   },
                   data: {
                     type: 'object',
-                    description: 'Cây phân quyền (0 = không cho, 1 = cho)',
-                    example: {
-                      department: {
-                        getone: 1
+                    description:
+                      'Cây phân quyền. Key là module (account, application, cv, ...), ' +
+                      'value là các chức năng với giá trị 0 hoặc 1.',
+                    additionalProperties: {
+                      type: 'object',
+                      additionalProperties: {
+                        type: 'integer',
+                        enum: [0, 1],
                       },
-                      user: {
-                        search: 1
-                      }
-                    }
+                    },
                   },
                 },
                 required: ['groupName', 'data'],
                 example: {
-                  groupName: 'user',
+                  groupName: 'default',
                   data: {
+                    account: {
+                      logout: 1,
+                    },
+                    application: {
+                      changestatus: 1,
+                      edit: 1,
+                      get: 1,
+                      getone: 1,
+                    },
+                    cv: {
+                      addcv: 1,
+                      addexcel: 1,
+                      assing: 1,
+                      changestatus: 1,
+                      edit: 1,
+                      get: 1,
+                      getone: 1,
+                      readexcel: 1,
+                      readpdfdoc: 1,
+                    },
                     department: {
-                      getone: 1
+                      add: 1,
+                      changestatus: 1,
+                      edit: 1,
+                      get: 1,
+                      getone: 1,
+                      search: 1,
+                    },
+                    job: {
+                      add: 1,
+                      close: 1,
+                      edit: 1,
+                      get: 1,
+                      getone: 1,
+                      lock: 1,
+                      open: 1,
+                      search: 1,
+                    },
+                    role: {
+                      add: 1,
+                      delete: 1,
+                      edit: 1,
+                      get: 1,
                     },
                     user: {
-                      search: 1
-                    }
+                      add: 1,
+                      changestatus: 1,
+                      edit: 1,
+                      get: 1,
+                      getone: 1,
+                      search: 1,
+                    },
                   },
                 },
               },
@@ -3389,14 +3450,20 @@ export const document: OpenAPIObject = {
 
         responses: {
           '200': {
-            description: 'Cập nhật quyền thành công',
+            description: 'Cập nhật quyền cho nhóm thành công',
             content: {
               'application/json': {
                 schema: {
                   type: 'object',
-                  example: {
-                    message: 'Cập nhật quyền cho nhóm thành công',
-                    groupName: 'user',
+                  properties: {
+                    message: {
+                      type: 'string',
+                      example: 'Cập nhật quyền cho nhóm thành công',
+                    },
+                    groupName: {
+                      type: 'string',
+                      example: 'default',
+                    },
                   },
                 },
               },
@@ -3414,6 +3481,7 @@ export const document: OpenAPIObject = {
         },
       },
     },
+
   },
   components: {
     securitySchemes: {
