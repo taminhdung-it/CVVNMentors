@@ -12,10 +12,10 @@
       <div class="form-row">
         <!-- Họ và tên -->
         <mat-form-field appearance="outline" class="full-width">
-          <mat-label>Họ và tên <span class="required">*</span></mat-label>
-          <input matInput formControlName="name" placeholder="Nhập họ và tên">
+          <mat-label>Họ và tên <span class="required"></span></mat-label>
+          <input matInput formControlName="name" placeholder="Nhập họ và tên" />
           <mat-error *ngIf="employeeForm.get('name')?.invalid">
-            {{ getErrorMessage('name') }}
+            {{ getErrorMessage("name") }}
           </mat-error>
         </mat-form-field>
       </div>
@@ -23,19 +23,23 @@
       <div class="form-row">
         <!-- Số điện thoại -->
         <mat-form-field appearance="outline" class="half-width">
-          <mat-label>Số điện thoại <span class="required">*</span></mat-label>
-          <input matInput formControlName="phone" placeholder="0987654321">
+          <mat-label>Số điện thoại <span class="required"></span></mat-label>
+          <input matInput formControlName="phone" placeholder="0987654321" />
           <mat-error *ngIf="employeeForm.get('phone')?.invalid">
-            {{ getErrorMessage('phone') }}
+            {{ getErrorMessage("phone") }}
           </mat-error>
         </mat-form-field>
 
         <!-- Email -->
         <mat-form-field appearance="outline" class="half-width">
-          <mat-label>Email <span class="required">*</span></mat-label>
-          <input matInput formControlName="email" placeholder="example@gmail.com">
+          <mat-label>Email <span class="required"></span></mat-label>
+          <input
+            matInput
+            formControlName="email"
+            placeholder="example@gmail.com"
+          />
           <mat-error *ngIf="employeeForm.get('email')?.invalid">
-            {{ getErrorMessage('email') }}
+            {{ getErrorMessage("email") }}
           </mat-error>
         </mat-form-field>
       </div>
@@ -43,27 +47,27 @@
       <div class="form-row">
         <!-- Vai trò -->
         <mat-form-field appearance="outline" class="half-width">
-          <mat-label>Vai trò <span class="required">*</span></mat-label>
+          <mat-label>Vai trò <span class="required"></span></mat-label>
           <mat-select formControlName="role" placeholder="Chọn vai trò">
             <mat-option *ngFor="let role of roles" [value]="role">
               {{ role }}
             </mat-option>
           </mat-select>
           <mat-error *ngIf="employeeForm.get('role')?.invalid">
-            {{ getErrorMessage('role') }}
+            {{ getErrorMessage("role") }}
           </mat-error>
         </mat-form-field>
 
         <!-- Chi nhánh -->
         <mat-form-field appearance="outline" class="half-width">
-          <mat-label>Chi nhánh <span class="required">*</span></mat-label>
+          <mat-label>Chi nhánh <span class="required"></span></mat-label>
           <mat-select formControlName="department" placeholder="Chọn chi nhánh">
             <mat-option *ngFor="let dept of departments" [value]="dept">
               {{ dept }}
             </mat-option>
           </mat-select>
           <mat-error *ngIf="employeeForm.get('department')?.invalid">
-            {{ getErrorMessage('department') }}
+            {{ getErrorMessage("department") }}
           </mat-error>
         </mat-form-field>
       </div>
@@ -71,7 +75,7 @@
       <div class="form-row">
         <!-- Trạng thái -->
         <mat-form-field appearance="outline" class="full-width">
-          <mat-label>Trạng thái <span class="required">*</span></mat-label>
+          <mat-label>Trạng thái <span class="required"></span></mat-label>
           <mat-select formControlName="status">
             <mat-option value="active">Hoạt động</mat-option>
             <mat-option value="inactive">Không hoạt động</mat-option>
@@ -85,19 +89,31 @@
       <div class="form-row">
         <!-- Mật khẩu -->
         <mat-form-field appearance="outline" class="half-width">
-          <mat-label>Mật khẩu <span class="required">*</span></mat-label>
-          <input matInput type="password" formControlName="password" placeholder="Nhập mật khẩu">
+          <mat-label>Mật khẩu <span class="required"></span></mat-label>
+          <input
+            matInput
+            type="password"
+            formControlName="password"
+            placeholder="Nhập mật khẩu"
+          />
           <mat-error *ngIf="employeeForm.get('password')?.invalid">
-            {{ getErrorMessage('password') }}
+            {{ getErrorMessage("password") }}
           </mat-error>
         </mat-form-field>
 
         <!-- Xác nhận mật khẩu -->
         <mat-form-field appearance="outline" class="half-width">
-          <mat-label>Xác nhận mật khẩu <span class="required">*</span></mat-label>
-          <input matInput type="password" formControlName="confirmPassword" placeholder="Nhập lại mật khẩu">
+          <mat-label
+            >Xác nhận mật khẩu <span class="required"></span
+          ></mat-label>
+          <input
+            matInput
+            type="password"
+            formControlName="confirmPassword"
+            placeholder="Nhập lại mật khẩu"
+          />
           <mat-error *ngIf="employeeForm.get('confirmPassword')?.invalid">
-            {{ getErrorMessage('confirmPassword') }}
+            {{ getErrorMessage("confirmPassword") }}
           </mat-error>
         </mat-form-field>
       </div>
@@ -105,14 +121,18 @@
   </mat-dialog-content>
 
   <mat-dialog-actions align="end">
-    <button mat-button (click)="onCancel()" [disabled]="loading">
-      Hủy
-    </button>
-    <button mat-raised-button 
-            color="primary" 
-            (click)="onSubmit()"
-            [disabled]="loading">
-      <mat-spinner diameter="20" *ngIf="loading" class="button-spinner"></mat-spinner>
+    <button mat-button (click)="onCancel()" [disabled]="loading">Hủy</button>
+    <button
+      mat-raised-button
+      color="primary"
+      (click)="onSubmit()"
+      [disabled]="loading"
+    >
+      <mat-spinner
+        diameter="20"
+        *ngIf="loading"
+        class="button-spinner"
+      ></mat-spinner>
       <span *ngIf="!loading">Thêm nhân viên</span>
       <span *ngIf="loading">Đang xử lý...</span>
     </button>
