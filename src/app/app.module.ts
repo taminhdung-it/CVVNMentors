@@ -62,6 +62,8 @@ import { CvAddManualComponent } from './cv-add-manual/cv-add-manual.component';
 import { EmployeeManagementComponent } from './employee-management/employee-management.component';
 import { AddEmployeeModalComponent } from './add-employee-modal/add-employee-modal.component';
 import { RolePermissionComponent } from './role-permission/role-permission.component';
+import { EmployeeDetailComponent } from './employee-detail/employee-detail.component';
+import { EmployeeEditComponent } from './employee-edit/employee-edit.component';
 
 registerLocaleData(en);
 
@@ -83,6 +85,8 @@ registerLocaleData(en);
     EmployeeManagementComponent,
     AddEmployeeModalComponent,
     RolePermissionComponent,
+    EmployeeDetailComponent,
+    EmployeeEditComponent,
   ],
   imports: [
     BrowserModule,

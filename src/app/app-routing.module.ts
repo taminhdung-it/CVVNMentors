@@ -14,6 +14,8 @@ import { CvImportFileComponent } from './cv-import-file/cv-import-file.component
 import { CvAddManualComponent } from './cv-add-manual/cv-add-manual.component';
 import { EmployeeManagementComponent } from './employee-management/employee-management.component';
 import { RolePermissionComponent } from './role-permission/role-permission.component';
+import { EmployeeDetailComponent } from './employee-detail/employee-detail.component';
+import { EmployeeEditComponent } from './employee-edit/employee-edit.component';
 
 
 
@@ -54,6 +56,8 @@ const routes: Routes = [
         data: { title: 'Quản lý Nhân viên' },
       },
       { path: 'employee/role-permission', component: RolePermissionComponent },
+      { path: 'employee/detail/:id', component: EmployeeDetailComponent },
+      { path: 'employee/edit/:id', component: EmployeeEditComponent },
     ],
   },
 
