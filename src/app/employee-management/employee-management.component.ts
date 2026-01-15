@@ -106,12 +106,12 @@ export class EmployeeManagementComponent implements OnInit {
 
   onEditEmployee(employee: Employee): void {
     // Navigate to edit employee page
-    this.router.navigate(['/employees/edit', employee.id]);
+    this.router.navigate(['/employee/edit', employee.id]);
   }
 
   onViewEmployee(employee: Employee): void {
     // Navigate to view employee details page
-    this.router.navigate(['/employees/detail', employee.id]);
+    this.router.navigate(['/employee/detail', employee.id]);
   }
 
   onDeleteEmployee(employee: Employee): void {
@@ -125,7 +125,7 @@ export class EmployeeManagementComponent implements OnInit {
   onRoleClick(role: Role): void {
     // Navigate to role permission page
     // Khớp với routing config của bạn
-    this.router.navigate(['/employee/role-permission']);
+    this.router.navigate(['/employee/role-permission', role.id]);
   }
 
   getTotalEmployees(): number {
