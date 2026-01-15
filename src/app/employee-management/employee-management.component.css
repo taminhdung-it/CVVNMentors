@@ -1,0 +1,323 @@
+/* employee-management.component.css */
+.employee-management-container {
+  display: flex;
+  gap: 20px;
+  min-height: 100vh;
+}
+
+/* Roles Panel Styles */
+.roles-panel {
+  width: 200px;
+  height: fit-content;
+  position: sticky;
+  top: 20px;
+}
+
+.panel-header {
+  font-size: 16px;
+  font-weight: 600;
+  color: #333;
+}
+
+.roles-list {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 8px 0;
+}
+
+.role-item {
+  padding: 12px 16px;
+  border-radius: 4px;
+  transition: background-color 0.2s;
+}
+
+.role-item.total-item {
+  background-color: #e3f2fd;
+  margin-bottom: 8px;
+}
+
+.role-item.clickable {
+  cursor: pointer;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.role-item.clickable:hover {
+  background-color: #f5f5f5;
+}
+
+.role-item.clickable:last-child {
+  border-bottom: none;
+}
+
+.role-count-number {
+  font-size: 24px;
+  font-weight: 600;
+  color: #1976d2;
+  line-height: 1;
+  margin-bottom: 4px;
+}
+
+.role-name {
+  font-size: 14px;
+  font-weight: 500;
+  color: #333;
+  margin-bottom: 2px;
+}
+
+.role-item.total-item .role-name {
+  font-size: 13px;
+  color: #1976d2;
+}
+
+.role-count {
+  font-size: 12px;
+  color: #999;
+}
+
+/* Main Content Styles */
+.main-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.content-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+.header-left {
+  display: flex;
+  align-items: baseline;
+  gap: 12px;
+}
+
+.header-left h2 {
+  margin: 0;
+  font-size: 24px;
+  font-weight: 600;
+}
+
+.employee-count {
+  color: #666;
+  font-size: 14px;
+}
+
+.header-right {
+  display: flex;
+  gap: 12px;
+}
+
+/* Filters Card */
+.filters-card {
+  padding: 16px;
+}
+
+.filters-container {
+  width: 100%;
+}
+
+.filter-row {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.search-field {
+  flex: 1;
+  min-width: 250px;
+}
+
+.filter-field {
+  width: 180px;
+}
+
+/* Table Card */
+.table-card {
+  position: relative;
+  padding: 0;
+  overflow: hidden;
+}
+
+.employee-table {
+  width: 100%;
+}
+
+.employee-table th {
+  background-color: #fafafa;
+  font-weight: 600;
+  color: #333;
+  padding: 16px;
+}
+
+.employee-table td {
+  padding: 12px 16px;
+}
+
+/* Account Cell */
+.account-cell {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.avatar-icon {
+  font-size: 40px;
+  width: 40px;
+  height: 40px;
+  color: #1976d2;
+}
+
+.account-info {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.employee-name {
+  font-weight: 500;
+  color: #333;
+}
+
+.employee-email {
+  font-size: 13px;
+  color: #666;
+}
+
+/* Role Badge */
+.role-badge {
+  display: inline-block;
+  padding: 4px 12px;
+  background-color: #e3f2fd;
+  color: #1976d2;
+  border-radius: 12px;
+  font-size: 13px;
+  font-weight: 500;
+}
+
+/* Status Badge */
+.status-badge {
+  display: inline-block;
+  padding: 4px 12px;
+  background-color: #fff3e0;
+  color: #f57c00;
+  border-radius: 12px;
+  font-size: 13px;
+  font-weight: 500;
+}
+
+.status-badge.active {
+  background-color: #e8f5e9;
+  color: #2e7d32;
+}
+
+/* Action Buttons */
+.action-buttons {
+  display: flex;
+  gap: 4px;
+}
+
+.action-buttons button {
+  width: 36px;
+  height: 36px;
+}
+
+.action-buttons mat-icon {
+  font-size: 20px;
+}
+
+/* Loading States */
+.loading-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(255, 255, 255, 0.9);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 16px;
+  z-index: 10;
+}
+
+.loading-overlay p {
+  color: #666;
+  font-size: 14px;
+}
+
+.loading-container {
+  display: flex;
+  justify-content: center;
+  padding: 20px;
+}
+
+.role-item.loading {
+  opacity: 0.6;
+  pointer-events: none;
+}
+
+/* Empty State */
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 60px 20px;
+  color: #999;
+}
+
+.empty-state mat-icon {
+  font-size: 64px;
+  width: 64px;
+  height: 64px;
+  margin-bottom: 16px;
+  opacity: 0.5;
+}
+
+.empty-state p {
+  font-size: 16px;
+  margin: 0;
+}
+
+/* Responsive Design */
+@media (max-width: 1200px) {
+  .employee-management-container {
+    flex-direction: column;
+  }
+
+  .roles-panel {
+    width: 100%;
+    position: relative;
+    top: 0;
+  }
+
+  .filter-row {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .search-field,
+  .filter-field {
+    width: 100%;
+  }
+}
+
+/* Material overrides */
+.mat-mdc-form-field {
+  font-size: 14px;
+}
+
+.mat-mdc-card {
+  box-shadow: 0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.24) !important;
+}
+
+.mat-mdc-table {
+  background-color: white;
+}

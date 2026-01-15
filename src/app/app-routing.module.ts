@@ -12,6 +12,10 @@ import { CvDetailComponent } from './cv-detail/cv-detail.component';
 import { CvImportExcelComponent } from './cv-import-excel/cv-import-excel.component';
 import { CvImportFileComponent } from './cv-import-file/cv-import-file.component';
 import { CvAddManualComponent } from './cv-add-manual/cv-add-manual.component';
+import { EmployeeManagementComponent } from './employee-management/employee-management.component';
+import { RolePermissionComponent } from './role-permission/role-permission.component';
+
+
 
 const routes: Routes = [
   { path: 'login', component: LoginComponent },
@@ -43,6 +47,13 @@ const routes: Routes = [
         component: JobManagementComponent,
         data: { title: 'Quản lý Job' },
       },
+
+      {
+        path: 'employee',
+        component: EmployeeManagementComponent,
+        data: { title: 'Quản lý Nhân viên' },
+      },
+      { path: 'employee/role-permission', component: RolePermissionComponent },
     ],
   },
 

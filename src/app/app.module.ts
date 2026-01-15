@@ -59,6 +59,9 @@ import { registerLocaleData } from '@angular/common';
 import en from '@angular/common/locales/en';
 import { CvImportFileComponent } from './cv-import-file/cv-import-file.component';
 import { CvAddManualComponent } from './cv-add-manual/cv-add-manual.component';
+import { EmployeeManagementComponent } from './employee-management/employee-management.component';
+import { AddEmployeeModalComponent } from './add-employee-modal/add-employee-modal.component';
+import { RolePermissionComponent } from './role-permission/role-permission.component';
 
 registerLocaleData(en);
 
@@ -77,6 +80,9 @@ registerLocaleData(en);
     CvImportExcelComponent,
     CvImportFileComponent,
     CvAddManualComponent,
+    EmployeeManagementComponent,
+    AddEmployeeModalComponent,
+    RolePermissionComponent,
   ],
   imports: [
     BrowserModule,

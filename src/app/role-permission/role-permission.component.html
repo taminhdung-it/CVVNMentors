@@ -1,0 +1,69 @@
+<!-- role-permission.component.html -->
+<div class="role-permission-container">
+  <!-- Loading State -->
+  <div class="loading-overlay" *ngIf="loading">
+    <mat-spinner diameter="50"></mat-spinner>
+    <p>Đang tải dữ liệu...</p>
+  </div>
+
+  <!-- Content -->
+  <div class="content" *ngIf="!loading">
+    <!-- Header -->
+    <div class="page-header">
+      <div class="header-left">
+        <button mat-icon-button (click)="onBack()" class="back-button">
+          <mat-icon>arrow_back</mat-icon>
+        </button>
+        <div class="header-info">
+          <h2>Quản lý quyền</h2>
+          <div class="role-info">
+            <span class="label">Nhóm:</span>
+            <span class="role-name">{{ roleName }}</span>
+          </div>
+        </div>
+      </div>
+      <div class="header-right">
+        <button mat-raised-button 
+                color="primary" 
+                (click)="onSave()"
+                [disabled]="saving">
+          <mat-spinner diameter="20" *ngIf="saving" class="button-spinner"></mat-spinner>
+          <span *ngIf="!saving">Lưu</span>
+          <span *ngIf="saving">Đang lưu...</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- Permission Groups -->
+    <div class="permissions-container">
+      <mat-card class="permission-group-card" *ngFor="let group of permissionGroups">
+        <!-- Group Header -->
+        <div class="group-header">
+          <mat-checkbox 
+            [(ngModel)]="group.allChecked"
+            [indeterminate]="group.indeterminate"
+            (change)="onGroupCheckChange(group)"
+            color="primary">
+            <span class="group-name">{{ group.name }}</span>
+          </mat-checkbox>
+          
+          <span class="permission-count">
+            {{ getCheckedCount(group) }}/{{ getTotalPermissions(group) }}
+          </span>
+        </div>
+
+        <!-- Permissions Grid -->
+        <div class="permissions-grid">
+          <div class="permission-item" *ngFor="let permission of group.permissions">
+            <mat-checkbox 
+              [(ngModel)]="permission.checked"
+              (change)="onPermissionChange(group)"
+              color="primary">
+              {{ permission.name }}
+            </mat-checkbox>
+          </div>
+        </div>
+      </mat-card>
+    </div>
+  </div>
+</div>
