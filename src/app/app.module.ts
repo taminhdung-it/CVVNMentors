@@ -49,6 +49,7 @@ import { CvService } from './services/cv.service';
 import { AuthService } from './services/auth.service';
 import { CvDetailComponent } from './cv-detail/cv-detail.component';
 import { CvImportExcelComponent } from './cv-import-excel/cv-import-excel.component';
+import { DepartmentManagementComponent } from './department-management/department-management.component';
 
 @NgModule({
   declarations: [
@@ -63,15 +64,16 @@ import { CvImportExcelComponent } from './cv-import-excel/cv-import-excel.compon
     ForgotPasswordDialog,
     CvDetailComponent,
     CvImportExcelComponent,
+    DepartmentManagementComponent,
   ],
   imports: [
     BrowserModule,
     BrowserAnimationsModule,
-    CommonModule, // ⭐ THÊM
+    CommonModule,
     HttpClientModule,
-    FormsModule, // ⭐ QUAN TRỌNG - Để dùng ngModel
+    FormsModule, // ✅ CHỈ 1 LẦN
     ReactiveFormsModule,
-    AppRoutingModule, // ⭐ ĐỂ ROUTING MODULE Ở ĐÂY
+    AppRoutingModule, // ✅ Routing Module để cuối cùng
 
     // ============================================
     // ANGULAR MATERIAL MODULES

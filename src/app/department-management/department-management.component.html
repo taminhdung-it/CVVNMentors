@@ -1,0 +1,203 @@
+<div class="job-management-container">
+  <div class="page-content">
+    <div class="page-header">
+      <h1>Danh sách Phòng Ban</h1>
+      <button (click)="handleOpenAddModal()" class="btn-add-job">
+        <span class="btn-icon">+</span>
+        Thêm Phòng Ban
+      </button>
+    </div>
+
+    <!-- Filters Row 1 -->
+    <div class="filter-box">
+      <div class="filter-row">
+        <select [(ngModel)]="nameFilter" class="filter-select">
+          <option value="">Tên phòng ban</option>
+          <option value="Phòng Công Nghệ Thông Tin">Phòng Công Nghệ Thông Tin</option>
+          <option value="Phòng Nhân Sự">Phòng Nhân Sự</option>
+          <option value="Phòng Kinh Doanh">Phòng Kinh Doanh</option>
+          <option value="Phòng Kế Toán">Phòng Kế Toán</option>
+          <option value="Phòng Marketing">Phòng Marketing</option>
+        </select>
+
+        <select [(ngModel)]="statusFilter" class="filter-select">
+          <option value="">Trạng thái</option>
+          <option value="Đang hoạt động">Đang hoạt động</option>
+          <option value="Đóng">Đóng</option>
+        </select>
+
+        <button (click)="handleClearFilters()" class="btn-clear-filter">
+          Xóa bộ lọc
+        </button>
+      </div>
+    </div>
+
+    <!-- Filters Row 2 -->
+    <div class="filter-box">
+      <div class="search-input-wrapper">
+        <span class="search-icon">🔍</span>
+        <input
+          type="text"
+          placeholder="Tìm kiếm phòng ban..."
+          [(ngModel)]="searchTerm"
+          class="search-input"
+        />
+      </div>
+    </div>
+
+    <!-- Departments Table -->
+    <div class="table-container">
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th><input type="checkbox" /></th>
+            <th>TÊN PHÒNG BAN</th>
+            <th>TÊN NGƯỜI QUẢN LÍ</th>
+            <th>SỐ LƯỢNG VỊ TRÍ ỨNG TUYỂN</th>
+            <th>MÔ TẢ</th>
+            <th>TRẠNG THÁI</th>
+            <th>NGƯỜI TẠO</th>
+            <th>HÀNH ĐỘNG</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let dept of filteredDepartments" class="table-row">
+            <td><input type="checkbox" /></td>
+            <td>{{ dept.name }}</td>
+            <td>{{ dept.managerName || 'Chưa có' }}</td>
+            <td class="text-center">{{ dept.positionCount || 0 }}</td>
+            <td>{{ dept.description }}</td>
+            <td>
+              <span
+                class="status-badge"
+                [class.status-open]="dept.status === 'Đang hoạt động'"
+                [class.status-closed]="dept.status === 'Đóng'"
+              >
+                {{ dept.status }}
+              </span>
+            </td>
+            <td>{{ dept.createdBy }}</td>
+            <td>
+              <div class="action-buttons">
+                <button
+                  (click)="handleOpenEditModal(dept)"
+                  class="btn-action"
+                  title="Sửa"
+                >
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M12 20h9"></path>
+                    <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path>
+                  </svg>
+                </button>
+                <button
+                  (click)="handleToggleStatus(dept.id!)"
+                  class="btn-action"
+                  [title]="dept.status === 'Đang hoạt động' ? 'Đóng phòng ban' : 'Mở phòng ban'"
+                >
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="12" cy="12" r="10"></circle>
+                    <line x1="15" y1="9" x2="9" y2="15"></line>
+                    <line x1="9" y1="9" x2="15" y2="15"></line>
+                  </svg>
+                </button>
+                <button
+                  (click)="handleDeleteDepartment(dept.id!)"
+                  class="btn-action btn-delete"
+                  title="Xóa"
+                >
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <polyline points="3 6 5 6 21 6"></polyline>
+                    <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                  </svg>
+                </button>
+              </div>
+            </td>
+          </tr>
+          <tr *ngIf="filteredDepartments.length === 0">
+            <td colspan="8" class="no-data">Không có dữ liệu</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- ================= ADD/EDIT DEPARTMENT MODAL ================= -->
+  <div class="modal-backdrop" *ngIf="showAddModal">
+    <div class="modal">
+      <h2 class="modal-title">
+        {{ modalMode === 'add' ? 'Thêm Phòng Ban mới' : 'Cập nhật Phòng Ban' }}
+      </h2>
+
+      <div class="modal-form">
+        <div class="form-group">
+          <label class="form-label">Tên phòng ban <span class="required">*</span></label>
+          <input
+            type="text"
+            [(ngModel)]="newDepartment.name"
+            class="form-input"
+            placeholder="Nhập tên phòng ban"
+          />
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Tên người quản lí</label>
+          <input
+            type="text"
+            [(ngModel)]="newDepartment.managerName"
+            class="form-input"
+            placeholder="Nhập tên người quản lí"
+          />
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Số lượng vị trí ứng tuyển</label>
+          <input
+            type="number"
+            [(ngModel)]="newDepartment.positionCount"
+            class="form-input"
+            min="0"
+            placeholder="0"
+          />
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Mô tả</label>
+          <textarea
+            [(ngModel)]="newDepartment.description"
+            rows="3"
+            class="form-textarea"
+            placeholder="Mô tả về phòng ban..."
+          ></textarea>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Trạng thái</label>
+          <select [(ngModel)]="newDepartment.status" class="form-input">
+            <option value="Đang hoạt động">Đang hoạt động</option>
+            <option value="Đóng">Đóng</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Người tạo</label>
+          <input
+            type="text"
+            [value]="newDepartment.createdBy"
+            class="form-input"
+            disabled
+            readonly
+          />
+        </div>
+      </div>
+
+      <div class="modal-actions">
+        <button (click)="handleCloseModal()" class="btn-secondary">
+          Hủy
+        </button>
+        <button (click)="handleSaveDepartment()" class="btn-primary">
+          {{ modalMode === 'add' ? 'Thêm Phòng Ban' : 'Cập nhật' }}
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

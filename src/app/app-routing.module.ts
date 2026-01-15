@@ -5,11 +5,11 @@ import { LoginComponent } from './auth/login/login.component';
 import { MainLayoutComponent } from './layout/main-layout/main-layout.component';
 import { DashboardComponent } from './dashboard/dashboard.component';
 import { CvManagementComponent } from './cv-management/cv-management.component';
-import { AuthGuard } from './auth/auth/auth.guard';
 import { LogoutComponent } from './auth/logout/logout.component';
 import { JobManagementComponent } from './job-management/job-management.component';
 import { CvDetailComponent } from './cv-detail/cv-detail.component';
 import { CvImportExcelComponent } from './cv-import-excel/cv-import-excel.component';
+import { DepartmentManagementComponent } from './department-management/department-management.component';
 
 const routes: Routes = [
   { path: 'login', component: LoginComponent },
@@ -18,14 +18,13 @@ const routes: Routes = [
   {
     path: '',
     component: MainLayoutComponent,
-    canActivate: [AuthGuard],
     children: [
       { path: '', redirectTo: 'dashboard', pathMatch: 'full' },
       { path: 'dashboard', component: DashboardComponent, data: { title: 'Dashboard' } },
       { path: 'cv', component: CvManagementComponent, data: { title: 'Quản lý CV' } },
       { path: 'cv/import-excel', component: CvImportExcelComponent },
       { path: 'cv/:id', component: CvDetailComponent },
-
+      { path: 'departments', component: DepartmentManagementComponent },
       { path: 'jobmanagement', component: JobManagementComponent, data: { title: 'Quản lý Job' } },
 
     ]
