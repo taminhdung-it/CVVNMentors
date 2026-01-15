@@ -6,6 +6,7 @@ import { FilterUserDto } from './dto/filter-user.dto';
 import { PaginationDto } from '../../common/dto/pagination.dto';
 import { AuthGuard } from '../auth/guards/auth.guard';
 import { ChangeUserStatusDto } from './dto/change-user-status.dto';
+import { UpdatePasswordDto } from './dto/update-password.dto';
 
 @Controller('users')
 export class UserController {
@@ -42,11 +43,21 @@ export class UserController {
     return this.userService.update(id, updateUserDto);
   }
 
+  @UseGuards(AuthGuard)
   @Patch(':id/status')
   updateStatus(
     @Param('id') id: string,
     @Body() dto: ChangeUserStatusDto
   ) {
     return this.userService.updateStatus(id, dto);
+  }
+
+  @UseGuards(AuthGuard)
+  @Patch(':id/password')
+  updatePassword(
+    @Param('id') id: string,
+    @Body() dto: UpdatePasswordDto
+  ) {
+    return this.userService.updatePassword(id, dto);
   }
 }

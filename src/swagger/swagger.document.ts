@@ -2297,16 +2297,77 @@ export const document: OpenAPIObject = {
               'application/json': {
                 schema: {
                   example: {
-                    data: [
-                      {
-                        id: 'app_001',
-                        cvId: 'cv_123',
-                        jobId: 'job_001',
-                        status: 'INTERVIEW',
-                        appliedAt: '2025-01-02T08:00:00.000Z',
-                        rating: 4,
-                      },
-                    ],
+                      data: [
+                          {
+                              "id": "hstg7XswfQIV....",
+                              "status": "APPLIED",
+                              "interviewScheduled": null,
+                              "feedback": null,
+                              "rating": null,
+                              "rejectionReason": null,
+                              "appliedAt": "2026-01-03T02:26:07.609Z",
+                              "updatedAt": "2026-01-03T02:26:07.609Z",
+                              "cv": {
+                                  "cvId": "yCJfvY8B7.....",
+                                  "fullName": "Dũng Họ Cao",
+                                  "email": "kazki_example@vietcv.io",
+                                  "phone": "0912345678",
+                                  "cvFileUrl": "https://res.cloudinary.com/dgfwcrbyg/image/upload/v1768362509/CV/oes1ds2fuary45q7d0wn.pdf",
+                                  "position": "Backend Developer",
+                                  "experienceYears": 1
+                              }
+                          },
+                          {
+                              "id": "aJHSMrGmppx....",
+                              "status": "HIRED",
+                              "interviewScheduled": "2025-01-15T09:00:00.000Z",
+                              "feedback": "Kỹ thuật tốt nhưng expect lương hơi cao",
+                              "rating": 4,
+                              "rejectionReason": "Không phù hợp văn hóa",
+                              "appliedAt": "2026-01-03T02:25:10.555Z",
+                              "updatedAt": "2026-01-05T10:03:17.648Z",
+                              "cv": {
+                                  "cvId": "yCJfvY8B7Bm4ZPBx5w0G",
+                                  "fullName": "Dũng Họ Cao",
+                                  "email": "kazki_example@vietcv.io",
+                                  "phone": "0912345678",
+                                  "cvFileUrl": "https://res.cloudinary.com/dgfwcrbyg/image/upload/v1768362509/CV/oes1ds2fuary45q7d0wn.pdf",
+                                  "position": "Backend Developer",
+                                  "experienceYears": 1
+                              }
+                          },
+                          {
+                              "id": "aX8laggddZ81T....",
+                              "status": "REJECTED",
+                              "interviewScheduled": null,
+                              "feedback": "Quá xuất sắc",
+                              "rating": 4,
+                              "rejectionReason": "Ứng viên không đồng ý với mức lương đề xuất (Budget tối đa 1500$, ứng viên expect 2000$).",
+                              "appliedAt": "2026-01-03T02:25:09.304Z",
+                              "updatedAt": "2026-01-03T05:05:19.124Z",
+                              "cv": {
+                                  "cvId": "xk7xiZBnAorjxmYpXec1",
+                                  "fullName": "Unknown",
+                                  "email": "kazki_example@vietcv.io",
+                                  "phone": null,
+                                  "cvFileUrl": "https://res.cloudinary.com/dgfwcrbyg/image/upload/v1768313955/CV/uvwcjjm8qtuzbabd4tuw.pdf",
+                                  "position": "N/A",
+                                  "experienceYears": 2
+                              }
+                          },
+                          {
+                              "id": "g4ErmO0yQmb.....",
+                              "status": "REJECTED",
+                              "interviewScheduled": null,
+                              "feedback": null,
+                              "rating": null,
+                              "rejectionReason": "Chuyên môn chưa đạt yêu cầu",
+                              "appliedAt": "2026-01-03T02:25:07.899Z",
+                              "updatedAt": "2026-01-05T10:16:13.288Z",
+                              "cv": null
+                          }
+                      ],
+
                     meta: { total: 15, page: 1, limit: 10, totalPages: 2 },
                   },
                 },
@@ -2365,14 +2426,41 @@ export const document: OpenAPIObject = {
             content: {
               'application/json': {
                 schema: {
-                  example: {
-                    id: 'app_001',
-                    cvId: 'cv_123',
-                    status: 'INTERVIEW',
-                    interviewScheduled: '2025-01-10T14:00:00.000Z',
-                    feedback: 'Ứng viên giao tiếp tốt, tiếng Anh khá.',
-                    rating: 4,
-                    appliedAt: '2025-01-01T00:00:00.000Z',
+                    example: {
+                        "id": "aX8laggddZ81T450UuuW",
+                        "status": "REJECTED",
+                        "interviewScheduled": null,
+                        "feedback": "Quá xuất sắc",
+                        "rating": 4,
+                        "rejectionReason": "Ứng viên không đồng ý với mức lương đề xuất (Budget tối đa 1500$, ứng viên expect 2000$).",
+                        "appliedAt": "2026-01-03T02:25:09.304Z",
+                        "updatedAt": "2026-01-03T05:05:19.124Z",
+                        "cv": {
+                            "id": "xk7xiZBnAorjxmYpXec1",
+                            "fullName": "Unknown",
+                            "email": "kazki_example@vietcv.io",
+                            "phone": null,
+                            "cvFileUrl": "https://res.cloudinary.com/dgfwcrbyg/image/upload/v1768313955/CV/uvwcjjm8qtuzbabd4tuw.pdf",
+                            "position": "N/A",
+                            "experienceYears": 2,
+                            "skills": [
+                                "Html5",
+                                "P",
+                                "Html",
+                                "Seo",
+                                "Github",
+                                "R",
+                                "Ui"
+                            ]
+                        },
+                        "job": {
+                            "id": "8TIYeQQGiRH1qHjtodrA",
+                            "name": "Senior Java Backend Developer",
+                            "status": "LOCKED",
+                            "departmentId": "5JC7QkMSzsUaCev8SIi5",
+                            "headcountTarget": 5,
+                            "applyEnd": "2024-03-31T00:00:00.000Z"
+                        }
                   },
                 },
               },
@@ -2476,7 +2564,122 @@ export const document: OpenAPIObject = {
         },
       },
     },
-    '/applications/{id}/status': {
+
+      '/applications/cv/{cvId}': {
+          get: {
+              tags: ['Quản lý Ứng tuyển'],
+              summary: 'Xem lịch sử ứng tuyển của CV',
+              description:
+                  'Lấy danh sách các Job mà CV này đã ứng tuyển. Giúp HR xem lịch sử "chinh chiến" của ứng viên.',
+              parameters: [
+                  {
+                      in: 'header',
+                      name: 'refreshtoken',
+                      required: true,
+                      schema: { type: 'string', example: 'eyJhbGciOiJIUzI1Ni...' },
+                      description: 'Refresh Token',
+                  },
+                  {
+                      in: 'path',
+                      name: 'cvId',
+                      required: true,
+                      schema: { type: 'string', example: 'cv_123' },
+                      description: 'ID của CV cần xem lịch sử',
+                  },
+                  {
+                      in: 'query',
+                      name: 'status',
+                      schema: {
+                          type: 'string',
+                          enum: [
+                              'APPLIED',
+                              'SCREENING',
+                              'INTERVIEW',
+                              'OFFERED',
+                              'HIRED',
+                              'REJECTED',
+                          ],
+                          example: 'INTERVIEW',
+                      },
+                      description: 'Lọc theo trạng thái hồ sơ (Optional)',
+                  },
+                  {
+                      in: 'query',
+                      name: 'page',
+                      schema: { type: 'number', example: 1 },
+                  },
+                  {
+                      in: 'query',
+                      name: 'limit',
+                      schema: { type: 'number', example: 10 },
+                  },
+              ],
+              responses: {
+                  '200': {
+                      description: 'Danh sách lịch sử ứng tuyển',
+                      content: {
+                          'application/json': {
+                              schema: {
+                                  example: {
+                                      data: [
+                                          {
+                                              id: 'app_005',
+                                              status: 'INTERVIEW',
+                                              appliedAt: '2025-01-10T09:00:00.000Z',
+                                              updatedAt: '2025-01-12T09:00:00.000Z',
+                                              interviewScheduled: '2025-01-15T14:00:00.000Z',
+                                              rating: null,
+                                              // Thông tin Job được map vào
+                                              job: {
+                                                  id: 'job_001',
+                                                  name: 'Senior Node.js Developer',
+                                                  status: 'OPEN',
+                                                  applyEnd: '2025-02-28T00:00:00.000Z',
+                                                  headcountTarget: 5,
+                                                  headcountHired: 1
+                                              }
+                                          },
+                                          {
+                                              id: 'app_002',
+                                              status: 'REJECTED',
+                                              appliedAt: '2024-12-01T08:00:00.000Z',
+                                              updatedAt: '2024-12-05T10:00:00.000Z',
+                                              rejectionReason: 'Chưa đủ kinh nghiệm thực tế',
+                                              job: {
+                                                  id: 'job_099',
+                                                  name: 'Junior React Developer',
+                                                  status: 'CLOSED', // Job này đã đóng
+                                                  applyEnd: '2024-12-31T00:00:00.000Z',
+                                                  headcountTarget: 2,
+                                                  headcountHired: 2
+                                              }
+                                          }
+                                      ],
+                                      meta: {
+                                          total: 2,
+                                          page: 1,
+                                          limit: 10,
+                                          totalPages: 1
+                                      },
+                                  },
+                              },
+                          },
+                      },
+                      links: {
+                          // GetUserDetail: {
+                          //   operationId: 'getUser',
+                          //   parameters: {
+                          //     id: '$response.body#/user_id'
+                          //   },
+                          //   description: 'Lấy thông tin user vừa đăng nhập'
+                          // }
+                      }
+                  },
+              },
+          },
+      },
+
+      '/applications/{id}/status': {
       patch: {
         tags: ['Quản lý Ứng tuyển'],
         summary: 'Chuyển trạng thái tuyển dụng (Quy trình)',

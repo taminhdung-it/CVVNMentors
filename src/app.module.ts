@@ -9,6 +9,7 @@ import { JobModule } from './modules/job/job.module';
 import { ApplicationModule } from './modules/application/application.module';
 import { RoleModule } from './role/role.module';
 import configuration from './config/configuration';
+import { UserModule } from './modules/user/user.module';
 
 @Module({
   imports: [
@@ -23,6 +24,7 @@ import configuration from './config/configuration';
     JobModule,
     ApplicationModule,
     RoleModule,
+    UserModule
   ],
   controllers: [AppController],
   providers: [AppService],

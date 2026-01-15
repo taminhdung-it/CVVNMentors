@@ -31,6 +31,7 @@ export class ApplicationController {
     return this.appService.updateDetails(id, dto);
   }
 
+  @UseGuards(AuthGuard)
   @Get('job/:jobId')
   findAllByJob(
     @Param('jobId') jobId: string,
@@ -39,8 +40,22 @@ export class ApplicationController {
     return this.appService.findAllByJob(jobId, filter);
   }
 
+  @UseGuards(AuthGuard)
   @Get(':id')
   findOne(@Param('id') id: string) {
     return this.appService.findOne(id);
+  }
+
+  /**
+   * Xem lịch sử ứng tuyển của một CV
+   * GET /applications/cv/:cvId
+   */
+  @UseGuards(AuthGuard)
+  @Get('cv/:cvId')
+  findAllByCv(
+    @Param('cvId') cvId: string,
+    @Query() filter: FilterApplicationDto,
+  ) {
+    return this.appService.findAllByCv(cvId, filter);
   }
 }

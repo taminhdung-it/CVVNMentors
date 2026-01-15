@@ -72,8 +72,8 @@ export class JobService {
     // 5. Lưu xuống DB
     const docRef = await this.firebaseService.firestore.collection(this.jobCollection).add(newJob.toFirestore());
 
+    newJob.id=docRef.id;
     return {
-      id: docRef.id,
       ...newJob,
       warning: uploadWarning // Trả về cảnh báo nếu có
     };

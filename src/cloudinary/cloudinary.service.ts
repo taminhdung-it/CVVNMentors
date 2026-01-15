@@ -16,7 +16,10 @@ export class CloudinaryService {
             const uploadStream = cloudinary.uploader.upload_stream(
                 {
                     folder: folder,
-                    resource_type: 'auto', // Tự động nhận diện loại file (pdf, image, raw...)
+                    resource_type: 'raw',
+                  format: file.originalname.split('.').pop(), // Hoặc để Cloudinary tự lấy đuôi file
+                  unique_filename: true,
+                  access_mode: 'public'
                 },
                 (error, result) => {
                     if (error) {

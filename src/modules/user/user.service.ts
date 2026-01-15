@@ -14,6 +14,7 @@ import { FilterUserDto } from './dto/filter-user.dto';
 import { PaginationDto } from '../../common/dto/pagination.dto';
 import {ChangeUserStatusDto} from "./dto/change-user-status.dto";
 import {DEPARTMENT_COLLECTION_NAME} from "../../entities/department.entity";
+import { UpdatePasswordDto } from './dto/update-password.dto';
 
 @Injectable()
 export class UserService {
@@ -259,4 +260,33 @@ export class UserService {
             message: `Đã chuyển trạng thái tài khoản sang ${dto.status}`
         };
     }
+
+  async updatePassword(id: string, dto: UpdatePasswordDto) {
+    //Kiểm tra user có tồn tại trong Firestore không
+    const docRef = this.firebaseService.firestore.collection(this.collectionName).doc(id);
+    const doc = await docRef.get();
+
+    if (!doc.exists) {
+      throw new NotFoundException('Không tìm thấy nhân viên');
+    }
+
+    //Cập nhật mật khẩu bên Firebase Authentication
+    try {
+      await admin.auth().updateUser(id, {
+        password: dto.password,
+      });
+    } catch (error) {
+      // Bắt lỗi từ Firebase (ví dụ: ID không tồn tại bên Auth, Password yếu...)
+      throw new BadRequestException(`Lỗi cập nhật mật khẩu: ${error.message}`);
+    }
+
+    await docRef.update({
+      updatedAt: new Date(),
+    });
+
+    return {
+      id,
+      message: 'Cập nhật mật khẩu thành công'
+    };
+  }
 }
