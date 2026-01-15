@@ -7,6 +7,7 @@ import { AuthModule } from './modules/auth/auth.module';
 import { CvModule } from './modules/cv/cv.module';
 import { JobModule } from './modules/job/job.module';
 import { ApplicationModule } from './modules/application/application.module';
+import { RoleModule } from './role/role.module';
 import configuration from './config/configuration';
 
 @Module({
@@ -21,6 +22,7 @@ import configuration from './config/configuration';
     CvModule,
     JobModule,
     ApplicationModule,
+    RoleModule,
   ],
   controllers: [AppController],
   providers: [AppService],

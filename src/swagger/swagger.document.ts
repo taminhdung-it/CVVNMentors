@@ -22,7 +22,11 @@ export const document: OpenAPIObject = {
     {
       name: 'Quản lý Nhân viên',
       description: 'Trang quản lý',
-    }
+    },
+    {
+      name: 'Quản lý quyền truy cập',
+      description: 'Trang quản lý',
+    },
   ],
   paths: {
     '/auth/login': {
@@ -3170,6 +3174,243 @@ export const document: OpenAPIObject = {
               // }
             }
           }
+        },
+      },
+    },
+    '/role/get': {
+      post: {
+        tags: ['Quản lý quyền truy cập'],
+        summary: 'Lấy toàn bộ danh sách nhóm quyền và phân quyền',
+        parameters: [
+          {
+            in: 'header',
+            name: 'refreshtoken',
+            required: true,
+            schema: { type: 'string', example: 'eyJhbGciOiJIUzI1Ni...' },
+            description: 'Refresh Token',
+          },
+          {
+            in: 'header',
+            name: 'accountid',
+            required: true,
+            schema: { type: 'string', example: '<Nhập accountid>' },
+            description: 'accountid',
+          },
+          {
+            in: 'header',
+            name: 'router',
+            required: true,
+            schema: { type: 'string', example: 'role/get' },
+            description: 'router',
+          },
+        ],
+        responses: {
+          '200': {
+            description: 'Lấy danh sách role thành công',
+            content: {
+              'application/json': {
+                schema: {
+                  type: 'object',
+                  example: {
+                    role: {
+                      user: {
+                        account: {
+                          logout: 0
+                        },
+                        application: {
+                          changestatus: 0,
+                          edit: 0,
+                          get: 0,
+                          getone: 0
+                        },
+                        user: {
+                          search: 1
+                        }
+                      }
+                    }, links: {
+                      // GetUserDetail: {
+                      //   operationId: 'getUser',
+                      //   parameters: {
+                      //     id: '$response.body#/user_id'
+                      //   },
+                      //   description: 'Lấy thông tin user vừa đăng nhập'
+                      // }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    '/role/add': {
+      post: {
+        tags: ['Quản lý quyền truy cập'],
+        summary: 'Tạo mới một nhóm quyền',
+        parameters: [
+          {
+            in: 'header',
+            name: 'refreshtoken',
+            required: true,
+            schema: { type: 'string', example: 'eyJhbGciOiJIUzI1Ni...' },
+            description: 'Refresh Token',
+          },
+          {
+            in: 'header',
+            name: 'accountid',
+            required: true,
+            schema: { type: 'string', example: '<Nhập accountid>' },
+            description: 'accountid',
+          },
+          {
+            in: 'header',
+            name: 'router',
+            required: true,
+            schema: { type: 'string', example: 'role/add' },
+            description: 'router',
+          },
+        ],
+        requestBody: {
+          required: true,
+          content: {
+            'application/json': {
+              schema: {
+                type: 'object',
+                properties: {
+                  name: {
+                    type: 'string',
+                    description: 'Tên nhóm quyền (role/<groupName>)',
+                  },
+                },
+                required: ['name'],
+                example: {
+                  name: 'user',
+                },
+              },
+            },
+          },
+        },
+        responses: {
+          '200': {
+            description: 'Tạo nhóm quyền thành công',
+            content: {
+              'application/json': {
+                schema: {
+                  type: 'object',
+                  example: {
+                    message: 'Tạo nhóm role thành công',
+                    groupName: 'user',
+                  },
+                },
+              },
+              links: {
+                // GetUserDetail: {
+                //   operationId: 'getUser',
+                //   parameters: {
+                //     id: '$response.body#/user_id'
+                //   },
+                //   description: 'Lấy thông tin user vừa đăng nhập'
+                // }
+              }
+            },
+          },
+        },
+      },
+    },
+    '/role/edit': {
+      put: {
+        tags: ['Quản lý quyền truy cập'],
+        summary: 'Cập nhật quyền (bật / tắt chức năng) cho nhóm',
+        parameters: [
+          {
+            in: 'header',
+            name: 'refreshtoken',
+            required: true,
+            schema: { type: 'string', example: 'eyJhbGciOiJIUzI1Ni...' },
+            description: 'Refresh Token',
+          },
+          {
+            in: 'header',
+            name: 'accountid',
+            required: true,
+            schema: { type: 'string', example: '<Nhập accountid>' },
+            description: 'accountid',
+          },
+          {
+            in: 'header',
+            name: 'router',
+            required: true,
+            schema: { type: 'string', example: 'role/edit' },
+            description: 'router',
+          },
+        ],
+
+        requestBody: {
+          required: true,
+          content: {
+            'application/json': {
+              schema: {
+                type: 'object',
+                properties: {
+                  groupName: {
+                    type: 'string',
+                    description: 'Tên nhóm quyền (role/<groupName>)',
+                  },
+                  data: {
+                    type: 'object',
+                    description: 'Cây phân quyền (0 = không cho, 1 = cho)',
+                    example: {
+                      department: {
+                        getone: 1
+                      },
+                      user: {
+                        search: 1
+                      }
+                    }
+                  },
+                },
+                required: ['groupName', 'data'],
+                example: {
+                  groupName: 'user',
+                  data: {
+                    department: {
+                      getone: 1
+                    },
+                    user: {
+                      search: 1
+                    }
+                  },
+                },
+              },
+            },
+          },
+        },
+
+        responses: {
+          '200': {
+            description: 'Cập nhật quyền thành công',
+            content: {
+              'application/json': {
+                schema: {
+                  type: 'object',
+                  example: {
+                    message: 'Cập nhật quyền cho nhóm thành công',
+                    groupName: 'user',
+                  },
+                },
+              },
+              links: {
+                // GetUserDetail: {
+                //   operationId: 'getUser',
+                //   parameters: {
+                //     id: '$response.body#/user_id'
+                //   },
+                //   description: 'Lấy thông tin user vừa đăng nhập'
+                // }
+              }
+            },
+          },
         },
       },
     },

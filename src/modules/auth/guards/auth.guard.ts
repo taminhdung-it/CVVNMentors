@@ -50,13 +50,11 @@ export class AuthGuard implements CanActivate {
       const doc = await this.firebaseService.firestore.collection("users").doc(String(account_id)).get()
       const data = doc.data();
       const doc1 = await this.firebaseService.firestore.collection("role").doc(String(data?.role)).collection(String(item)).doc(String(permission)).get()
-      const data1 = doc1.data()?.id as Array<String>;
-      for (let i=0;i<data1.length;i++) {
-        if (String(account_id)=== data1[i]) {
-          return true;
-        }
+      const data1 = doc1.data()
+      if (data1?.active!=0){
+        throw new UnauthorizedException('Không có quyền truy cập');
       }
-      throw new UnauthorizedException('Không có quyền truy cập');
+      return true;
     } catch (err: any) {
       // ❌ token sai → reject ngay
       if (err?.code !== 'auth/id-token-expired') {
@@ -79,13 +77,11 @@ export class AuthGuard implements CanActivate {
       const doc = await this.firebaseService.firestore.collection("users").doc(String(account_id)).get()
       const data = doc.data();
       const doc1 = await this.firebaseService.firestore.collection("role").doc(String(data?.role)).collection(String(item)).doc(String(permission)).get()
-      const data1 = doc1.data()?.id as Array<String>;
-      for (let i=0;i<data1.length;i++) {
-        if (String(account_id)=== data1[i]) {
-          return true;
-        }
+      const data1 = doc1.data()
+      if (data1?.active!=0){
+        throw new UnauthorizedException('Không có quyền truy cập');
       }
-      throw new UnauthorizedException('Không có quyền truy cập');
+      return true;
     } catch {
       throw new UnauthorizedException('Refresh token không hợp lệ');
     }
