@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { JobApi } from 'src/app/models/job.model';
+import { ApplicationStatus } from 'src/app/job-management/job-management.component';
 
 export interface JobApiResponse {
   data: JobApi[];
@@ -19,6 +20,7 @@ export interface JobApiResponse {
 })
 export class JobService {
   private API = 'https://cvvnmentors.onrender.com/jobs';
+  private API_URL = 'https://cvvnmentors.onrender.com';
 
   constructor(private http: HttpClient) {}
 
@@ -83,6 +85,104 @@ export class JobService {
     return this.http.patch(
       `${this.API}/${jobId}/lock`,
       {}, // ❗ KHÔNG body → đúng với API khoá tạm
+      { headers }
+    );
+  }
+
+  // ================= JOB DETAIL =================
+  getJobDetail(jobId: string): Observable<JobApi> {
+    const headers = new HttpHeaders({
+      Authorization: `Bearer ${sessionStorage.getItem('accesstoken')}`,
+      refreshtoken: sessionStorage.getItem('refreshtoken') || '',
+      accountid: sessionStorage.getItem('accountid') || '',
+      router: 'job/getone',
+    });
+
+    return this.http.get<JobApi>(`${this.API}/${jobId}`, { headers });
+  }
+
+  // ================= APPLICATIONS BY JOB =================
+  getApplicationsByJob(
+    jobId: string,
+    status?: string,
+    page = 1,
+    limit = 10
+  ): Observable<any> {
+    const headers = new HttpHeaders({
+      Authorization: `Bearer ${sessionStorage.getItem('accesstoken')}`,
+      refreshtoken: sessionStorage.getItem('refreshtoken') || '',
+      accountid: sessionStorage.getItem('accountid') || '',
+      router: 'application/get',
+    });
+
+    let url = `https://cvvnmentors.onrender.com/applications/job/${jobId}?page=${page}&limit=${limit}`;
+
+    if (status) {
+      url += `&status=${status}`;
+    }
+
+    return this.http.get(url, { headers });
+  }
+
+  // ================= APPLICATION DETAIL =================
+  getApplicationDetail(applicationId: string): Observable<any> {
+    const headers = new HttpHeaders({
+      Authorization: `Bearer ${sessionStorage.getItem('accesstoken')}`,
+      refreshtoken: sessionStorage.getItem('refreshtoken') || '',
+      accountid: sessionStorage.getItem('accountid') || '',
+      router: 'application/getone',
+    });
+
+    return this.http.get(
+      `https://cvvnmentors.onrender.com/applications/${applicationId}`,
+      { headers }
+    );
+  }
+
+  // ================= UPDATE APPLICATION =================
+  updateApplication(
+    applicationId: string,
+    payload: {
+      interviewScheduled?: string | null;
+      feedback?: string | null;
+      rating?: number | null;
+      rejectionReason?: string | null;
+    }
+  ): Observable<any> {
+    const headers = new HttpHeaders({
+      Authorization: `Bearer ${sessionStorage.getItem('accesstoken')}`,
+      refreshtoken: sessionStorage.getItem('refreshtoken') || '',
+      accountid: sessionStorage.getItem('accountid') || '',
+      router: 'application/edit',
+      'Content-Type': 'application/json',
+    });
+
+    return this.http.patch(
+      `https://cvvnmentors.onrender.com/applications/${applicationId}`,
+      payload,
+      { headers }
+    );
+  }
+
+  // ================= UPDATE APPLICATION STATUS =================
+  updateApplicationStatus(
+    id: string,
+    payload: {
+      status: ApplicationStatus;
+      rejectionReason?: string;
+    }
+  ) {
+    const headers = new HttpHeaders({
+      Authorization: `Bearer ${sessionStorage.getItem('access_token')}`,
+      refreshToken: sessionStorage.getItem('refresh_token') || '',
+      accountId: sessionStorage.getItem('account_id') || '',
+      router: 'application/changestatus',
+      'Content-Type': 'application/json',
+    });
+
+    return this.http.patch(
+      `${this.API_URL}/applications/${id}/status`,
+      payload,
       { headers }
     );
   }
