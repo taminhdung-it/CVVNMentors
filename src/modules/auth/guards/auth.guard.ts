@@ -78,7 +78,7 @@ export class AuthGuard implements CanActivate {
       const data = doc.data();
       const doc1 = await this.firebaseService.firestore.collection("role").doc(String(data?.role)).collection(String(item)).doc(String(permission)).get()
       const data1 = doc1.data()
-      if (data1?.active!=0){
+      if (data1?.active!=1){
         throw new UnauthorizedException('Không có quyền truy cập');
       }
       return true;
