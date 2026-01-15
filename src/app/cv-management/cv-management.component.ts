@@ -59,7 +59,8 @@ export class CvManagementComponent implements OnInit {
 
   /* ================= API ================= */
   loadCvs() {
-    this.cvService.getCvs(this.page, this.pageSize).subscribe({
+    this.cvService.getCvs(1, 1000).subscribe({
+      // 👈 load nhiều
       next: (res: any) => {
         const data = res?.data || [];
 
@@ -77,7 +78,7 @@ export class CvManagementComponent implements OnInit {
           })
         );
 
-        this.applyFilter();
+        this.applyFilter(); // ✅ giữ nguyên
       },
       error: (err) => console.error('Load CV error', err),
     });
@@ -145,7 +146,7 @@ export class CvManagementComponent implements OnInit {
   goToPage(p: number) {
     if (p < 1 || p > this.totalPages) return;
     this.page = p;
-    this.loadCvs(); // server-side pagination
+    this.updatePage(); // ✅ KHÔNG gọi API nữa
   }
 
   /* ================= CHECKBOX ================= */
