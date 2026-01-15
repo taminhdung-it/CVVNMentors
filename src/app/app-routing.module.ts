@@ -10,8 +10,6 @@ import { LogoutComponent } from './auth/logout/logout.component';
 import { JobManagementComponent } from './job-management/job-management.component';
 import { CvDetailComponent } from './cv-detail/cv-detail.component';
 import { CvImportExcelComponent } from './cv-import-excel/cv-import-excel.component';
-import { DepartmentManagementComponent } from './department-management/department-management.component';
-
 
 const routes: Routes = [
   { path: 'login', component: LoginComponent },
@@ -30,12 +28,6 @@ const routes: Routes = [
 
       { path: 'jobmanagement', component: JobManagementComponent, data: { title: 'Quản lý Job' } },
 
-      // 🔽 NEW: Department Management
-      {
-        path: 'department-management',
-        component: DepartmentManagementComponent,
-        data: { title: 'Quản lý phòng ban' }
-      }
     ]
   },
 

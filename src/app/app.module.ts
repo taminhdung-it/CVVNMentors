@@ -4,6 +4,7 @@ import { BrowserModule } from '@angular/platform-browser';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { HttpClientModule } from '@angular/common/http';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { CommonModule } from '@angular/common';
 import { AppRoutingModule } from './app-routing.module'; 
 
 // ============================================
@@ -27,7 +28,7 @@ import { MatPaginatorModule } from '@angular/material/paginator';
 import { MatSortModule } from '@angular/material/sort';
 import { MatSelectModule } from '@angular/material/select';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
-import { MatMenuModule } from '@angular/material/menu'; // ⭐ THIẾU MODULE NÀY
+import { MatMenuModule } from '@angular/material/menu';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatDividerModule } from '@angular/material/divider';
 import { MatBadgeModule } from '@angular/material/badge';
@@ -44,12 +45,10 @@ import { DashboardComponent } from './dashboard/dashboard.component';
 import { CvManagementComponent } from './cv-management/cv-management.component';
 import { ForgotPasswordDialog, LoginComponent } from './auth/login/login.component';
 import { JobManagementComponent } from './job-management/job-management.component';
-
 import { CvService } from './services/cv.service';
 import { AuthService } from './services/auth.service';
 import { CvDetailComponent } from './cv-detail/cv-detail.component';
 import { CvImportExcelComponent } from './cv-import-excel/cv-import-excel.component';
-import { DepartmentManagementModule } from './department-management/department-management.module';
 
 @NgModule({
   declarations: [
@@ -64,16 +63,15 @@ import { DepartmentManagementModule } from './department-management/department-m
     ForgotPasswordDialog,
     CvDetailComponent,
     CvImportExcelComponent,
-
   ],
   imports: [
     BrowserModule,
     BrowserAnimationsModule,
+    CommonModule, // ⭐ THÊM
     HttpClientModule,
-    FormsModule,
+    FormsModule, // ⭐ QUAN TRỌNG - Để dùng ngModel
     ReactiveFormsModule,
-    AppRoutingModule,
-    DepartmentManagementModule, // ⭐ ĐỂ ROUTING MODULE Ở ĐÂY (XÓA RouterModule.forRoot bên dưới)
+    AppRoutingModule, // ⭐ ĐỂ ROUTING MODULE Ở ĐÂY
 
     // ============================================
     // ANGULAR MATERIAL MODULES
@@ -96,14 +94,16 @@ import { DepartmentManagementModule } from './department-management/department-m
     MatSortModule,
     MatSelectModule,
     MatSnackBarModule,
-    MatMenuModule, // ⭐ THÊM MODULE NÀY
+    MatMenuModule,
     MatProgressSpinnerModule,
     MatDividerModule,
     MatBadgeModule,
     MatChipsModule
   ],
-  providers: [CvService,
-    AuthService],
+  providers: [
+    CvService,
+    AuthService
+  ],
   bootstrap: [AppComponent]
 })
 export class AppModule { }
