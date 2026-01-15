@@ -208,23 +208,35 @@ export class CvManagementComponent implements OnInit {
     if (!this.selectedJob) return;
 
     const selected = this.selectedCVs;
+    const cvIds = selected.map((cv) => cv.id);
 
-    selected.forEach((cv) => {
-      cv.job = this.selectedJob!;
-      this.cvService.assignJob(cv.id, this.selectedJob!).subscribe();
+    this.cvService.assignJobToCvs(this.selectedJob, cvIds).subscribe({
+      next: (res: any) => {
+        // update UI
+        selected.forEach((cv) => {
+          cv.job = this.selectedJob!;
+          cv.checked = false;
+        });
+
+        this.assignedCount = cvIds.length;
+        this.assignedJob = this.selectedJob!;
+
+        this.showAssignModal = false;
+        this.showAssignToast = true;
+
+        setTimeout(() => (this.showAssignToast = false), 3000);
+
+        // reload để đồng bộ server
+        this.loadCvs();
+
+        this.selectedJob = null;
+        this.jobKeyword = '';
+      },
+      error: (err) => {
+        console.error('Assign job failed', err);
+        alert('Gán job thất bại');
+      },
     });
-
-    this.assignedCount = selected.length;
-    this.assignedJob = this.selectedJob;
-
-    this.showAssignModal = false;
-    this.showAssignToast = true;
-
-    setTimeout(() => (this.showAssignToast = false), 3000);
-
-    selected.forEach((cv) => (cv.checked = false));
-    this.selectedJob = null;
-    this.jobKeyword = '';
   }
 
   /* ================= ACTION ================= */

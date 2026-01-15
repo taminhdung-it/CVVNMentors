@@ -44,6 +44,25 @@ export class CvService {
     });
   }
 
+  /** ASSIGN JOB – ĐÚNG THEO DOC */
+  assignJobToCvs(jobId: string, cvIds: string[]) {
+    const headers = new HttpHeaders({
+      Authorization: `Bearer ${sessionStorage.getItem('accesstoken')}`,
+      refreshtoken: sessionStorage.getItem('refreshtoken') || '',
+      accountid: sessionStorage.getItem('accountid') || '',
+      router: 'cv/assign',
+    });
+
+    return this.http.post(
+      `${this.API}/assign-job`,
+      {
+        jobId,
+        cvIds,
+      },
+      { headers }
+    );
+  }
+
   /** GET CV – phân trang */
   getCvs(page: number, limit: number): Observable<any> {
     return this.http.get(`${this.API}?page=${page}&limit=${limit}`, {
