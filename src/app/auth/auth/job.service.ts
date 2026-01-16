@@ -3,6 +3,7 @@ import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { JobApi } from 'src/app/models/job.model';
 import { ApplicationStatus } from 'src/app/job-management/job-management.component';
+import { CreateJobPayload } from 'src/app/models/job-create.model';
 
 export interface JobApiResponse {
   data: JobApi[];
@@ -185,5 +186,33 @@ export class JobService {
       payload,
       { headers }
     );
+  }
+
+  createJob(payload: CreateJobPayload, jdFile?: File) {
+    const headers = new HttpHeaders({
+      Authorization: `Bearer ${sessionStorage.getItem('accesstoken')}`,
+      refreshtoken: sessionStorage.getItem('refreshtoken') || '',
+      accountid: sessionStorage.getItem('accountid') || '',
+      router: 'job/add',
+    });
+
+    const formData = new FormData();
+
+    formData.append('departmentId', payload.departmentId);
+    formData.append('name', payload.name);
+    formData.append('description', payload.description);
+    formData.append('headcountTarget', String(payload.headcountTarget));
+    formData.append('applyStart', payload.applyStart);
+    formData.append('applyEnd', payload.applyEnd);
+
+    payload.skills.forEach((s) => formData.append('skills', s));
+
+    if (jdFile) {
+      formData.append('file', jdFile);
+    }
+
+    return this.http.post('https://cvvnmentors.onrender.com/jobs', formData, {
+      headers,
+    });
   }
 }

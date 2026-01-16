@@ -66,6 +66,12 @@ export class CvManagementComponent implements OnInit {
     this.loadJobs();
   }
 
+  hasCvFile(url: string | null | undefined): boolean {
+    if (!url) return false;
+
+    return /\.(pdf|doc|docx)$/i.test(url);
+  }
+
   /* ================= API ================= */
   loadCvs() {
     this.cvService.getCvs(1, 1000).subscribe({
@@ -79,7 +85,7 @@ export class CvManagementComponent implements OnInit {
             fullName: c.full_name || c.fullName || 'Unknown',
             email: c.email || '-',
             phone: c.phone || '-',
-            cvType: 'Có CV',
+            cvType: this.hasCvFile(c.cvFileUrl) ? 'Có CV' : 'Không CV',
             status: this.mapStatus(c.status),
             job: c.position || 'N/A',
             updatedAt: new Date(c.updatedAt).toLocaleDateString('vi-VN'),

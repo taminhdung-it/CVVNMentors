@@ -3,6 +3,7 @@ import { JobService } from '../auth/auth/job.service';
 import type { ApplicationDetail, JobApi } from '../models/job.model';
 import { Department } from '../models/department.model';
 import { DepartmentService } from '../auth/auth/department.service';
+import { CreateJobPayload } from '../models/job-create.model';
 
 export type ApplicationStatus =
   | 'APPLIED'
@@ -74,25 +75,26 @@ export class JobManagementComponent implements OnInit {
   activeDetailTab: 'candidates' | 'info' = 'candidates';
   selectedJob?: Job;
   departments: Department[] = [];
+  departmentMap: Record<string, string> = {};
+  jdFile: File | null = null;
 
   // ===== APPLICATION DETAIL MODE =====
   applicationMode: 'view' | 'edit' = 'view';
+  skillsInput = '';
 
   // ===== MODAL STATE =====
   showAddJobModal = false;
   modalMode: 'add' | 'edit' = 'add';
   editingJobId: number | null = null;
   openActionId: number | null = null;
-  newJob: Job = {
-    id: 0,
-    jobApiId: '', // ✅ THÊM DÒNG NÀY
-    title: '',
-    department: '',
-    createdDate: '',
-    status: 'Mở',
+  newJob: CreateJobPayload = {
+    departmentId: '',
+    name: '',
     description: '',
-    recruitmentCount: 0,
-    requirements: '',
+    skills: [],
+    headcountTarget: 1,
+    applyStart: '',
+    applyEnd: '',
   };
 
   // ===== FILTERS - JOB LIST =====
@@ -143,6 +145,7 @@ export class JobManagementComponent implements OnInit {
 
   // ===== INIT =====
   ngOnInit(): void {
+    this.loadActiveDepartments();
     this.loadJobs();
   }
 
@@ -195,10 +198,16 @@ export class JobManagementComponent implements OnInit {
   loadActiveDepartments() {
     this.departmentService.getDepartments(1, 100).subscribe({
       next: (res) => {
-        // ✅ chỉ lấy phòng ban đang ACTIVE
+        this.departments = res.data;
+        this.departmentMap = {};
+        this.departments.forEach((dept) => {
+          this.departmentMap[dept.id] = dept.name;
+        });
+
         this.departments = res.data.filter((dept) => dept.status === 'ACTIVE');
 
         console.log('ACTIVE DEPARTMENTS', this.departments);
+        console.log('DEPARTMENT MAP', this.departmentMap);
       },
       error: (err) => {
         console.error('Load departments failed', err);
@@ -437,11 +446,7 @@ export class JobManagementComponent implements OnInit {
   }
 
   getDepartmentName(departmentId: string): string {
-    const map: Record<string, string> = {
-      '5JC7QkMSzsUaCev8SIi5': 'Backend',
-      ABC123: 'Frontend',
-    };
-    return map[departmentId] || '—';
+    return this.departmentMap[departmentId] || '—';
   }
 
   /* Kiểm tra file CV hợp lệ */
@@ -705,6 +710,22 @@ export class JobManagementComponent implements OnInit {
     this.activeDetailTab = tab;
   }
 
+  onJdFileChange(event: Event) {
+    const input = event.target as HTMLInputElement;
+    if (!input.files || input.files.length === 0) return;
+
+    const file = input.files[0];
+
+    // Validate type
+    if (!/\.(pdf|doc|docx)$/i.test(file.name)) {
+      alert('Chỉ chấp nhận file PDF, DOC, DOCX');
+      input.value = '';
+      return;
+    }
+
+    this.jdFile = file;
+  }
+
   // ===== HANDLERS: JOB STATUS =====
   handleToggleJobStatus(jobId: number) {
     this.jobs = this.jobs.map((job) => {
@@ -816,15 +837,13 @@ export class JobManagementComponent implements OnInit {
 
     // reset form
     this.newJob = {
-      id: 0,
-      jobApiId: '',
-      title: '',
-      department: '',
-      createdDate: '',
-      status: 'Mở',
+      departmentId: '',
+      name: '',
       description: '',
-      recruitmentCount: 0,
-      requirements: '',
+      skills: [],
+      headcountTarget: 1,
+      applyStart: '',
+      applyEnd: '',
     };
 
     // ⭐ LOAD PHÒNG BAN Ở ĐÂY
@@ -834,7 +853,20 @@ export class JobManagementComponent implements OnInit {
   handleOpenEditModal(job: Job) {
     this.modalMode = 'edit';
     this.editingJobId = job.id;
-    this.newJob = { ...job };
+    this.newJob = {
+      departmentId: job.department, // id phòng ban
+      name: job.title,
+      description: job.description,
+      skills: job.requirements
+        ? job.requirements.split(',').map((s) => s.trim())
+        : [],
+      headcountTarget: job.recruitmentCount ?? 1,
+      applyStart: '',
+      applyEnd: '',
+    };
+
+    this.skillsInput = this.newJob.skills.join(', ');
+
     this.showAddJobModal = true;
   }
 
@@ -843,30 +875,33 @@ export class JobManagementComponent implements OnInit {
   }
 
   handleSaveJob() {
-    if (!this.newJob.title.trim()) {
-      alert('Tên job không được để trống');
-      return;
-    }
-
-    if (!this.newJob.department) {
-      alert('Vui lòng chọn phòng ban');
-      return;
-    }
-
-    const payload = {
-      name: this.newJob.title,
-      departmentId: this.newJob.department, // ✅ ID PHÒNG BAN
+    const payload: CreateJobPayload = {
+      departmentId: this.newJob.departmentId,
+      name: this.newJob.name,
       description: this.newJob.description,
-      headcountTarget: this.newJob.recruitmentCount,
-      skills: this.newJob.requirements
-        ? this.newJob.requirements.split(',').map((s) => s.trim())
-        : [],
+      headcountTarget: this.newJob.headcountTarget,
+      applyStart: this.newJob.applyStart,
+      applyEnd: this.newJob.applyEnd,
+      skills: this.skillsInput
+        .split(',')
+        .map((s) => s.trim())
+        .filter(Boolean),
     };
 
     console.log('CREATE JOB PAYLOAD', payload);
 
-    // 👉 bước này bạn sẽ gắn API create job sau
-    this.showAddJobModal = false;
+    this.jobService.createJob(payload, this.jdFile ?? undefined).subscribe({
+      next: () => {
+        alert('Tạo job thành công');
+        this.showAddJobModal = false;
+        this.jdFile = null;
+        this.loadJobs();
+      },
+      error: (err) => {
+        console.error(err);
+        alert('Tạo job thất bại');
+      },
+    });
   }
 
   // ===== HANDLERS: FILTERS =====

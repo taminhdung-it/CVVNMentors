@@ -136,3 +136,25 @@ export class CvService {
     );
   }
 }
+
+@Injectable({ providedIn: 'root' })
+export class CvUploadFileService {
+  private API = 'https://cvvnmentors.onrender.com/cv/upload';
+
+  constructor(private http: HttpClient) {}
+
+  uploadFiles(files: File[]): Observable<any> {
+    const formData = new FormData();
+    files.forEach((f) => formData.append('files', f));
+
+    const headers = new HttpHeaders({
+      Authorization: `Bearer ${sessionStorage.getItem('accesstoken')}`,
+      refreshtoken: sessionStorage.getItem('refreshtoken') || '',
+      accountid: sessionStorage.getItem('accountid') || '',
+      router: 'cv/readpdfdoc',
+      // ❗ KHÔNG set Content-Type
+    });
+
+    return this.http.post(this.API, formData, { headers });
+  }
+}

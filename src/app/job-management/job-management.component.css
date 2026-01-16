@@ -919,3 +919,26 @@
 .menu-item.danger {
   color: #dc2626;
 }
+
+/* ===== MODAL FIX HEIGHT ===== */
+.modal {
+  max-height: 85vh;
+  display: flex;
+  flex-direction: column;
+}
+
+/* body scroll */
+.modal-form {
+  overflow-y: auto;
+  padding-right: 8px;
+  max-height: calc(85vh - 140px);
+}
+
+/* footer luôn hiện */
+.modal-actions {
+  position: sticky;
+  bottom: 0;
+  background: #fff;
+  padding-top: 12px;
+  border-top: 1px solid #eee;
+}
