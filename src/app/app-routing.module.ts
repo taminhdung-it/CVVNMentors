@@ -54,7 +54,10 @@ const routes: Routes = [
         component: EmployeeManagementComponent,
         data: { title: 'Quản lý Nhân viên' },
       },
-      { path: 'employee/role-permission', component: RolePermissionComponent },
+      {
+        path: 'employee/role-permission/:id',
+        component: RolePermissionComponent,
+      },
       { path: 'employee/detail/:id', component: EmployeeDetailComponent },
       { path: 'employee/edit/:id', component: EmployeeEditComponent },
       {
