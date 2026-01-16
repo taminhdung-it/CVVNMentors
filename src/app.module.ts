@@ -10,12 +10,13 @@ import { ApplicationModule } from './modules/application/application.module';
 import { RoleModule } from './role/role.module';
 import configuration from './config/configuration';
 import { UserModule } from './modules/user/user.module';
+import { DepartmentModule } from './modules/department/department.module';
 
 @Module({
   imports: [
     ConfigModule.forRoot({
-      isGlobal: true,               // <--- làm ENV dùng được ở mọi nơi
-      envFilePath: ['.env'],        // đọc file .env ở root
+      isGlobal: true, // <--- làm ENV dùng được ở mọi nơi
+      envFilePath: ['.env'], // đọc file .env ở root
       load: [configuration],
     }),
     FirebaseModule,
@@ -24,9 +25,10 @@ import { UserModule } from './modules/user/user.module';
     JobModule,
     ApplicationModule,
     RoleModule,
-    UserModule
+    UserModule,
+    DepartmentModule,
   ],
   controllers: [AppController],
   providers: [AppService],
 })
-export class AppModule { }
+export class AppModule {}

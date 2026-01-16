@@ -1770,7 +1770,7 @@ export const document: OpenAPIObject = {
             in: 'header',
             name: 'router',
             required: true,
-            schema: { type: 'string', example: 'departments/get' },
+            schema: { type: 'string', example: 'department/get' },
             description: 'router',
           },
           {
@@ -1841,7 +1841,7 @@ export const document: OpenAPIObject = {
             in: 'header',
             name: 'router',
             required: true,
-            schema: { type: 'string', example: 'departments/add' },
+            schema: { type: 'string', example: 'department/add' },
             description: 'router',
           },
         ],
@@ -1914,7 +1914,7 @@ export const document: OpenAPIObject = {
             in: 'header',
             name: 'router',
             required: true,
-            schema: { type: 'string', example: 'departments/search' },
+            schema: { type: 'string', example: 'department/search' },
             description: 'router',
           },
           {
@@ -1999,7 +1999,7 @@ export const document: OpenAPIObject = {
             in: 'header',
             name: 'router',
             required: true,
-            schema: { type: 'string', example: 'departments/getone' },
+            schema: { type: 'string', example: 'department/getone' },
             description: 'router',
           },
           {
@@ -2072,7 +2072,7 @@ export const document: OpenAPIObject = {
             in: 'header',
             name: 'router',
             required: true,
-            schema: { type: 'string', example: 'departments/edit' },
+            schema: { type: 'string', example: 'department/edit' },
             description: 'router',
           },
           {
@@ -2147,7 +2147,7 @@ export const document: OpenAPIObject = {
             in: 'header',
             name: 'router',
             required: true,
-            schema: { type: 'string', example: 'departments/changestatus' },
+            schema: { type: 'string', example: 'department/changestatus' },
             description: 'router',
           },
           {
