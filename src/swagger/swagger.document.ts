@@ -2564,7 +2564,6 @@ export const document: OpenAPIObject = {
         },
       },
     },
-
       '/applications/cv/{cvId}': {
           get: {
               tags: ['Quản lý Ứng tuyển'],
@@ -2692,7 +2691,6 @@ export const document: OpenAPIObject = {
               },
           },
       },
-
       '/applications/{id}/status': {
       patch: {
         tags: ['Quản lý Ứng tuyển'],
@@ -2823,10 +2821,7 @@ export const document: OpenAPIObject = {
         tags: ['Quản lý Nhân viên'],
         summary: 'Tạo nhân viên mới',
         description: `
-          **Luồng xử lý:**
-          1. Hệ thống kiểm tra trùng Email hoặc SĐT.
-          2. Tạo tài khoản đăng nhập bên Firebase Authentication với mật khẩu mặc định: **User@123**
-          3. Lưu thông tin chi tiết vào Firestore.
+        Tạo tài khoảnvới mật khẩu mặc định: **123456**
         `,
         parameters: [
           {
@@ -3394,6 +3389,109 @@ export const document: OpenAPIObject = {
         },
       },
     },
+      '/users/{id}/password': {
+          patch: {
+              tags: ['Quản lý Nhân viên'],
+              summary: 'Cập nhật mật khẩu (Reset Password)',
+              description: `
+          **Validation:** Mật khẩu bắt buộc tối thiểu 6 ký tự.
+        `,
+              parameters: [
+                  {
+                      in: 'header',
+                      name: 'refreshtoken',
+                      required: true,
+                      schema: { type: 'string', example: 'eyJhbGciOiJIUzI1Ni...' },
+                      description: 'Refresh Token',
+                  },
+                  {
+                      in: 'header',
+                      name: 'accountid',
+                      required: true,
+                      schema: { type: 'string', example: '<Nhập accountid>' },
+                      description: 'accountid',
+                  },
+                  {
+                      in: 'header',
+                      name: 'router',
+                      required: true,
+                      schema: { type: 'string', example: 'user/edit' },
+                      description: 'router',
+                  },
+                  {
+                      in: 'path',
+                      name: 'id',
+                      required: true,
+                      schema: { type: 'string', example: 'user_001' },
+                      description: 'ID của nhân viên cần đổi mật khẩu',
+                  },
+              ],
+              requestBody: {
+                  required: true,
+                  content: {
+                      'application/json': {
+                          schema: {
+                              type: 'object',
+                              properties: {
+                                  password: {
+                                      type: 'string',
+                                      example: 'NewStrongPass@2025',
+                                      minLength: 6,
+                                      description: 'Mật khẩu mới (Ít nhất 6 ký tự)'
+                                  },
+                              },
+                              required: ['password'],
+                          },
+                      },
+                  },
+              },
+              responses: {
+                  '200': {
+                      description: 'Đổi mật khẩu thành công',
+                      content: {
+                          'application/json': {
+                              schema: {
+                                  example: {
+                                      id: 'user_001',
+                                      message: 'Cập nhật mật khẩu thành công',
+                                  },
+                              },
+                          },
+                      },
+                  },
+                  '400': {
+                      description: 'Mật khẩu quá yếu hoặc lỗi từ Firebase',
+                      content: {
+                          'application/json': {
+                              schema: {
+                                  example: {
+                                      statusCode: 400,
+                                      message: 'Mật khẩu phải có ít nhất 6 ký tự',
+                                  },
+                              },
+                          },
+                      },
+                  },
+                  '404': {
+                      description: 'Không tìm thấy nhân viên',
+                      content: {
+                          'application/json': {
+                              schema: {
+                                  example: {
+                                      statusCode: 404,
+                                      message: 'Không tìm thấy nhân viên',
+                                  },
+                              },
+                          },
+                      },
+                  },
+              },
+          },
+      },
+
+
+
+
     '/role/get': {
       post: {
         tags: ['Quản lý quyền truy cập'],
