@@ -43,6 +43,7 @@ interface Job {
   title: string;
   department: string;
   createdDate: string;
+  updatedDate?: string;
 
   status: 'Mở' | 'Đóng' | 'Khóa';
   description: string;
@@ -518,6 +519,7 @@ export class JobManagementComponent implements OnInit {
       title: job.name,
       department: job.departmentId,
       createdDate: this.formatDate(job.createdAt),
+      updatedDate: this.formatDate(job.updatedAt),
 
       status,
       description: job.description,

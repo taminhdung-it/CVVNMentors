@@ -408,7 +408,9 @@
             <div class="details-grid">
               <div class="detail-item">
                 <span class="detail-label">Phòng ban:</span>
-                <span class="detail-value">{{ selectedJob.department }}</span>
+                <span class="detail-value">
+                  {{ getDepartmentName(selectedJob.department) }}
+                </span>
               </div>
               <div class="detail-item">
                 <span class="detail-label">Kỹ năng:</span>
@@ -464,6 +466,13 @@
                 <span class="detail-label">Ngày tạo:</span>
                 <span class="detail-value">{{ selectedJob.createdDate }}</span>
               </div>
+              <div class="detail-item">
+                <span class="detail-label">Cập nhật lần cuối:</span>
+                <span class="detail-value">
+                  {{ selectedJob.updatedDate || "—" }}
+                </span>
+              </div>
+
               <div class="detail-item">
                 <span class="detail-label">Trạng thái:</span>
                 <span
