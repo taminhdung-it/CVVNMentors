@@ -7,6 +7,7 @@ export interface CV {
   fullName: string;
   email: string;
   phone: string;
+  cccd?: string | null;
   cvType: 'Có CV' | 'Không CV';
   status: 'Mới' | 'Duyệt' | 'Không đạt' | 'Lưu trữ';
   job?: string;
@@ -85,6 +86,7 @@ export class CvManagementComponent implements OnInit {
             fullName: c.full_name || c.fullName || 'Unknown',
             email: c.email || '-',
             phone: c.phone || '-',
+            cccd: c.cccd || '-',
             cvType: this.hasCvFile(c.cvFileUrl) ? 'Có CV' : 'Không CV',
             status: this.mapStatus(c.status),
             job: c.position || 'N/A',

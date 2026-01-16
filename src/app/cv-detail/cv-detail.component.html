@@ -62,6 +62,11 @@
               <label>SĐT</label><span>{{ cv.phone || "-" }}</span>
             </div>
             <div class="info-row">
+              <label>CCCD</label>
+              <span>{{ cv.cccd || "-" }}</span>
+            </div>
+
+            <div class="info-row">
               <label>Vị trí</label><span>{{ cv.position }}</span>
             </div>
             <div class="info-row">
@@ -91,6 +96,11 @@
               <label>SĐT</label>
               <input [(ngModel)]="editModel.phone" />
             </div>
+            <div class="info-row">
+              <label>CCCD</label>
+              <input [(ngModel)]="editModel.cccd" />
+            </div>
+
             <div class="info-row">
               <label>Vị trí</label>
               <input [(ngModel)]="editModel.position" />

@@ -28,7 +28,7 @@ interface Candidate {
 
   // ===== CV =====
   cvId: string;
-  name: string; // cv.fullName
+  name: string;
   email: string | null;
   phone: string | null;
   cvFileUrl: string;
@@ -289,6 +289,16 @@ export class JobManagementComponent implements OnInit {
           rejectionReason: res.rejectionReason,
           appliedAt: this.formatDate(res.appliedAt),
           updatedAt: this.formatDate(res.updatedAt),
+          candidate: {
+            fullName:
+              res.cv?.fullName ||
+              res.cv?.full_name ||
+              res.cv?.name ||
+              res.cv?.parsed?.fullName ||
+              '—',
+            email: res.cv?.email,
+            phone: res.cv?.phone,
+          },
           job: {
             id: res.job.id,
             name: res.job.name,
@@ -674,7 +684,8 @@ export class JobManagementComponent implements OnInit {
 
               cvId: item.cv?.cvId,
 
-              name: item.cv?.email ? item.cv.email.split('@')[0] : 'Unknown',
+              name:
+                item.cv?.fullName || item.cv?.email?.split('@')[0] || 'Unknown',
 
               email: item.cv?.email,
               phone: item.cv?.phone,

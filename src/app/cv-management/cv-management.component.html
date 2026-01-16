@@ -82,6 +82,7 @@
           <th>Trạng thái</th>
           <th>Ngày cập nhật</th>
           <th>Số điện thoại</th>
+          <th>CCCD</th>
           <th>Hành động</th>
         </tr>
       </thead>
@@ -105,6 +106,7 @@
 
           <td>{{ cv.updatedAt }}</td>
           <td>{{ cv.phone }}</td>
+          <td>{{ cv.cccd || "—" }}</td>
 
           <td class="action-col" (click)="$event.stopPropagation()">
             <!-- xem -->

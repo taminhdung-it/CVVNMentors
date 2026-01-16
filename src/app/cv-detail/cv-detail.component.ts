@@ -99,6 +99,7 @@ export class CvDetailComponent implements OnInit {
           fullName: res.fullName ?? res.full_name ?? 'Unknown',
 
           experienceYears: res.experienceYears ?? res.experience_year ?? 0,
+          cccd: res.cccd || '',
         };
 
         this.loading = false;
@@ -196,6 +197,7 @@ export class CvDetailComponent implements OnInit {
       fullName: this.cv.fullName,
       email: this.cv.email,
       phone: this.cv.phone,
+      cccd: this.cv.cccd,
       position: this.cv.position,
       level: this.cv.level,
       experienceYears: this.cv.experienceYears,

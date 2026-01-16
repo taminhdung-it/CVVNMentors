@@ -51,6 +51,12 @@ export interface ApplicationDetail {
   appliedAt: string;
   updatedAt: string;
 
+  candidate?: {
+    fullName?: string;
+    email?: string;
+    phone?: string;
+  };
+
   // ===== JOB (lồng trong application) =====
   job: {
     id: string;

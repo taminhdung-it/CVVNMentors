@@ -7,6 +7,7 @@ export interface CvDetailResponse {
   fullName: string;
   email: string;
   phone: string | null;
+  cccd?: string | null;
   position: string;
   level: string;
   status: 'NEW' | 'APPROVED' | 'REJECTED' | 'ARCHIVED';
