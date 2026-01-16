@@ -5,6 +5,7 @@ import {
   IsOptional,
   IsPhoneNumber,
   IsString,
+  Length,
   ValidateNested,
 } from 'class-validator';
 import { plainToInstance, Transform, Type } from 'class-transformer';
@@ -24,6 +25,12 @@ export class UpdateCvDto {
   @IsString()
   @IsPhoneNumber('VN')
   phone?: string;
+
+  @IsOptional()
+  @IsString()
+  @Length(12,12,{message: "CCCD phải là 12 kí tự", always: true})
+  cccd?: string;
+  
   @IsOptional()
   @IsString()
   position?: string;

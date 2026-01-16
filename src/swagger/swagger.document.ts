@@ -539,6 +539,7 @@ export const document: OpenAPIObject = {
                   fullName: { type: 'string', example: 'Nguyễn Văn A' },
                   email: { type: 'string', example: 'a@gmail.com' },
                   phone: { type: 'string', example: '0909123456' },
+                  cccd:{ type: 'string', example: '123456789012' },
                   cvType: { type: 'string', example: 'Manual Entry' },
                   position: { type: 'string', example: 'Backend Developer' },
                   level: { type: 'string', example: 'Junior' },
@@ -564,7 +565,7 @@ export const document: OpenAPIObject = {
                     example: '[{"title":"Java Dev","dates":"2022-2023","organization":"FPT Software","location":"HCM"}]'
                   }
                 },
-                required: ['fullName', 'email', 'phone'],
+                required: ['fullName', 'email', 'phone', "cccd"],
               },
             },
           },
@@ -833,6 +834,7 @@ export const document: OpenAPIObject = {
                   fullName: { type: 'string', example: 'Nguyễn Văn A (Updated)' },
                   email: { type: 'string', example: 'new_email@gmail.com' },
                   phone: { type: 'string', example: '0988888888' },
+                  cccd:{ type: 'string', example: '123456789012' },
                   position: { type: 'string', example: 'Fullstack Dev' },
                   level: { type: 'string', example: 'Senior' },
                   experienceYears: { type: 'number', example: 5 },
@@ -3493,7 +3495,7 @@ export const document: OpenAPIObject = {
 
 
     '/role/get': {
-      post: {
+      get: {
         tags: ['Quản lý quyền truy cập'],
         summary: 'Lấy toàn bộ danh sách nhóm quyền và phân quyền',
         parameters: [

@@ -34,6 +34,7 @@ import { CloudinaryService } from '../../cloudinary/cloudinary.service';
 import { instanceToPlain } from 'class-transformer';
 import { firestore } from 'firebase-admin';
 import { error } from 'console';
+import { Filter } from 'firebase-admin/firestore';
 
 @Injectable()
 export class CvService {
@@ -78,96 +79,115 @@ export class CvService {
       failed: 0,
       details: [],
     };
-
-    // BATCH PROCESSING
     const batch = this.firebaseService.firestore.batch();
     let hasValidDataToSave = false;
 
+    // BƯỚC 1: Parse AI toàn bộ file song song (Chưa gọi DB)
+    const parsePromises = files.map(async (file) => {
+      try {
+        const data = await this.parseSingleFile(file);
+        return { success: true, file, data };
+      } catch (error) {
+        return { success: false, file, error: error.message };
+      }
+    });
+    const parsedResults = await Promise.all(parsePromises);
+
+    // BƯỚC 2: Chuẩn bị dữ liệu check trùng (Chỉ Email & Phone, KHÔNG check CCCD)
+    const validResults = parsedResults.filter((r) => r.success);
+
+    const emailsToCheck = [
+      ...new Set(validResults.map((r) => r.data?.email).filter((e) => e)),
+    ] as string[];
+
+    const phonesToCheck = [
+      ...new Set(validResults.map((r) => r.data?.phone).filter((p) => p)),
+    ] as string[];
+
+    // Gọi hàm check tối ưu (1-2 request DB thay vì N request)
+    const { existingEmails, existingPhones } = await this.findExistingIdentifiers(
+      emailsToCheck,
+      phonesToCheck,
+      []//không cần check cccd vì ai không có trả về dữ liệu cccd
+    );
+
+    // BƯỚC 3: Xử lý từng file (Upload & Map Entity)
     await Promise.all(
-      files.map(async (file) => {
-        const fileName = file.originalname;
-        try {
-          //Parse AI
-          // Nếu parse thất bại, nó sẽ throw Error và nhảy xuống catch -> Không upload
-          const rawData = await this.parseSingleFile(file);
+      parsedResults.map(async (result) => {
+        const fileName = result.file.originalname;
 
-          //Check trùng lặp
-          const duplicateInfo = await this.checkDuplicate(
-            rawData.email,
-            rawData.phone,
-          );
-
-          // Upload Cloudinary (Chỉ chạy khi Parse thành công)
-          let uploadResult;
-          try {
-            uploadResult = await this.cloudinaryService.uploadFile(file, 'CV');
-          } catch (uploadError) {
-            // Upload thất bại -> Không lưu DB -> Throw error để nhảy xuống catch ngoài cùng
-            throw new Error(
-              `Upload Cloudinary thất bại: ${uploadError.message}`,
-            );
-          }
-
-          // BƯỚC 4: Map Entity & Chuẩn bị lưu DB
-          // Chỉ chạy tới đây khi Upload thành công
-          const rawExperience = Array.isArray(rawData.experience)
-            ? rawData.experience
-            : [];
-
-          const mappedExperience = rawExperience.map((exp: any) => ({
-            title: exp.title || exp.jobTitle || null,
-            location: exp.location || exp.place || null,
-            organization:
-              exp.organization || exp.company || exp.companyName || null,
-            dates: this.normalizeDate(exp.dates || exp.date),
-          }));
-
-          const cvEntity = new CvEntity({
-            createdBy: userId,
-            cvType: 'Parsed Resume',
-            fullName: rawData.fullName,
-            email: rawData.email,
-            phone: rawData.phone,
-            position: rawData.position || 'N/A',
-            level: rawData.level || 'N/A',
-            cvFileUrl: uploadResult.secure_url, // URL từ Cloudinary
-            publicId: uploadResult.public_id, // Public ID để xóa sau này
-            skills: rawData.skills,
-            education: rawData.education,
-            experienceYears: rawData.experienceYears,
-            status: CvStatus.NEW,
-            experience: mappedExperience || [],
-          });
-
-          // Thêm vào batch
-          const docRef = this.firebaseService.firestore
-            .collection(this.cvCollection)
-            .doc();
-          batch.set(docRef, cvEntity.toFirestore());
-
-          hasValidDataToSave = true;
-          summary.success++;
-          summary.details.push({
-            fileName,
-            status: 'SUCCESS',
-            id: docRef.id,
-            data: cvEntity,
-            warning: duplicateInfo ? `Trùng lặp: ${duplicateInfo}` : null,
-          });
-        } catch (error) {
-          // Xử lý lỗi (Parse lỗi hoặc Upload lỗi)
+        // 3.1 Nếu Parse lỗi -> Skip
+        if (!result.success ||!result.data) {
           summary.failed++;
-          summary.details.push({
-            fileName,
-            status: 'FAILED',
-            error: error.message || 'Unknown Error',
-          });
-          this.logger.error(`Failed processing ${fileName}: ${error.message}`);
+          summary.details.push({ fileName, status: 'FAILED', error: result.error });
+          return;
         }
+
+        const rawData = result.data;
+
+        // 3.2 Check trùng (Dùng kết quả đã lấy ở Bước 2)
+        let duplicateInfo: string | null = null;
+        if (rawData.email && existingEmails.has(rawData.email)) {
+          duplicateInfo = `Email (${rawData.email})`;
+        } else if (rawData.phone && existingPhones.has(rawData.phone)) {
+          duplicateInfo = `SĐT (${rawData.phone})`;
+        }
+
+        // 3.3 Upload Cloudinary
+        let uploadResult;
+        try {
+          uploadResult = await this.cloudinaryService.uploadFile(result.file, 'CV');
+        } catch (uploadError) {
+          summary.failed++;
+          summary.details.push({ fileName, status: 'FAILED', error: 'Upload Failed' });
+          return;
+        }
+
+        // 3.4 Map Entity
+        const rawExperience = Array.isArray(rawData.experience)
+          ? rawData.experience
+          : [];
+        const mappedExperience = rawExperience.map((exp: any) => ({
+          title: exp.title || exp.jobTitle || null,
+          location: exp.location || exp.place || null,
+          organization: exp.organization || exp.company || exp.companyName || null,
+          dates: this.normalizeDate(exp.dates || exp.date),
+        }));
+
+        const cvEntity = new CvEntity({
+          createdBy: userId,
+          cvType: 'Parsed Resume',
+          fullName: rawData.fullName,
+          email: rawData.email,
+          phone: rawData.phone,
+          position: rawData.position || 'N/A',
+          level: rawData.level || 'N/A',
+          cvFileUrl: uploadResult.secure_url,
+          publicId: uploadResult.public_id,
+          skills: rawData.skills,
+          education: rawData.education,
+          experienceYears: rawData.experienceYears,
+          status: CvStatus.NEW,
+          experience: mappedExperience || [],
+        });
+
+        // 3.5 Thêm vào Batch
+        const docRef = this.firebaseService.firestore.collection(this.cvCollection).doc();
+        batch.set(docRef, cvEntity.toFirestore());
+
+        hasValidDataToSave = true;
+        summary.success++;
+        summary.details.push({
+          fileName,
+          status: 'SUCCESS',
+          id: docRef.id,
+          data: cvEntity,
+          warning: duplicateInfo ? `Trùng lặp: ${duplicateInfo}` : null,
+        });
       }),
     );
 
-    // BƯỚC 5: Commit Batch (Chỉ lưu những CV thành công trọn vẹn)
+    // BƯỚC 4: Commit
     if (hasValidDataToSave) {
       await batch.commit();
     }
@@ -212,35 +232,100 @@ export class CvService {
     }
   }
 
+  private async findExistingIdentifiers(
+    emails: string[],
+    phones: string[],
+    cccds: string[], // <--- Thêm tham số cccds
+  ): Promise<{
+    existingEmails: Set<string>;
+    existingPhones: Set<string>;
+    existingCccds: Set<string>
+  }> {
+
+    // Chạy 3 luồng kiểm tra song song để tiết kiệm thời gian
+    const [existingEmails, existingPhones, existingCccds] = await Promise.all([
+      this.checkFieldBatch('email', emails),
+      this.checkFieldBatch('phone', phones),
+      this.checkFieldBatch('cccd', cccds),
+    ]);
+
+    return { existingEmails, existingPhones, existingCccds };
+  }
+
+  /**
+   * Helper function: Chia nhỏ mảng và kiểm tra tồn tại trong DB theo từng trường
+   */
+  private async checkFieldBatch(field: string, values: string[]): Promise<Set<string>> {
+    const foundSet = new Set<string>();
+
+    // Nếu mảng rỗng thì trả về Set rỗng luôn
+    if (!values || values.length === 0) return foundSet;
+
+    const CHUNK_SIZE = 30; // Firestore giới hạn toán tử 'in' tối đa 30
+    const chunks: string[][] = [];
+
+    // 1. Chia mảng thành các chunk nhỏ
+    for (let i = 0; i < values.length; i += CHUNK_SIZE) {
+      chunks.push(values.slice(i, i + CHUNK_SIZE));
+    }
+
+    // 2. Tạo danh sách Query
+    const queries = chunks.map((chunk) =>
+      this.firebaseService.firestore
+        .collection(this.cvCollection)
+        .where(field, 'in', chunk)
+        .get(),
+    );
+
+    // 3. Thực thi song song
+    const snapshots = await Promise.all(queries);
+
+    // 4. Gom kết quả vào Set
+    snapshots.forEach((snap) => {
+      snap.docs.forEach((doc) => {
+        const data = doc.data();
+        // Kiểm tra data[field] tồn tại để tránh lỗi undefined
+        if (data[field]) {
+          foundSet.add(data[field]);
+        }
+      });
+    });
+
+    return foundSet;
+  }
+
+
   private async checkDuplicate(
     email?: string,
     phone?: string,
+    cccd?: string, // <--- Thêm tham số cccd
   ): Promise<string | null> {
-    if (!email && !phone) return null;
+    if (!email && !phone && !cccd) return null;
 
-    const queries: Promise<FirebaseFirestore.QuerySnapshot>[] = [];
-    if (email)
-      queries.push(
-        this.firebaseService.firestore
-          .collection(this.cvCollection)
-          .where('email', '==', email)
-          .limit(1)
-          .get(),
-      );
-    if (phone)
-      queries.push(
-        this.firebaseService.firestore
-          .collection(this.cvCollection)
-          .where('phone', '==', phone)
-          .limit(1)
-          .get(),
-      );
+    const filters: any[] = [];
 
-    const snapshots = await Promise.all(queries);
-    // Logic check đơn giản: nếu bất kỳ query nào có docs -> trùng
-    const isDup = snapshots.some((snap) => !snap.empty);
+    if (email) filters.push(Filter.where('email', '==', email));
+    if (phone) filters.push(Filter.where('phone', '==', phone));
+    if (cccd)  filters.push(Filter.where('cccd', '==', cccd));
 
-    return isDup ? `Email hoặc SĐT đã tồn tại` : null;
+    if (filters.length === 0) return null;
+
+    // Chỉ tốn 1 Request duy nhất để kiểm tra tất cả
+    const querySnapshot = await this.firebaseService.firestore
+      .collection(this.cvCollection)
+      .where(Filter.or(...filters))
+      .limit(1)
+      .get();
+
+    if (!querySnapshot.empty) {
+      const data = querySnapshot.docs[0].data();
+      if (email && data.email === email) return `Email (${email}) đã tồn tại`;
+      if (phone && data.phone === phone) return `SĐT (${phone}) đã tồn tại`;
+      if (cccd && data.cccd === cccd)    return `CCCD (${cccd}) đã tồn tại`;
+      return 'Thông tin định danh (Email/Phone/CCCD) đã tồn tại';
+    }
+
+    return null;
   }
 
   async create(
@@ -249,7 +334,10 @@ export class CvService {
     file?: Express.Multer.File,
   ) {
     // 1. Check trùng lặp
-    const dup = await this.checkDuplicate(createCvDto.email, createCvDto.phone);
+    const dup = await this.checkDuplicate(
+      createCvDto.email,
+      createCvDto.phone,
+      createCvDto.cccd);
     if (dup) throw new BadRequestException(dup);
 
     let cvFileUrl = '';
@@ -273,7 +361,7 @@ export class CvService {
       ...createCvDto,
       createdBy: userId,
       status: CvStatus.NEW,
-      cvFileUrl: cvFileUrl, // Lưu URL
+      cvFileUrl: cvFileUrl,
       publicId: publicId, // Lưu Public ID để xóa sau này
     });
 
@@ -327,17 +415,46 @@ export class CvService {
   }
 
   async update(id: string, updateCvDto: UpdateCvDto) {
-    const docRef = this.firebaseService.firestore
-      .collection(this.cvCollection)
-      .doc(id);
+    const docRef = this.firebaseService.firestore.collection(this.cvCollection).doc(id);
     const doc = await docRef.get();
     if (!doc.exists) throw new NotFoundException('Không tìm thấy cv');
 
+    // Logic Check Trùng khi Update (Tối ưu)
+    const { email, phone, cccd } = updateCvDto;
+
+    if (email || phone || cccd) {
+      const filters: any[] = [];
+      if (email) filters.push(Filter.where('email', '==', email));
+      if (phone) filters.push(Filter.where('phone', '==', phone));
+      if (cccd)  filters.push(Filter.where('cccd', '==', cccd));
+
+      if (filters.length > 0) {
+        const duplicateSnapshot = await this.firebaseService.firestore
+          .collection(this.cvCollection)
+          .where(Filter.or(...filters))
+          .get();
+
+        // Duyệt qua kết quả tìm thấy
+        for (const d of duplicateSnapshot.docs) {
+          // Nếu tìm thấy trùng, nhưng ID khác ID đang sửa -> Báo lỗi
+          if (d.id !== id) {
+            const data = d.data();
+            if (email && data.email === email) throw new BadRequestException(`Email (${email}) đã tồn tại`);
+            if (phone && data.phone === phone) throw new BadRequestException(`SĐT (${phone}) đã tồn tại`);
+            if (cccd && data.cccd === cccd)    throw new BadRequestException(`CCCD (${cccd}) đã tồn tại`);
+          }
+        }
+      }
+    }
+
+    // Convert sang Plain Object để lưu Firestore (Fix lỗi prototype lần trước)
     const updateData = instanceToPlain(updateCvDto);
+
     await docRef.update({
       ...updateData,
       updatedAt: new Date(),
     });
+
     return { id, message: 'Cập nhật thành công' };
   }
 

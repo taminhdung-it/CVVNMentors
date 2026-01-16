@@ -1,4 +1,13 @@
-import { Body, Controller, HttpStatus, Post, Put, Res, UseGuards } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  HttpStatus,
+  Post,
+  Put,
+  Res,
+  UseGuards,
+} from '@nestjs/common';
 import { RoleService } from './role.service';
 import { AuthGuard } from 'src/modules/auth/guards/auth.guard';
 import express from 'express';
@@ -7,7 +16,7 @@ import { UpdateRoleGroupDto } from './dto/update-role-group.dto';
 export class RoleController {
   constructor(private readonly roleService: RoleService) { }
   @UseGuards(AuthGuard)
-  @Post('get')
+  @Get('get')
   async get_role(@Res() res: express.Response) {
     const data = await this.roleService.get();
     return res.status(HttpStatus.OK).json(data);

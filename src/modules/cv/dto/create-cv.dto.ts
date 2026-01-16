@@ -5,6 +5,7 @@ import {
   IsNumber,
   IsOptional,
   IsString,
+  Length,
   ValidateNested,
 } from 'class-validator';
 import { plainToInstance, Transform, Type } from 'class-transformer';
@@ -19,12 +20,18 @@ export class CreateCvDto {
   @IsString()
   fullName: string;
 
+  @IsNotEmpty()
   @IsEmail()
   email: string;
 
   @IsNotEmpty()
   @IsString()
   phone: string;
+
+  @IsNotEmpty()
+  @IsString()
+  @Length(12,12,{message: "CCCD phải là 12 kí tự", always: true})
+  cccd?: string;
 
   @IsOptional()
   @IsString()

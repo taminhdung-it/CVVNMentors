@@ -22,6 +22,7 @@ export class CvEntity {
   fullName: string;
   email: string;
   phone: string;
+  cccd: string;
   position: string;
   level: string;
   status: CvStatus;
@@ -57,6 +58,7 @@ export class CvEntity {
       fullName: this.fullName,
       email: this.email,
       phone: this.phone,
+      cccd: this.cccd || null,
       position: this.position,
       level: this.level,
       status: this.status,
