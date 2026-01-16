@@ -182,6 +182,14 @@
       <div class="job-header">
         <div class="job-info">
           <h1 class="job-title">{{ selectedJob.title }}</h1>
+          <span
+            class="edit-job-icon"
+            title="Chỉnh sửa job"
+            (click)="onEditJobClick()"
+          >
+            <span class="material-symbols-outlined">edit</span>
+          </span>
+
           <div class="job-meta">
             <span
               class="status-badge"

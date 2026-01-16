@@ -215,4 +215,47 @@ export class JobService {
       headers,
     });
   }
+
+  updateJob(
+    jobId: string,
+    payload: {
+      name?: string;
+      description?: string;
+      skills?: string[];
+      headcountTarget?: number;
+      headcountHired?: number;
+      applyEnd?: string;
+    },
+    jdFile?: File
+  ) {
+    const headers = new HttpHeaders({
+      Authorization: `Bearer ${sessionStorage.getItem('accesstoken')}`,
+      refreshtoken: sessionStorage.getItem('refreshtoken') || '',
+      accountid: sessionStorage.getItem('accountid') || '',
+      router: 'job/edit',
+    });
+
+    const formData = new FormData();
+
+    if (payload.name) formData.append('name', payload.name);
+    if (payload.description)
+      formData.append('description', payload.description);
+    if (payload.applyEnd) formData.append('applyEnd', payload.applyEnd);
+
+    if (payload.headcountTarget !== undefined)
+      formData.append('headcountTarget', String(payload.headcountTarget));
+
+    if (payload.headcountHired !== undefined)
+      formData.append('headcountHired', String(payload.headcountHired));
+
+    payload.skills?.forEach((s) => formData.append('skills', s));
+
+    if (jdFile) formData.append('file', jdFile);
+
+    return this.http.patch(
+      `https://cvvnmentors.onrender.com/jobs/${jobId}`,
+      formData,
+      { headers }
+    );
+  }
 }

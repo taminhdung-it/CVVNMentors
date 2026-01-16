@@ -81,7 +81,7 @@
             <mat-label>Đang làm việc</mat-label>
             <mat-select
               [(ngModel)]="selectedWorkStatus"
-              (selectionChange)="applyFilters()"
+              (selectionChange)="onFilterChange()"
             >
               <mat-option value="">Tất cả</mat-option>
               <mat-option value="active">Đang làm việc</mat-option>
@@ -94,7 +94,7 @@
             <mat-label>Vai trò</mat-label>
             <mat-select
               [(ngModel)]="selectedRole"
-              (selectionChange)="applyFilters()"
+              (selectionChange)="onFilterChange()"
             >
               <mat-option value="">Tất cả</mat-option>
               <mat-option *ngFor="let role of roles" [value]="role.name">
@@ -183,43 +183,41 @@
 
         <!-- Actions Column -->
         <ng-container matColumnDef="actions">
-          <th mat-header-cell *matHeaderCellDef>Thao tác</th>
+          <th mat-header-cell *matHeaderCellDef>Hành động</th>
           <td mat-cell *matCellDef="let employee">
             <div class="action-buttons">
-              <button
-                mat-icon-button
-                (click)="onViewEmployee(employee)"
-                matTooltip="Xem chi tiết"
-                matTooltipPosition="above"
-              >
+              <!-- Xem -->
+              <button mat-icon-button (click)="onViewEmployee(employee)">
                 <mat-icon>visibility</mat-icon>
               </button>
 
-              <button
-                mat-icon-button
-                (click)="onEditEmployee(employee)"
-                matTooltip="Chỉnh sửa"
-                matTooltipPosition="above"
-              >
+              <!-- Sửa -->
+              <button mat-icon-button (click)="onEditEmployee(employee)">
                 <mat-icon>edit</mat-icon>
               </button>
 
-              <!-- Toggle Lock/Unlock Button -->
+              <!-- Khoá / mở khoá (GIỮ NGUYÊN) -->
               <button
                 mat-icon-button
                 (click)="onToggleEmployeeStatus(employee)"
-                [matTooltip]="
-                  employee.status === 'ACTIVE'
-                    ? 'Khóa tài khoản'
-                    : 'Mở khóa tài khoản'
-                "
-                matTooltipPosition="above"
                 [color]="employee.status === 'ACTIVE' ? 'warn' : 'primary'"
               >
-                <mat-icon>{{
-                  employee.status === "ACTIVE" ? "lock" : "lock_open"
-                }}</mat-icon>
+                <mat-icon>
+                  {{ employee.status === "ACTIVE" ? "lock" : "lock_open" }}
+                </mat-icon>
               </button>
+
+              <!-- 🔥 MENU 3 CHẤM -->
+              <button mat-icon-button [matMenuTriggerFor]="employeeMenu">
+                <mat-icon>more_vert</mat-icon>
+              </button>
+
+              <mat-menu #employeeMenu="matMenu">
+                <button mat-menu-item (click)="onChangePassword(employee)">
+                  <mat-icon>vpn_key</mat-icon>
+                  <span>Đổi mật khẩu</span>
+                </button>
+              </mat-menu>
             </div>
           </td>
         </ng-container>

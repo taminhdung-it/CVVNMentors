@@ -1,0 +1,98 @@
+<h2 mat-dialog-title class="dialog-title">
+  <mat-icon>edit</mat-icon>
+  Chỉnh sửa nhân viên
+</h2>
+
+<mat-dialog-content class="dialog-content" *ngIf="form">
+  <!-- ===== HEADER CARD ===== -->
+  <div class="profile-card">
+    <div class="avatar">
+      {{ form.value.name?.charAt(0) || "U" }}
+    </div>
+
+    <div class="profile-info">
+      <div class="name">{{ form.value.name }}</div>
+      <div class="email">{{ form.value.email }}</div>
+      <span class="status-chip active">Đang hoạt động</span>
+    </div>
+  </div>
+
+  <!-- ===== SECTION: PERSONAL ===== -->
+  <div class="section">
+    <div class="section-title">
+      <mat-icon>person</mat-icon>
+      Thông tin cá nhân
+    </div>
+
+    <form [formGroup]="form" class="edit-form">
+      <div class="form-grid">
+        <!-- Họ và tên -->
+        <mat-form-field appearance="outline">
+          <mat-label>Họ và tên</mat-label>
+          <input matInput formControlName="name" />
+        </mat-form-field>
+
+        <!-- Email -->
+        <mat-form-field appearance="outline">
+          <mat-label>Email</mat-label>
+          <input matInput formControlName="email" />
+        </mat-form-field>
+
+        <!-- Số điện thoại -->
+        <mat-form-field appearance="outline">
+          <mat-label>Số điện thoại</mat-label>
+          <input matInput formControlName="phone" />
+        </mat-form-field>
+
+        <!-- Giới tính -->
+        <mat-form-field appearance="outline">
+          <mat-label>Giới tính</mat-label>
+          <mat-select formControlName="gender">
+            <mat-option value="MALE">Nam</mat-option>
+            <mat-option value="FEMALE">Nữ</mat-option>
+            <mat-option value="OTHER">Khác</mat-option>
+          </mat-select>
+        </mat-form-field>
+
+        <!-- Địa chỉ (FULL WIDTH) -->
+        <mat-form-field appearance="outline" class="full">
+          <mat-label>Địa chỉ</mat-label>
+          <input matInput formControlName="address" />
+        </mat-form-field>
+      </div>
+    </form>
+
+    <!-- ===== SECTION: WORK ===== -->
+    <div class="section">
+      <div class="section-title">
+        <mat-icon>work</mat-icon>
+        Thông tin công việc
+      </div>
+
+      <div class="form-grid">
+        <mat-form-field appearance="outline">
+          <mat-label>Vai trò</mat-label>
+          <input matInput formControlName="role" />
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label>Phòng ban</mat-label>
+          <mat-select formControlName="departmentId">
+            <mat-option *ngFor="let d of departments" [value]="d.id">
+              {{ d.name }}
+            </mat-option>
+          </mat-select>
+        </mat-form-field>
+      </div>
+    </div>
+
+    <mat-dialog-actions align="end">
+      <div class="actions">
+        <button mat-button (click)="onCancel()">Hủy</button>
+        <button mat-raised-button color="primary" (click)="onSubmit()">
+          Lưu thay đổi
+        </button>
+      </div>
+    </mat-dialog-actions>
+  </div></mat-dialog-content
+>

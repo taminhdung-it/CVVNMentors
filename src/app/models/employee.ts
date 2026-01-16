@@ -3,6 +3,9 @@ export interface Employee {
   id: string;
   name: string;
   phone: string;
+  address?: string;
+  gender?: string;
+  dob?: any;
   email: string;
   role: string;
   status: 'ACTIVE' | 'INACTIVE';

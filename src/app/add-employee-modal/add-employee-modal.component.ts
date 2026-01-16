@@ -2,54 +2,70 @@
 import { Component, Inject } from '@angular/core';
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { DepartmentService } from '../auth/auth/department.service';
+import { Department } from '../models/department.model';
 
 @Component({
   selector: 'app-add-employee-modal',
   templateUrl: './add-employee-modal.component.html',
-  styleUrls: ['./add-employee-modal.component.css']
+  styleUrls: ['./add-employee-modal.component.css'],
 })
 export class AddEmployeeModalComponent {
   employeeForm: FormGroup;
   loading = false;
 
-  roles = [
-    'Chủ cơ sở',
-    'Admin',
-    'Kế toán',
-    'CSKH',
-    'Thu ngân',
-    'Người xem'
-  ];
+  roles = ['Chủ cơ sở', 'Admin', 'Kế toán', 'CSKH', 'Thu ngân', 'Người xem'];
 
-  departments = [
-    'HeadOffice',
-    'Chi nhánh 1',
-    'Chi nhánh 2',
-    'Chi nhánh 3'
-  ];
+  departments: Department[] = [];
+  loadingDepartments = false;
+  ngOnInit(): void {
+    this.loadDepartments();
+  }
+
+  loadDepartments(): void {
+    this.loadingDepartments = true;
+
+    // lấy nhiều để đủ dùng cho select
+    this.departmentService.getDepartments(1, 1000).subscribe({
+      next: (res) => {
+        // chỉ lấy phòng ban đang ACTIVE
+        this.departments = res.data.filter((d) => d.status === 'ACTIVE');
+        this.loadingDepartments = false;
+      },
+      error: () => {
+        alert('Không tải được danh sách phòng ban');
+        this.loadingDepartments = false;
+      },
+    });
+  }
 
   constructor(
     private fb: FormBuilder,
+    private departmentService: DepartmentService,
     public dialogRef: MatDialogRef<AddEmployeeModalComponent>,
     @Inject(MAT_DIALOG_DATA) public data: any
   ) {
     this.employeeForm = this.fb.group({
       name: ['', [Validators.required, Validators.minLength(2)]],
-      phone: ['', [Validators.required, Validators.pattern(/^[0-9]{10,11}$/)]],
       email: ['', [Validators.required, Validators.email]],
+      phone: ['', [Validators.required, Validators.pattern(/^[0-9]{10,11}$/)]],
+      address: ['', Validators.required],
+      dob: ['', Validators.required], // yyyy-mm-dd
+      gender: ['', Validators.required],
       role: ['', Validators.required],
-      department: ['', Validators.required],
-      status: ['active', Validators.required],
-      password: ['', [Validators.required, Validators.minLength(6)]],
-      confirmPassword: ['', Validators.required]
-    }, { validators: this.passwordMatchValidator });
+      departmentId: ['', Validators.required],
+    });
   }
 
   passwordMatchValidator(form: FormGroup) {
     const password = form.get('password');
     const confirmPassword = form.get('confirmPassword');
-    
-    if (password && confirmPassword && password.value !== confirmPassword.value) {
+
+    if (
+      password &&
+      confirmPassword &&
+      password.value !== confirmPassword.value
+    ) {
       confirmPassword.setErrors({ passwordMismatch: true });
       return { passwordMismatch: true };
     }
@@ -61,36 +77,29 @@ export class AddEmployeeModalComponent {
   }
 
   onSubmit(): void {
-    if (this.employeeForm.valid) {
-      this.loading = true;
-      
-      // Giả lập API call
-      setTimeout(() => {
-        const formValue = this.employeeForm.value;
-        const newEmployee = {
-          id: Math.random().toString(36).substr(2, 9),
-          name: formValue.name,
-          phone: formValue.phone,
-          email: formValue.email,
-          role: formValue.role,
-          department: formValue.department,
-          status: formValue.status
-        };
-        
-        this.loading = false;
-        this.dialogRef.close(newEmployee);
-      }, 1000);
-    } else {
-      // Mark all fields as touched to show validation errors
-      Object.keys(this.employeeForm.controls).forEach(key => {
-        this.employeeForm.get(key)?.markAsTouched();
-      });
+    if (this.employeeForm.invalid) {
+      this.employeeForm.markAllAsTouched();
+      return;
     }
+
+    const payload = {
+      name: this.employeeForm.value.name,
+      email: this.employeeForm.value.email,
+      phone: this.employeeForm.value.phone,
+      address: this.employeeForm.value.address,
+      dob: this.employeeForm.value.dob,
+      gender: this.employeeForm.value.gender,
+      role: this.employeeForm.value.role,
+      departmentId: this.employeeForm.value.departmentId,
+    };
+
+    // ❗ CHỈ TRẢ DATA – KHÔNG GỌI API Ở ĐÂY
+    this.dialogRef.close(payload);
   }
 
   getErrorMessage(fieldName: string): string {
     const field = this.employeeForm.get(fieldName);
-    
+
     if (field?.hasError('required')) {
       return 'Trường này là bắt buộc';
     }
@@ -107,7 +116,7 @@ export class AddEmployeeModalComponent {
     if (field?.hasError('passwordMismatch')) {
       return 'Mật khẩu không khớp';
     }
-    
+
     return '';
   }
 }

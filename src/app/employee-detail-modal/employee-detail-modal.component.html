@@ -1,0 +1,98 @@
+<h2 mat-dialog-title class="dialog-title">
+  <mat-icon class="title-icon">person</mat-icon>
+  Chi tiết nhân viên
+</h2>
+
+<mat-dialog-content class="dialog-content" *ngIf="!loading">
+  <!-- HEADER -->
+  <div class="employee-header">
+    <div class="avatar-text">
+      {{ employee.name?.charAt(0) }}
+    </div>
+
+    <div class="header-info">
+      <div class="name">{{ employee.name }}</div>
+      <div class="email">{{ employee.email }}</div>
+      <span
+        class="status-badge"
+        [ngClass]="employee.status === 'ACTIVE' ? 'active' : 'inactive'"
+      >
+        {{ getStatusText(employee.status) }}
+      </span>
+    </div>
+  </div>
+
+  <!-- SECTION: Thông tin cá nhân -->
+  <div class="section">
+    <div class="section-title">
+      <mat-icon>info</mat-icon>
+      Thông tin cá nhân
+    </div>
+
+    <div class="form-grid view-mode">
+      <div class="field">
+        <label>Số điện thoại</label>
+        <div class="value">{{ employee.phone || "--" }}</div>
+      </div>
+
+      <div class="field">
+        <label>Giới tính</label>
+        <div class="value">{{ employee.gender || "--" }}</div>
+      </div>
+
+      <div class="field">
+        <label>Ngày sinh</label>
+        <div class="value">{{ formatDate(employee.dob) }}</div>
+      </div>
+
+      <div class="field full">
+        <label>Địa chỉ</label>
+        <div class="value">{{ employee.address || "--" }}</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SECTION: Công việc -->
+  <div class="section">
+    <div class="section-title">
+      <mat-icon>work</mat-icon>
+      Thông tin công việc
+    </div>
+
+    <div class="form-grid view-mode">
+      <div class="field">
+        <label>Vai trò</label>
+        <div class="value">{{ employee.role }}</div>
+      </div>
+
+      <div class="field">
+        <label>Phòng ban</label>
+        <div class="value">
+          {{ getDepartmentName(employee.departmentId) }}
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SECTION: Hệ thống -->
+  <div class="section">
+    <div class="section-title">
+      <mat-icon>settings</mat-icon>
+      Thông tin hệ thống
+    </div>
+
+    <div class="grid">
+      <div><b>Ngày tạo:</b> {{ formatDate(employee.createdAt) }}</div>
+      <div><b>Cập nhật lần cuối:</b> {{ formatDate(employee.updatedAt) }}</div>
+    </div>
+  </div>
+</mat-dialog-content>
+
+<!-- LOADING -->
+<mat-dialog-content *ngIf="loading" class="loading-box">
+  <mat-spinner diameter="40"></mat-spinner>
+</mat-dialog-content>
+
+<mat-dialog-actions align="end">
+  <button mat-stroked-button (click)="close()">Đóng</button>
+</mat-dialog-actions>

@@ -1,34 +1,74 @@
 <section class="dashboard-root">
-  <!-- top stat cards -->
+  <!-- Row 1: Stat cards -->
   <div class="stats-row">
     <div class="stat-card" *ngFor="let s of stats">
-      <div class="stat-value">{{ s.value }}</div>
+      <div class="stat-header">
+        <span class="stat-icon">{{ s.icon }}</span>
+        <button class="edit-btn">✏️</button>
+      </div>
       <div class="stat-label">{{ s.label }}</div>
+      <div class="stat-value">{{ s.value }}</div>
     </div>
   </div>
 
-  <!-- widgets row -->
-  <div class="widgets-row">
-    <div class="widget widget-left">
-      <h3 class="widget-title">Trạng thái doanh thu</h3>
-      <div class="chart-placeholder large"> <!-- replace with real chart -->
-        <div class="fake-chart">[Chart placeholder]</div>
+  <!-- Row 2: Bar chart + (Pie + Line stacked) -->
+  <div class="main-charts-row">
+    <!-- Left: Large Bar Chart -->
+    <div class="widget widget-bar">
+      <h3 class="widget-title">Thống kê CV theo tháng</h3>
+      <div class="chart-container">
+        <canvas #barChart></canvas>
       </div>
     </div>
 
-    <div class="widget widget-right">
-      <h3 class="widget-title">Top vị trí tuyển dụng</h3>
-      <div class="chart-placeholder small">
-        <div class="fake-chart">[Bar chart placeholder]</div>
+    <!-- Right: Pie and Line stacked -->
+    <div class="right-charts-col">
+      <div class="widget widget-pie">
+        <h3 class="widget-title">CV theo vị trí</h3>
+        <div class="chart-container-small">
+          <canvas #pieChart></canvas>
+        </div>
+      </div>
+
+      <div class="widget widget-line">
+        <h3 class="widget-title">CV theo level</h3>
+        <div class="chart-container-small">
+          <canvas #lineChart></canvas>
+        </div>
       </div>
     </div>
   </div>
 
-  <!-- table -->
-  <div class="orders-widget">
-    <h3 class="widget-title">CV đã nộp gần đây</h3>
+  <!-- Row 3: Full width table -->
+  <div class="widget widget-table">
+    <h3 class="widget-title">Thống kê CV theo tháng</h3>
     <div class="table-wrap">
-     
+      <table class="orders-table">
+        <thead>
+          <tr>
+            <th>Mã CV</th>
+            <th>Họ và tên</th>
+            <th>Vị trí</th>
+            <th>Level</th>
+            <th>Kinh nghiệm <span class="sort-icon">▲</span></th>
+            <th>Trạng thái</th>
+            <th>Ngày tải</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let cv of cvData">
+            <td>{{ cv.id }}</td>
+            <td>{{ cv.name }}</td>
+            <td>{{ cv.position }}</td>
+            <td>{{ cv.level }}</td>
+            <td>{{ cv.experience }}</td>
+            <td>
+              <span class="status ok">{{ cv.status }}</span>
+            </td>
+            <td>{{ cv.date }}</td>
+          </tr>
+        </tbody>
+      </table>
     </div>
   </div>
 </section>

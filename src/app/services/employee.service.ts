@@ -4,15 +4,15 @@ import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { Employee, Role, ApiResponse } from '../models/employee';
-import { 
-  RoleApiResponse, 
-  RoleEditRequest, 
+import {
+  RoleApiResponse,
+  RoleEditRequest,
   RoleAddRequest,
-  RolePermissions 
+  RolePermissions,
 } from '../models/role.model';
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class EmployeeService {
   private apiUrl = 'https://cvvnmentors.onrender.com';
@@ -23,22 +23,26 @@ export class EmployeeService {
     const accessToken = sessionStorage.getItem('accesstoken');
     const refreshToken = sessionStorage.getItem('refreshtoken');
     const accountId = sessionStorage.getItem('accountid');
-    
+
     return new HttpHeaders({
-      'Authorization': `Bearer ${accessToken}`,
-      'refreshtoken': refreshToken || '',
-      'accountid': accountId || '',
-      'router': router
+      Authorization: `Bearer ${accessToken}`,
+      refreshtoken: refreshToken || '',
+      accountid: accountId || '',
+      router: router,
     });
   }
 
   // ... các methods cũ giữ nguyên ...
 
-  getEmployees(page: number = 1, limit: number = 10, filters?: {
-    search?: string;
-    role?: string;
-    status?: string;
-  }): Observable<ApiResponse<Employee[]>> {
+  getEmployees(
+    page: number = 1,
+    limit: number = 10,
+    filters?: {
+      search?: string;
+      role?: string;
+      status?: string;
+    }
+  ): Observable<ApiResponse<Employee[]>> {
     let params = new HttpParams()
       .set('page', page.toString())
       .set('limit', limit.toString());
@@ -54,18 +58,19 @@ export class EmployeeService {
     }
 
     const headers = this.getHeaders('user/get');
-    
-    return this.http.get<ApiResponse<Employee[]>>(`${this.apiUrl}/users`, { headers, params })
+
+    return this.http
+      .get<ApiResponse<Employee[]>>(`${this.apiUrl}/users`, { headers, params })
       .pipe(
-        map(response => {
+        map((response) => {
           response.data = response.data.map((emp: any) => ({
             ...emp,
-            createdAt: emp.createdAt?._seconds 
-              ? new Date(emp.createdAt._seconds * 1000) 
+            createdAt: emp.createdAt?._seconds
+              ? new Date(emp.createdAt._seconds * 1000)
               : emp.createdAt,
-            updatedAt: emp.updatedAt?._seconds 
-              ? new Date(emp.updatedAt._seconds * 1000) 
-              : emp.updatedAt
+            updatedAt: emp.updatedAt?._seconds
+              ? new Date(emp.updatedAt._seconds * 1000)
+              : emp.updatedAt,
           }));
           return response;
         })
@@ -75,23 +80,24 @@ export class EmployeeService {
   getRoles(): Observable<Role[]> {
     const headers = this.getHeaders('role/get');
 
-    return this.http.get<RoleApiResponse>(`${this.apiUrl}/role/get`, { headers })
+    return this.http
+      .get<RoleApiResponse>(`${this.apiUrl}/role/get`, { headers })
       .pipe(
-        map(response => {
+        map((response) => {
           const roles: Role[] = [];
-          
+
           if (response.role) {
             const roleNames = Object.keys(response.role);
-            
+
             roleNames.forEach((roleName, index) => {
               roles.push({
                 id: roleName, // Dùng tên role làm ID
                 name: this.formatRoleName(roleName),
-                employeeCount: 0
+                employeeCount: 0,
               });
             });
           }
-          
+
           return roles;
         })
       );
@@ -101,9 +107,10 @@ export class EmployeeService {
   getRolePermissions(roleId: string): Observable<RolePermissions> {
     const headers = this.getHeaders('role/get');
 
-    return this.http.get<RoleApiResponse>(`${this.apiUrl}/role/get`, { headers })
+    return this.http
+      .get<RoleApiResponse>(`${this.apiUrl}/role/get`, { headers })
       .pipe(
-        map(response => {
+        map((response) => {
           // Tìm role theo ID
           if (response.role && response.role[roleId]) {
             return response.role[roleId];
@@ -122,12 +129,15 @@ export class EmployeeService {
   }
 
   // ← MỚI: Cập nhật permissions của role
-  updateRolePermissions(roleId: string, permissions: RolePermissions): Observable<any> {
+  updateRolePermissions(
+    roleId: string,
+    permissions: RolePermissions
+  ): Observable<any> {
     const headers = this.getHeaders('role/edit');
-    
+
     const body: RoleEditRequest = {
       groupName: roleId, // Hoặc "default" nếu API yêu cầu
-      data: permissions
+      data: permissions,
     };
 
     return this.http.put(`${this.apiUrl}/role/edit`, body, { headers });
@@ -137,20 +147,108 @@ export class EmployeeService {
   deleteRole(roleId: string): Observable<any> {
     const headers = this.getHeaders('role/delete');
 
-    return this.http.delete(`${this.apiUrl}/role/delete/${roleId}`, { headers });
+    return this.http.delete(`${this.apiUrl}/role/delete/${roleId}`, {
+      headers,
+    });
   }
 
   private formatRoleName(roleName: string): string {
     const roleMap: { [key: string]: string } = {
-      'user': 'Người dùng',
-      'admin': 'Quản trị viên',
-      'accountant': 'Kế toán',
-      'customer_service': 'CSKH',
-      'cashier': 'Thu ngân',
-      'viewer': 'Người xem',
-      'default': 'Mặc định'
+      user: 'Người dùng',
+      admin: 'Quản trị viên',
+      accountant: 'Kế toán',
+      customer_service: 'CSKH',
+      cashier: 'Thu ngân',
+      viewer: 'Người xem',
+      default: 'Mặc định',
     };
-    
+
     return roleMap[roleName] || roleName;
+  }
+
+  createEmployee(payload: {
+    name: string;
+    email: string;
+    phone: string;
+    address?: string;
+    dob?: string;
+    gender?: string;
+    role: string;
+    departmentId: string;
+  }): Observable<any> {
+    const headers = this.getHeaders('user/add').set(
+      'Content-Type',
+      'application/json'
+    );
+
+    return this.http.post(`${this.apiUrl}/users`, payload, { headers });
+  }
+
+  // services/employee.service.ts
+  changeEmployeeStatus(
+    userId: string,
+    status: 'ACTIVE' | 'INACTIVE'
+  ): Observable<{
+    previousStatus: string;
+    currentStatus: string;
+    message: string;
+  }> {
+    const headers = this.getHeaders('user/changestatus').set(
+      'Content-Type',
+      'application/json'
+    );
+
+    return this.http.patch<any>(
+      `${this.apiUrl}/users/${userId}/status`,
+      { status },
+      { headers }
+    );
+  }
+
+  getEmployeeDetail(userId: string): Observable<Employee> {
+    const headers = this.getHeaders('user/getone');
+
+    return this.http.get<Employee>(`${this.apiUrl}/users/${userId}`, {
+      headers,
+    });
+  }
+
+  updateEmployee(
+    userId: string,
+    payload: Partial<{
+      name: string;
+      email: string;
+      phone: string;
+      address: string;
+      role: string;
+      departmentId: string;
+    }>
+  ): Observable<{ message: string }> {
+    const headers = this.getHeaders('user/edit').set(
+      'Content-Type',
+      'application/json'
+    );
+
+    return this.http.patch<{ message: string }>(
+      `${this.apiUrl}/users/${userId}`,
+      payload,
+      { headers }
+    );
+  }
+
+  changeEmployeePassword(
+    userId: string,
+    password: string
+  ): Observable<{ id: string; message: string }> {
+    const headers = this.getHeaders('user/edit').set(
+      'Content-Type',
+      'application/json'
+    );
+
+    return this.http.patch<{ id: string; message: string }>(
+      `${this.apiUrl}/users/${userId}/password`,
+      { password },
+      { headers }
+    );
   }
 }

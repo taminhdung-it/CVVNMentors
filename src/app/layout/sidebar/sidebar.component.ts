@@ -3,7 +3,7 @@ import { Component, Input } from '@angular/core';
 @Component({
   selector: 'app-sidebar',
   templateUrl: './sidebar.component.html',
-  styleUrls: ['./sidebar.component.css']
+  styleUrls: ['./sidebar.component.css'],
 })
 export class SidebarComponent {
   @Input() collapsed = false;
@@ -11,7 +11,6 @@ export class SidebarComponent {
   // items for menu (icon uses inline svg)
   nav = [
     { title: 'Dashboard', icon: 'grid', route: '/dashboard' },
-    { title: 'Thống kê', icon: 'chart', route: '/statistics' },
 
     { heading: 'Quản lý' },
     { title: 'Quản lý CV', icon: 'user', route: '/cv' },

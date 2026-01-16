@@ -2,12 +2,15 @@
 import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { MatDialog } from '@angular/material/dialog';
+import { MatPaginatorModule } from '@angular/material/paginator';
 import { EmployeeService } from '../services/employee.service';
 import { Employee, Role } from '../models/employee';
 import { AddEmployeeModalComponent } from '../add-employee-modal/add-employee-modal.component';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { AddRoleDialogComponent } from '../add-role-dialog/add-role-dialog.component';
-
+import { EmployeeDetailModalComponent } from '../employee-detail-modal/employee-detail-modal.component';
+import { EmployeeEditModalComponent } from '../employee-edit-modal/employee-edit-modal.component';
+import { EmployeeChangePasswordModalComponent } from '../employee-change-password-modal/employee-change-password-modal.component';
 
 @Component({
   selector: 'app-employee-management',
@@ -23,7 +26,7 @@ export class EmployeeManagementComponent implements OnInit {
   rolesLoading = false;
 
   currentPage = 1;
-  pageSize = 10;
+  pageSize = 20;
   totalEmployees = 0;
   totalPages = 0;
 
@@ -54,6 +57,37 @@ export class EmployeeManagementComponent implements OnInit {
     this.loadEmployees();
   }
 
+  onPageChange(event: any): void {
+    this.currentPage = event.pageIndex + 1;
+    this.pageSize = event.pageSize;
+    this.loadEmployees();
+  }
+
+  getPages(): number[] {
+    const pages: number[] = [];
+
+    // Hiện tối đa 5 trang cho gọn
+    const start = Math.max(1, this.currentPage - 2);
+    const end = Math.min(this.totalPages, this.currentPage + 2);
+
+    for (let i = start; i <= end; i++) {
+      pages.push(i);
+    }
+
+    return pages;
+  }
+
+  onChangePassword(employee: Employee): void {
+    this.dialog.open(EmployeeChangePasswordModalComponent, {
+      width: '450px',
+      data: {
+        id: employee.id,
+        name: employee.name,
+        email: employee.email,
+      },
+    });
+  }
+
   loadRoles(): void {
     this.rolesLoading = true;
     this.employeeService.getRoles().subscribe({
@@ -77,57 +111,49 @@ export class EmployeeManagementComponent implements OnInit {
     this.loading = true;
 
     const filters: any = {};
-    if (this.searchText) filters.search = this.searchText;
-    if (this.selectedRole) filters.role = this.selectedRole;
-    if (this.selectedWorkStatus) filters.status = this.selectedWorkStatus;
+
+    if (this.searchText?.trim()) {
+      filters.search = this.searchText.trim();
+    }
+
+    if (this.selectedRole) {
+      filters.role = this.selectedRole;
+    }
+
+    if (this.selectedWorkStatus) {
+      filters.status = this.selectedWorkStatus.toUpperCase();
+      // ACTIVE / INACTIVE
+    }
+
+    if (this.selectedDateFrom) {
+      filters.createdFrom = this.selectedDateFrom.toISOString();
+    }
 
     this.employeeService
       .getEmployees(this.currentPage, this.pageSize, filters)
       .subscribe({
-        next: (response) => {
-          this.employees = response.data;
-          this.filteredEmployees = response.data;
+        next: (res) => {
+          this.employees = res.data;
+          this.filteredEmployees = res.data;
 
-          // Debug: kiểm tra format date từ API
-          console.log(
-            'Date formats:',
-            this.employees.map((e) => ({
-              name: e.name,
-              createdAt: e.createdAt,
-              type: typeof e.createdAt,
-            }))
-          );
+          this.totalEmployees = res.meta.total;
+          this.totalPages = res.meta.totalPages;
+          this.currentPage = res.meta.page;
 
-          this.totalEmployees = response.meta.total;
-          this.totalPages = response.meta.totalPages;
-          this.currentPage = response.meta.page;
           this.loading = false;
         },
-        error: (err) => {
-          console.error('Error loading employees:', err);
-          this.loading = false;
-        },
+        error: () => (this.loading = false),
       });
   }
 
   onSearch(): void {
-    this.applyFilters();
+    this.currentPage = 1; // reset về trang 1
+    this.loadEmployees();
   }
 
-  applyFilters(): void {
-    this.filteredEmployees = this.employees.filter((emp) => {
-      const matchSearch =
-        !this.searchText ||
-        emp.name.toLowerCase().includes(this.searchText.toLowerCase()) ||
-        emp.email.toLowerCase().includes(this.searchText.toLowerCase()) ||
-        emp.phone.includes(this.searchText);
-
-      const matchRole = !this.selectedRole || emp.role === this.selectedRole;
-      const matchStatus =
-        !this.selectedWorkStatus || emp.status === this.selectedWorkStatus;
-
-      return matchSearch && matchRole && matchStatus;
-    });
+  onFilterChange(): void {
+    this.currentPage = 1; // reset về trang 1
+    this.loadEmployees();
   }
 
   onAddEmployee(): void {
@@ -137,25 +163,47 @@ export class EmployeeManagementComponent implements OnInit {
       autoFocus: true,
     });
 
-    dialogRef.afterClosed().subscribe((result) => {
-      if (result) {
-        // Thêm nhân viên mới vào danh sách
-        this.employees.push(result);
-        this.filteredEmployees = [...this.employees];
-        console.log('Nhân viên mới:', result);
-        // TODO: Gọi API để lưu vào database
-      }
+    dialogRef.afterClosed().subscribe((payload) => {
+      if (!payload) return;
+
+      this.employeeService.createEmployee(payload).subscribe({
+        next: (res) => {
+          this.snackBar.open(
+            `Tạo nhân viên thành công – mật khẩu: ${res.defaultPassword}`,
+            'Đóng',
+            { duration: 5000 }
+          );
+          this.loadEmployees();
+        },
+        error: (err) => {
+          this.snackBar.open(
+            err?.error?.message || 'Tạo nhân viên thất bại',
+            'Đóng',
+            { duration: 4000 }
+          );
+        },
+      });
     });
   }
 
   onEditEmployee(employee: Employee): void {
-    // Navigate to edit employee page
-    this.router.navigate(['/employees/edit', employee.id]);
+    const dialogRef = this.dialog.open(EmployeeEditModalComponent, {
+      width: '600px',
+      data: { id: employee.id },
+    });
+
+    dialogRef.afterClosed().subscribe((updated) => {
+      if (updated) {
+        this.loadEmployees();
+      }
+    });
   }
 
   onViewEmployee(employee: Employee): void {
-    // Navigate to view employee details page
-    this.router.navigate(['/employees/detail', employee.id]);
+    this.dialog.open(EmployeeDetailModalComponent, {
+      width: '600px',
+      data: { id: employee.id },
+    });
   }
 
   onDeleteEmployee(employee: Employee): void {
@@ -233,35 +281,70 @@ export class EmployeeManagementComponent implements OnInit {
     }
   }
 
-  onToggleEmployeeStatus(employee: any): void {
-    employee.status = employee.status === 'ACTIVE' ? 'INACTIVE' : 'ACTIVE';
+  onToggleEmployeeStatus(employee: Employee): void {
+    const nextStatus = employee.status === 'ACTIVE' ? 'INACTIVE' : 'ACTIVE';
+
+    const confirmMsg =
+      nextStatus === 'INACTIVE'
+        ? 'Bạn có chắc chắn muốn khóa tài khoản này?'
+        : 'Bạn có chắc chắn muốn mở khóa tài khoản này?';
+
+    if (!confirm(confirmMsg)) return;
+
+    this.employeeService
+      .changeEmployeeStatus(employee.id, nextStatus)
+      .subscribe({
+        next: (res) => {
+          // ✅ Thông báo đúng theo backend
+          this.snackBar.open(res.message, 'Đóng', {
+            duration: 4000,
+            panelClass: ['success-snackbar'],
+          });
+
+          // ✅ Reload lại danh sách → đồng bộ DB
+          this.loadEmployees();
+        },
+        error: (err) => {
+          this.snackBar.open(
+            err?.error?.message || 'Đổi trạng thái thất bại',
+            'Đóng',
+            { duration: 4000, panelClass: ['error-snackbar'] }
+          );
+        },
+      });
   }
 
   onAddRole(): void {
-  const dialogRef = this.dialog.open(AddRoleDialogComponent, {
-    width: '500px',
-    disableClose: false
-  });
+    const dialogRef = this.dialog.open(AddRoleDialogComponent, {
+      width: '500px',
+      disableClose: false,
+    });
 
-  dialogRef.afterClosed().subscribe(roleName => {
-    if (roleName) {
-      this.employeeService.addRole(roleName).subscribe({
-        next: () => {
-          this.snackBar.open('Thêm vai trò thành công!', 'Đóng', {
-            duration: 3000,
-            panelClass: ['success-snackbar']
-          });
-          this.loadRoles(); // Reload roles list
+    dialogRef.afterClosed().subscribe((result) => {
+      if (!result) return;
+
+      this.loading = true;
+
+      this.employeeService.createEmployee(result).subscribe({
+        next: (res) => {
+          this.snackBar.open(
+            res.message || 'Tạo nhân viên thành công',
+            'Đóng',
+            { duration: 3000, panelClass: ['success-snackbar'] }
+          );
+
+          // 🔥 LOAD LẠI TỪ BACKEND → CÓ createdAt
+          this.loadEmployees();
         },
         error: (err) => {
-          console.error('Error adding role:', err);
-          this.snackBar.open('Thêm vai trò thất bại!', 'Đóng', {
-            duration: 3000,
-            panelClass: ['error-snackbar']
-          });
-        }
+          this.snackBar.open(
+            err?.error?.message || 'Tạo nhân viên thất bại',
+            'Đóng',
+            { duration: 3000, panelClass: ['error-snackbar'] }
+          );
+          this.loading = false;
+        },
       });
-    }
-  });
-}
+    });
+  }
 }

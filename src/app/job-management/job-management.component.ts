@@ -82,6 +82,7 @@ export class JobManagementComponent implements OnInit {
   // ===== APPLICATION DETAIL MODE =====
   applicationMode: 'view' | 'edit' = 'view';
   skillsInput = '';
+  isEditJobMode = false;
 
   // ===== MODAL STATE =====
   showAddJobModal = false;
@@ -135,6 +136,15 @@ export class JobManagementComponent implements OnInit {
     rating: null as number | null,
     feedback: null as string | null,
     rejectionReason: null as string | null,
+  };
+
+  editJobForm = {
+    name: '',
+    description: '',
+    skills: [] as string[],
+    headcountTarget: 0,
+    headcountHired: 0,
+    applyEnd: '',
   };
 
   isSavingApplication = false;
@@ -901,8 +911,6 @@ export class JobManagementComponent implements OnInit {
         .filter(Boolean),
     };
 
-    console.log('CREATE JOB PAYLOAD', payload);
-
     this.jobService.createJob(payload, this.jdFile ?? undefined).subscribe({
       next: () => {
         alert('Tạo job thành công');
@@ -946,5 +954,26 @@ export class JobManagementComponent implements OnInit {
 
   get jobPageNumbers(): number[] {
     return Array.from({ length: this.jobTotalPages }, (_, i) => i + 1);
+  }
+
+  onEditJobClick() {
+    if (!this.selectedJob) return;
+
+    this.isEditJobMode = true;
+    this.modalMode = 'edit'; // ⭐ BẮT BUỘC
+    this.showAddJobModal = true;
+
+    this.editJobForm = {
+      name: this.selectedJob!.title,
+      description: this.selectedJob!.description,
+      skills: this.selectedJob!.requirements
+        ? this.selectedJob!.requirements.split(',').map((s) => s.trim())
+        : [],
+      headcountTarget: this.selectedJob!.recruitmentCount ?? 0,
+      headcountHired: this.selectedJob!.hiredCount ?? 0,
+      applyEnd: this.selectedJob!.applyEnd ?? '',
+    };
+
+    this.skillsInput = this.editJobForm.skills.join(', ');
   }
 }

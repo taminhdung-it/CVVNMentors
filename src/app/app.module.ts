@@ -66,6 +66,9 @@ import { EmployeeDetailComponent } from './employee-detail/employee-detail.compo
 import { EmployeeEditComponent } from './employee-edit/employee-edit.component';
 import { AddRoleDialogComponent } from './add-role-dialog/add-role-dialog.component';
 import { DepartmentManagementComponent } from './department-management/department-management.component';
+import { EmployeeDetailModalComponent } from './employee-detail-modal/employee-detail-modal.component';
+import { EmployeeEditModalComponent } from './employee-edit-modal/employee-edit-modal.component';
+import { EmployeeChangePasswordModalComponent } from './employee-change-password-modal/employee-change-password-modal.component';
 
 registerLocaleData(en);
 
@@ -91,6 +94,9 @@ registerLocaleData(en);
     EmployeeEditComponent,
     AddRoleDialogComponent,
     DepartmentManagementComponent,
+    EmployeeDetailModalComponent,
+    EmployeeEditModalComponent,
+    EmployeeChangePasswordModalComponent,
   ],
   imports: [
     BrowserModule,
