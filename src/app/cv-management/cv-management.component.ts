@@ -54,6 +54,7 @@ export class CvManagementComponent implements OnInit {
   assignedJob = '';
 
   jobs: Job[] = [];
+  assignableJobs: Job[] = [];
   jobKeyword = '';
   selectedJob: Job | null = null;
   showJobDropdown = false;
@@ -95,12 +96,18 @@ export class CvManagementComponent implements OnInit {
   loadJobs() {
     this.cvService.getJobs().subscribe({
       next: (res: any) => {
-        // backend thường trả { data: [...] }
         this.jobs = res.data || [];
+
+        // ✅ CHỈ LẤY JOB ĐANG MỞ
+        this.assignableJobs = this.jobs.filter(
+          (job: any) => job.status === 'OPEN' || job.status === 'Mở'
+        );
+
+        console.log('Assignable jobs:', this.assignableJobs);
       },
       error: (err: any) => {
         console.error('Load jobs failed', err);
-        alert('Không tải được danh sách Job');
+        this.assignableJobs = [];
       },
     });
   }
@@ -214,7 +221,7 @@ export class CvManagementComponent implements OnInit {
   }
 
   filteredJobs() {
-    return this.jobs.filter((j) =>
+    return this.assignableJobs.filter((j) =>
       j.name.toLowerCase().includes(this.jobKeyword.toLowerCase())
     );
   }

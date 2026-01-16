@@ -264,6 +264,9 @@
             >
               {{ job.name }}
             </div>
+            <div class="job-empty" *ngIf="filteredJobs().length === 0">
+              Không có Job đang mở
+            </div>
           </div>
         </div>
       </div>
@@ -271,7 +274,11 @@
       <!-- FOOTER -->
       <div class="modal-footer">
         <button class="btn-cancel" (click)="closeAssignModal()">Hủy</button>
-        <button class="btn-primary" (click)="confirmAssignJob()">
+        <button
+          class="btn-primary"
+          (click)="confirmAssignJob()"
+          [disabled]="assignableJobs.length === 0"
+        >
           Gán Job
         </button>
       </div>

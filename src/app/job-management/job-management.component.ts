@@ -117,7 +117,7 @@ export class JobManagementComponent implements OnInit {
   jobTotalPages = 1;
 
   // ===== DATA: JOBS =====
-  jobs: Job[] = []; // ⬅️ GIỮ BIẾN – DATA SẼ ĐƯỢC ĐỔ TỪ API
+  jobs: Job[] = [];
 
   // ===== DATA: CANDIDATES =====
   candidates: Candidate[] = [];
@@ -628,6 +628,7 @@ export class JobManagementComponent implements OnInit {
         this.currentPage,
         this.pageSize
       )
+
       .subscribe({
         next: (res) => {
           this.candidates = res.data.map(
@@ -644,19 +645,22 @@ export class JobManagementComponent implements OnInit {
               feedback: item.feedback,
               rejectionReason: item.rejectionReason,
 
-              // ===== CV =====
-              cvId: item.cv.cvId,
-              name: item.cv.fullName || 'Unknown',
-              email: item.cv.email,
-              phone: item.cv.phone,
-              cvFileUrl: item.cv.cvFileUrl,
-              position: item.cv.position,
-              experienceYears: item.cv.experienceYears,
+              cvId: item.cv?.cvId,
+
+              name: item.cv?.email ? item.cv.email.split('@')[0] : 'Unknown',
+
+              email: item.cv?.email,
+              phone: item.cv?.phone,
+              cvFileUrl: item.cv?.cvFileUrl,
+              position: item.cv?.position,
+              experienceYears: item.cv?.experienceYears,
             })
           );
         },
+
         error: (err) => {
           console.error('Load candidates failed', err);
+
           this.candidates = [];
         },
       });
