@@ -21,6 +21,7 @@ export class CvAddManualComponent {
       fullName: [''],
       email: [''],
       phone: [''],
+      cccd: [''],
       position: [''],
       level: [''],
       experienceYears: [0],
@@ -68,6 +69,9 @@ export class CvAddManualComponent {
     fd.append('fullName', raw.fullName);
     fd.append('email', raw.email);
     fd.append('phone', raw.phone);
+    if (raw.cccd) {
+      fd.append('cccd', raw.cccd); // ✅ THÊM
+    }
     fd.append('position', raw.position);
     fd.append('level', raw.level);
     fd.append('experienceYears', String(raw.experienceYears));

@@ -15,6 +15,8 @@ export class CvManualService {
       headers: new HttpHeaders({
         Authorization: `Bearer ${sessionStorage.getItem('accesstoken')}`,
         refreshtoken: sessionStorage.getItem('refreshtoken') || '',
+        accountid: sessionStorage.getItem('accountid') || '',
+        router: 'cv/addcv',
       }),
     });
   }

@@ -1,158 +1,768 @@
-<div class="job-detail-page">
-  <!-- HEADER -->
-  <div class="job-card">
-    <div>
-      <h2>Senior React Developer</h2>
+<div class="job-management-container">
+  <!-- ================= JOB LIST VIEW ================= -->
+  <ng-container *ngIf="currentView === 'job-list'">
+    <div class="page-content">
+      <div class="page-header">
+        <h1>Danh sách Job</h1>
+        <button (click)="handleOpenAddModal()" class="btn-add-job">
+          <span class="btn-icon">+</span>
+          Thêm Job
+        </button>
+      </div>
 
-      <div class="job-meta">
-        <span class="badge-open" *ngIf="jobStatus === 'OPEN'"> Đang mở </span>
+      <!-- Filters Row 1 -->
+      <div class="filter-box">
+        <div class="filter-row">
+          <input
+            type="text"
+            placeholder="mm / dd / yyyy"
+            [(ngModel)]="dateFilter"
+            class="filter-input date-input"
+          />
 
-        <span class="badge-closed" *ngIf="jobStatus === 'CLOSED'">
-          Đã đóng
-        </span>
+          <select [(ngModel)]="jobTitleFilter" class="filter-select">
+            <option value="">Tên việc làm</option>
+            <option value="Senior Frontend Developer">
+              Senior Frontend Developer
+            </option>
+            <option value="Senior Backend Developer">
+              Senior Backend Developer
+            </option>
+            <option value="Tester">Tester</option>
+          </select>
 
-        <span>👥 Headcount: {{ headcount }}</span>
-        <span>📅 Tạo ngày: 20/10/2023</span>
+          <select [(ngModel)]="jobStatusFilter" class="filter-select">
+            <option value="">Trạng thái</option>
+            <option value="Mở">Mở</option>
+            <option value="Đóng">Đóng</option>
+          </select>
+
+          <button (click)="handleClearFilters()" class="btn-clear-filter">
+            Xóa bộ lọc
+          </button>
+        </div>
+      </div>
+
+      <!-- Filters Row 2 -->
+      <div class="filter-box">
+        <div class="search-input-wrapper">
+          <span class="search-icon">🔍</span>
+          <input
+            type="text"
+            placeholder="Tìm kiếm job..."
+            [(ngModel)]="jobSearchText"
+            class="search-input"
+          />
+        </div>
+      </div>
+
+      <!-- Jobs Table -->
+      <div class="table-container">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th><input type="checkbox" /></th>
+              <th>TÊN VIỆC LÀM</th>
+              <th>PHÒNG BAN</th>
+              <th>TRẠNG THÁI</th>
+              <th>NGÀY CẬP NHẬT</th>
+              <th>HÀNH ĐỘNG</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let job of filteredJobs" class="table-row">
+              <td><input type="checkbox" /></td>
+              <td>{{ job.title }}</td>
+              <td>{{ getDepartmentName(job.department) }}</td>
+
+              <td>
+                <span
+                  class="status-badge"
+                  [class.status-open]="job.status === 'Mở'"
+                  [class.status-closed]="job.status === 'Đóng'"
+                  [class.status-locked]="job.status === 'Khóa'"
+                >
+                  {{ job.status }}
+                </span>
+              </td>
+              <td>{{ job.createdDate }}</td>
+              <td>
+                <!-- XEM CHI TIẾT -->
+                <span
+                  class="action-icon view"
+                  (click)="handleViewJobDetail(job)"
+                >
+                  <span class="material-symbols-outlined">visibility</span>
+                </span>
+
+                <!-- 3 CHẤM -->
+                <span class="action-icon more" (click)="toggleAction(job.id)">
+                  <span class="material-symbols-outlined">more_vert</span>
+                </span>
+
+                <!-- TOOLBAR -->
+                <div class="action-toolbar" *ngIf="openActionId === job.id">
+                  <!-- MỞ JOB (OPEN) -->
+                  <span
+                    class="tool-item"
+                    title="Mở lại job"
+                    [class.disabled]="job.status === 'Mở'"
+                    (click)="job.status !== 'Mở' && openJob(job)"
+                  >
+                    <span class="material-symbols-outlined">lock_open</span>
+                  </span>
+
+                  <!-- ĐÓNG JOB (CLOSE – kết thúc tuyển) -->
+                  <span
+                    class="tool-item"
+                    title="Đóng job"
+                    [class.disabled]="job.status !== 'Mở'"
+                    (click)="job.status === 'Mở' && closeJob(job)"
+                  >
+                    <span class="material-symbols-outlined">lock</span>
+                  </span>
+
+                  <!-- KHOÁ TẠM (LOCK) -->
+                  <span
+                    class="tool-item danger"
+                    title="Tạm khóa job"
+                    [class.disabled]="job.status === 'Khóa'"
+                    (click)="job.status !== 'Khóa' && lockJob(job)"
+                  >
+                    <span class="material-symbols-outlined">block</span>
+                  </span>
+                </div>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+        <!-- ===== JOB PAGINATION ===== -->
+        <div class="pagination">
+          <button
+            class="pagination-btn"
+            (click)="previousJobPage()"
+            [disabled]="jobPage === 1"
+          >
+            ←
+          </button>
+
+          <button
+            *ngFor="let page of jobPageNumbers"
+            class="pagination-btn"
+            [class.active]="jobPage === page"
+            (click)="goToJobPage(page)"
+          >
+            {{ page }}
+          </button>
+
+          <button
+            class="pagination-btn"
+            (click)="nextJobPage()"
+            [disabled]="jobPage === jobTotalPages"
+          >
+            →
+          </button>
+        </div>
       </div>
     </div>
+  </ng-container>
 
-    <button
-      class="btn-edit"
-      [class.closed]="jobStatus === 'CLOSED'"
-      (click)="toggleJobStatus()"
-    >
-      ✏️ {{ jobStatus === "OPEN" ? "Đóng job" : "Mở lại job" }}
-    </button>
-  </div>
+  <!-- ================= JOB DETAIL VIEW ================= -->
+  <ng-container *ngIf="currentView === 'job-detail' && selectedJob">
+    <div class="page-content">
+      <!-- Header with Back Button -->
+      <div class="page-header">
+        <h1>Chi tiết Job</h1>
+        <button (click)="handleBackToList()" class="btn-add-job">
+          ← Quay lại danh sách
+        </button>
+      </div>
 
-  <!-- TABS -->
-  <div class="tabs">
-    <button
-      [class.active]="activeTab === 'candidates'"
-      (click)="setTab('candidates')"
-    >
-      Danh sách ứng viên
-    </button>
+      <!-- Job Header -->
+      <div class="job-header">
+        <div class="job-info">
+          <h1 class="job-title">{{ selectedJob.title }}</h1>
+          <div class="job-meta">
+            <span
+              class="status-badge"
+              [class.status-open]="selectedJob.status === 'Mở'"
+              [class.status-closed]="selectedJob.status === 'Đóng'"
+              [class.status-locked]="selectedJob.status === 'Khóa'"
+            >
+              {{
+                selectedJob.status === "Mở"
+                  ? "Đang mở"
+                  : selectedJob.status === "Đóng"
+                  ? "Đã đóng"
+                  : "Đã khóa"
+              }}
+            </span>
 
-    <button
-      [class.active]="activeTab === 'job-info'"
-      (click)="setTab('job-info')"
-    >
-      Thông tin job
-    </button>
+            <span>
+              👥 Đã tuyển: {{ selectedJob.hiredCount }}/{{
+                selectedJob.recruitmentCount
+              }}
+            </span>
 
-    <button
-      [class.active]="activeTab === 'history'"
-      (click)="setTab('history')"
-    >
-      Lịch sử hoạt động
-    </button>
-  </div>
+            <span>👥 Headcount: {{ getCandidateCount() }} </span>
+            <span>📅 Tạo ngày: {{ selectedJob.createdDate }}</span>
+          </div>
+        </div>
 
-  <!-- ================= TAB: CANDIDATES ================= -->
-  <ng-container *ngIf="activeTab === 'candidates'">
-    <!-- TOOLBAR -->
-    <div class="toolbar">
-      <input placeholder="Tìm kiếm ứng viên..." [(ngModel)]="searchText" />
+        <button
+          class="btn-toggle-status"
+          [class.btn-open]="selectedJob.status === 'Mở'"
+          [class.btn-closed]="selectedJob.status === 'Đóng'"
+          [disabled]="isJobLocked"
+          (click)="handleToggleJobStatusDetail()"
+        >
+          {{ selectedJob.status === "Mở" ? "Đóng job" : "Mở lại job" }}
+        </button>
+      </div>
 
-      <select [(ngModel)]="statusFilter">
-        <option value="">Tất cả trạng thái</option>
-        <option value="Ứng tuyển">Ứng tuyển</option>
-        <option value="Phỏng vấn">Phỏng vấn</option>
-      </select>
+      <!-- Tabs -->
+      <div class="tabs">
+        <button
+          (click)="setActiveTab('candidates')"
+          class="tab"
+          [class.active]="activeDetailTab === 'candidates'"
+        >
+          Danh sách ứng viên
+        </button>
+        <button
+          (click)="setActiveTab('info')"
+          class="tab"
+          [class.active]="activeDetailTab === 'info'"
+        >
+          Thông tin job
+        </button>
+      </div>
 
-      <button class="btn-primary" [disabled]="jobStatus === 'CLOSED'">
-        + Gắn CV vào Job
-      </button>
-    </div>
+      <!-- Tab Content: Candidates -->
+      <ng-container *ngIf="activeDetailTab === 'candidates'">
+        <!-- Candidate Filters -->
+        <div class="filter-box">
+          <div class="filter-row">
+            <input
+              type="text"
+              placeholder="Tìm kiếm ứng viên..."
+              [(ngModel)]="candidateSearchText"
+              [disabled]="isJobClosed"
+              class="filter-input flex-1"
+            />
 
-    <!-- TABLE -->
-    <div class="table-box">
-      <table>
-        <thead>
-          <tr>
-            <th>
-              <input
-                type="checkbox"
-                #master
-                (change)="toggleAll(master.checked)"
-                [disabled]="jobStatus === 'CLOSED'"
-              />
-            </th>
-            <th>ỨNG VIÊN</th>
-            <th>LOẠI CV</th>
-            <th>TRẠNG THÁI</th>
-            <th>CẬP NHẬT</th>
-          </tr>
-        </thead>
+            <select
+              [(ngModel)]="candidateStatusFilter"
+              [disabled]="isJobClosed"
+              class="filter-select"
+            >
+              <option value="">Tất cả trạng thái</option>
+              <option value="Mới">Mới</option>
+              <option value="Duyệt">Duyệt</option>
+            </select>
+          </div>
+        </div>
 
-        <tbody>
-          <tr *ngFor="let c of paginatedCandidates; let i = index">
-            <td>
-              <input
-                type="checkbox"
-                [(ngModel)]="c.selected"
-                [disabled]="jobStatus === 'CLOSED'"
-              />
-            </td>
-
-            <td>
-              <b>{{ c.name }}</b
-              ><br />
-              <span class="email">{{ c.email }}</span>
-            </td>
-
-            <td class="link">
-              {{ c.hasCV ? "Có CV" : "Chưa có CV" }}
-            </td>
-
-            <td>
-              <span
-                class="status"
-                [class.blue]="c.status === 'Ứng tuyển'"
-                [class.orange]="c.status === 'Phỏng vấn'"
+        <!-- Candidates Table -->
+        <div class="table-container">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th><input type="checkbox" [disabled]="isJobClosed" /></th>
+                <th>ỨNG VIÊN</th>
+                <th>VỊ TRÍ</th>
+                <th>KINH NGHIỆM</th>
+                <th>SĐT</th>
+                <th>LOẠI CV</th>
+                <th>TRẠNG THÁI</th>
+                <th>PHỎNG VẤN</th>
+                <th>ĐÁNH GIÁ</th>
+                <th>CẬP NHẬT</th>
+                <th>HÀNH ĐỘNG</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr
+                *ngFor="let candidate of paginatedCandidates"
+                class="table-row"
+                [class.disabled]="isJobClosed"
               >
-                {{ c.status }}
-              </span>
-            </td>
+                <td><input type="checkbox" [disabled]="isJobClosed" /></td>
+                <td>
+                  <div class="name-cell">
+                    <div class="name">{{ candidate.name }}</div>
+                    <div class="email">{{ candidate.email || "—" }}</div>
+                  </div>
+                </td>
 
-            <td>{{ c.updatedAt }}</td>
-          </tr>
-        </tbody>
-      </table>
+                <td>{{ candidate.position || "—" }}</td>
 
-      <!-- PAGINATION -->
-      <div class="pagination">
-        <button
-          (click)="goToPage(currentPage - 1)"
-          [disabled]="currentPage === 1"
-        >
-          &lt;
-        </button>
+                <td>
+                  {{
+                    candidate.experienceYears !== null
+                      ? candidate.experienceYears + " năm"
+                      : "—"
+                  }}
+                </td>
 
-        <button
-          *ngFor="let p of [].constructor(totalPages); let i = index"
-          (click)="goToPage(i + 1)"
-          [class.active]="currentPage === i + 1"
-        >
-          {{ i + 1 }}
-        </button>
+                <td>{{ candidate.phone || "—" }}</td>
 
-        <button
-          (click)="goToPage(currentPage + 1)"
-          [disabled]="currentPage === totalPages"
-        >
-          &gt;
+                <td>
+                  <ng-container
+                    *ngIf="isValidCvFile(candidate.cvFileUrl); else noCv"
+                  >
+                    <a
+                      class="cv-link"
+                      [href]="candidate.cvFileUrl"
+                      target="_blank"
+                      rel="noopener"
+                    >
+                      Xem CV
+                    </a>
+                  </ng-container>
+
+                  <ng-template #noCv>
+                    <span class="no-cv">Không có CV</span>
+                  </ng-template>
+                </td>
+
+                <td>
+                  <span class="status-badge">
+                    {{ candidate.status }}
+                  </span>
+                </td>
+
+                <td>
+                  {{
+                    candidate.interviewScheduled
+                      ? (candidate.interviewScheduled | date : "dd-MM-yyyy")
+                      : "Chưa có"
+                  }}
+                </td>
+
+                <td>{{ candidate.rating ?? "—" }}</td>
+
+                <td>{{ candidate.appliedAt }}</td>
+                <td class="action-cell">
+                  <div class="action-wrapper">
+                    <!-- icon xem -->
+                    <span
+                      class="action-icon view"
+                      title="Xem chi tiết"
+                      (click)="viewApplicationDetail(candidate.id)"
+                    >
+                      <span class="material-symbols-outlined">visibility</span>
+                    </span>
+
+                    <!-- 3 chấm -->
+                    <span
+                      class="action-icon more"
+                      *ngIf="
+                        getAllowedNextStatuses(candidate.status).length > 0
+                      "
+                      (click)="toggleCandidateStatusMenu(candidate.id)"
+                    >
+                      <span class="material-symbols-outlined">more_vert</span>
+                    </span>
+
+                    <!-- MENU -->
+                    <div
+                      class="action-toolbar"
+                      style="
+                        border: 2px solid red;
+                        min-width: 60px;
+                        min-height: 40px;
+                      "
+                      *ngIf="openCandidateActionId === candidate.id"
+                    >
+                      <span
+                        *ngFor="
+                          let s of getAllowedNextStatuses(candidate.status)
+                        "
+                        class="tool-item"
+                        [class.danger]="s === 'REJECTED'"
+                        (click)="changeCandidateStatus(candidate, s)"
+                        [title]="getStatusLabel(s)"
+                      >
+                        <span class="material-symbols-outlined">
+                          {{ getStatusIcon(s) }}
+                        </span>
+                      </span>
+                    </div>
+                  </div>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </ng-container>
+
+      <!-- Tab Content: Job Info -->
+      <ng-container *ngIf="activeDetailTab === 'info'">
+        <div class="job-info-container">
+          <h3 class="info-title">Mô tả công việc</h3>
+          <p class="info-description">{{ selectedJob.description }}</p>
+
+          <div class="info-details">
+            <h4 class="details-title">Thông tin chi tiết</h4>
+            <div class="details-grid">
+              <div class="detail-item">
+                <span class="detail-label">Phòng ban:</span>
+                <span class="detail-value">
+                  {{ getDepartmentName(selectedJob.department) }}
+                </span>
+              </div>
+              <div class="detail-item">
+                <span class="detail-label">Kỹ năng:</span>
+                <span class="detail-value">
+                  {{ selectedJob.requirements || "—" }}
+                </span>
+              </div>
+              <div class="detail-item">
+                <span class="detail-label">Thời gian nhận CV:</span>
+                <span class="detail-value">
+                  {{ selectedJob.applyStart }} → {{ selectedJob.applyEnd }}
+                </span>
+              </div>
+              <div class="detail-item">
+                <span class="detail-label">Người tạo:</span>
+                <span class="detail-value">
+                  {{ selectedJob.createdBy || "—" }}
+                </span>
+              </div>
+              <div class="detail-item" *ngIf="selectedJob.jdFileUrl">
+                <span class="detail-label">JD File:</span>
+                <a
+                  class="detail-value"
+                  [href]="selectedJob.jdFileUrl"
+                  target="_blank"
+                  rel="noopener"
+                >
+                  📄 Xem / Tải JD
+                </a>
+              </div>
+              <div
+                class="detail-item"
+                *ngIf="
+                  selectedJob.status === 'Đóng' && selectedJob.closedReason
+                "
+              >
+                <span class="detail-label">Lý do đóng:</span>
+                <span class="detail-value text-red">
+                  {{ selectedJob.closedReason }}
+                </span>
+              </div>
+              <div
+                class="detail-item"
+                *ngIf="selectedJob.status === 'Đóng' && selectedJob.closedAt"
+              >
+                <span class="detail-label">Thời điểm đóng:</span>
+                <span class="detail-value">
+                  {{ selectedJob.closedAt }}
+                </span>
+              </div>
+
+              <div class="detail-item">
+                <span class="detail-label">Ngày tạo:</span>
+                <span class="detail-value">{{ selectedJob.createdDate }}</span>
+              </div>
+              <div class="detail-item">
+                <span class="detail-label">Cập nhật lần cuối:</span>
+                <span class="detail-value">
+                  {{ selectedJob.updatedDate || "—" }}
+                </span>
+              </div>
+
+              <div class="detail-item">
+                <span class="detail-label">Trạng thái:</span>
+                <span
+                  class="detail-value"
+                  [class.text-green]="selectedJob.status === 'Mở'"
+                  [class.text-red]="selectedJob.status === 'Đóng'"
+                >
+                  {{ selectedJob.status }}
+                </span>
+              </div>
+              <div class="detail-item">
+                <span class="detail-label">Số lượng ứng viên:</span>
+                <span class="detail-value">{{ getCandidateCount() }} </span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </ng-container>
+    </div>
+  </ng-container>
+
+  <!-- ================= ADD/EDIT JOB MODAL ================= -->
+  <div class="modal-backdrop" *ngIf="showAddJobModal">
+    <div class="modal">
+      <h2 class="modal-title">
+        {{ modalMode === "add" ? "Thêm Job mới" : "Cập nhật Job" }}
+      </h2>
+
+      <div class="modal-form">
+        <div class="form-group">
+          <label class="form-label">File JD (PDF, DOC, DOCX)</label>
+
+          <input
+            type="file"
+            accept=".pdf,.doc,.docx"
+            (change)="onJdFileChange($event)"
+            class="form-input"
+          />
+
+          <small class="form-hint" *ngIf="jdFile">
+            Đã chọn: {{ jdFile.name }}
+          </small>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Tên việc làm *</label>
+          <input type="text" [(ngModel)]="newJob.name" class="form-input" />
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Phòng ban *</label>
+          <select [(ngModel)]="newJob.departmentId" class="form-input">
+            <option value="" disabled>Chọn phòng ban</option>
+            <option *ngFor="let dept of departments" [value]="dept.id">
+              {{ dept.name }}
+            </option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Số lượng cần tuyển *</label>
+          <input
+            type="number"
+            min="1"
+            [(ngModel)]="newJob.headcountTarget"
+            class="form-input"
+          />
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Kỹ năng (cách nhau bằng dấu ,)</label>
+          <input
+            type="text"
+            placeholder="NodeJS, NestJS, PostgreSQL"
+            [(ngModel)]="skillsInput"
+            class="form-input"
+          />
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Mô tả công việc *</label>
+          <textarea
+            rows="3"
+            [(ngModel)]="newJob.description"
+            class="form-textarea"
+          ></textarea>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Ngày bắt đầu nhận CV *</label>
+          <input
+            type="date"
+            [(ngModel)]="newJob.applyStart"
+            class="form-input"
+          />
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Ngày kết thúc nhận CV *</label>
+          <input type="date" [(ngModel)]="newJob.applyEnd" class="form-input" />
+        </div>
+      </div>
+
+      <div class="modal-actions">
+        <button (click)="handleCloseModal()" class="btn-secondary">Hủy</button>
+        <button (click)="handleSaveJob()" class="btn-primary">
+          {{ modalMode === "add" ? "Thêm Job" : "Cập nhật" }}
         </button>
       </div>
     </div>
-  </ng-container>
+  </div>
+</div>
+<div
+  class="modal-backdrop"
+  *ngIf="showApplicationDetail && selectedApplication"
+>
+  <div class="modal modal-lg application-detail-modal">
+    <!-- ================= HEADER ================= -->
+    <div class="modal-header">
+      <h2>Chi tiết hồ sơ ứng tuyển</h2>
 
-  <!-- ================= TAB: JOB INFO ================= -->
-  <ng-container *ngIf="activeTab === 'job-info'">
-    <div class="job-info-page">
-      <h3>Mô tả công việc</h3>
-      <p>Senior React Developer...</p>
+      <div class="status-wrapper">
+        <span class="status-pill">
+          {{ selectedApplication.status }}
+        </span>
+      </div>
     </div>
-  </ng-container>
+
+    <!-- ================= BODY ================= -->
+    <div class="modal-body">
+      <!-- ===== VIEW MODE ===== -->
+      <ng-container *ngIf="applicationMode === 'view'">
+        <div class="section section-primary">
+          <div class="section-header">
+            <span class="icon">📄</span>
+            <h3>Thông tin hồ sơ ứng tuyển</h3>
+          </div>
+
+          <div class="info-grid">
+            <div class="info-item">
+              <label>Ngày nộp</label>
+              <p>{{ selectedApplication.appliedAt }}</p>
+            </div>
+
+            <div class="info-item">
+              <label>Cập nhật</label>
+              <p>{{ selectedApplication.updatedAt }}</p>
+            </div>
+
+            <div class="info-item">
+              <label>Đánh giá</label>
+              <p>{{ selectedApplication.rating ?? "—" }}</p>
+            </div>
+
+            <div class="info-item">
+              <label>Feedback</label>
+              <p>{{ selectedApplication.feedback ?? "—" }}</p>
+            </div>
+
+            <div class="info-item full">
+              <label>Lịch phỏng vấn</label>
+              <p>
+                {{
+                  selectedApplication.interviewScheduled
+                    ? (selectedApplication.interviewScheduled
+                      | date : "dd-MM-yyyy")
+                    : "Chưa lên lịch"
+                }}
+              </p>
+            </div>
+          </div>
+
+          <div class="reject-box" *ngIf="selectedApplication.rejectionReason">
+            <strong>Lý do từ chối</strong>
+            <p>{{ selectedApplication.rejectionReason }}</p>
+          </div>
+        </div>
+      </ng-container>
+
+      <!-- ===== EDIT MODE ===== -->
+      <ng-container *ngIf="applicationMode === 'edit'">
+        <div class="section section-primary">
+          <div class="section-header">
+            <span class="icon">✏️</span>
+            <h3>Cập nhật hồ sơ ứng tuyển</h3>
+          </div>
+
+          <div class="info-grid">
+            <div class="info-item">
+              <label>Lịch phỏng vấn</label>
+              <input
+                type="datetime-local"
+                [(ngModel)]="editForm.interviewScheduled"
+                class="form-input"
+              />
+            </div>
+
+            <div class="info-item">
+              <label>Đánh giá (1–5)</label>
+              <input
+                type="number"
+                min="1"
+                max="5"
+                [(ngModel)]="editForm.rating"
+                class="form-input"
+              />
+            </div>
+
+            <div class="info-item full">
+              <label>Feedback</label>
+              <textarea
+                [(ngModel)]="editForm.feedback"
+                class="form-textarea"
+                rows="3"
+              ></textarea>
+            </div>
+
+            <div class="info-item full">
+              <label>Lý do từ chối</label>
+              <textarea
+                [(ngModel)]="editForm.rejectionReason"
+                class="form-textarea"
+                rows="3"
+              ></textarea>
+            </div>
+          </div>
+        </div>
+      </ng-container>
+
+      <!-- ===== JOB LIÊN QUAN ===== -->
+      <div class="section section-secondary">
+        <div class="section-header">
+          <span class="icon">💼</span>
+          <h3>Job liên quan</h3>
+        </div>
+
+        <div class="job-card">
+          <div class="job-title">
+            {{ selectedApplication.job.name }}
+          </div>
+
+          <div class="job-meta">
+            <span>
+              <b>Phòng ban:</b>
+              {{ selectedApplication.job.departmentName || "—" }}
+            </span>
+
+            <span>
+              <b>Trạng thái:</b>
+              {{ selectedApplication.job.status }}
+            </span>
+
+            <span>
+              <b>Số lượng tuyển:</b>
+              {{ selectedApplication.job.headcountTarget }}
+            </span>
+
+            <span>
+              <b>Hạn nhận CV:</b>
+              {{ selectedApplication.job.applyEnd | date : "dd-MM-yyyy" }}
+            </span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ================= FOOTER ================= -->
+    <div class="modal-footer">
+      <ng-container *ngIf="applicationMode === 'view'">
+        <button class="btn-secondary" (click)="showApplicationDetail = false">
+          Đóng
+        </button>
+
+        <button class="btn-primary" (click)="enterEditApplication()">
+          ✏️ Chỉnh sửa
+        </button>
+      </ng-container>
+
+      <ng-container *ngIf="applicationMode === 'edit'">
+        <button class="btn-secondary" (click)="applicationMode = 'view'">
+          Hủy
+        </button>
+
+        <button
+          class="btn-primary"
+          [disabled]="isSavingApplication"
+          (click)="saveApplicationDetail()"
+        >
+          {{ isSavingApplication ? "Đang lưu..." : "Lưu cập nhật" }}
+        </button>
+      </ng-container>
+    </div>
+  </div>
 </div>

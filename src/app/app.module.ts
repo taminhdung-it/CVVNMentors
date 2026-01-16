@@ -65,6 +65,7 @@ import { RolePermissionComponent } from './role-permission/role-permission.compo
 import { EmployeeDetailComponent } from './employee-detail/employee-detail.component';
 import { EmployeeEditComponent } from './employee-edit/employee-edit.component';
 import { AddRoleDialogComponent } from './add-role-dialog/add-role-dialog.component';
+import { DepartmentManagementComponent } from './department-management/department-management.component';
 
 registerLocaleData(en);
 
@@ -89,6 +90,7 @@ registerLocaleData(en);
     EmployeeDetailComponent,
     EmployeeEditComponent,
     AddRoleDialogComponent,
+    DepartmentManagementComponent,
   ],
   imports: [
     BrowserModule,

@@ -61,10 +61,6 @@
         <option>Không đạt</option>
         <option>Lưu trữ</option>
       </select>
-      <select class="input">
-        <option value="">Job đã gán</option>
-      </select>
-      <span class="clear" (click)="clearFilter()">Xóa bộ lọc</span>
     </div>
 
     <input
@@ -84,9 +80,9 @@
           <th>Họ và tên / Liên hệ</th>
           <th>Loại hồ sơ</th>
           <th>Trạng thái</th>
-          <th>Job đã gán</th>
           <th>Ngày cập nhật</th>
           <th>Số điện thoại</th>
+          <th>CCCD</th>
           <th>Hành động</th>
         </tr>
       </thead>
@@ -108,12 +104,9 @@
             </span>
           </td>
 
-          <td class="cell-job">
-            <strong>{{ cv.job }}</strong>
-          </td>
-
           <td>{{ cv.updatedAt }}</td>
           <td>{{ cv.phone }}</td>
+          <td>{{ cv.cccd || "—" }}</td>
 
           <td class="action-col" (click)="$event.stopPropagation()">
             <!-- xem -->
@@ -271,7 +264,10 @@
               *ngFor="let job of filteredJobs()"
               (click)="selectJob(job)"
             >
-              {{ job }}
+              {{ job.name }}
+            </div>
+            <div class="job-empty" *ngIf="filteredJobs().length === 0">
+              Không có Job đang mở
             </div>
           </div>
         </div>
@@ -280,7 +276,11 @@
       <!-- FOOTER -->
       <div class="modal-footer">
         <button class="btn-cancel" (click)="closeAssignModal()">Hủy</button>
-        <button class="btn-primary" (click)="confirmAssignJob()">
+        <button
+          class="btn-primary"
+          (click)="confirmAssignJob()"
+          [disabled]="assignableJobs.length === 0"
+        >
           Gán Job
         </button>
       </div>

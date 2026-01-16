@@ -7,11 +7,19 @@ export interface CV {
   fullName: string;
   email: string;
   phone: string;
+  cccd?: string | null;
   cvType: 'Có CV' | 'Không CV';
   status: 'Mới' | 'Duyệt' | 'Không đạt' | 'Lưu trữ';
   job?: string;
   updatedAt: string;
   checked?: boolean;
+}
+
+interface Job {
+  id: string;
+  name: string;
+  departmentId?: string;
+  departmentName?: string; // 👈 thêm
 }
 
 @Component({
@@ -46,20 +54,29 @@ export class CvManagementComponent implements OnInit {
   assignedCount = 0;
   assignedJob = '';
 
-  jobs = ['Frontend Developer', 'Backend Developer', 'Tester', 'QA Engineer'];
+  jobs: Job[] = [];
+  assignableJobs: Job[] = [];
   jobKeyword = '';
-  selectedJob: string | null = null;
+  selectedJob: Job | null = null;
   showJobDropdown = false;
 
   constructor(private cvService: CvService, private router: Router) {}
 
   ngOnInit(): void {
     this.loadCvs();
+    this.loadJobs();
+  }
+
+  hasCvFile(url: string | null | undefined): boolean {
+    if (!url) return false;
+
+    return /\.(pdf|doc|docx)$/i.test(url);
   }
 
   /* ================= API ================= */
   loadCvs() {
-    this.cvService.getCvs(this.page, this.pageSize).subscribe({
+    this.cvService.getCvs(1, 1000).subscribe({
+      // 👈 load nhiều
       next: (res: any) => {
         const data = res?.data || [];
 
@@ -69,7 +86,8 @@ export class CvManagementComponent implements OnInit {
             fullName: c.full_name || c.fullName || 'Unknown',
             email: c.email || '-',
             phone: c.phone || '-',
-            cvType: 'Có CV',
+            cccd: c.cccd || '-',
+            cvType: this.hasCvFile(c.cvFileUrl) ? 'Có CV' : 'Không CV',
             status: this.mapStatus(c.status),
             job: c.position || 'N/A',
             updatedAt: new Date(c.updatedAt).toLocaleDateString('vi-VN'),
@@ -77,9 +95,28 @@ export class CvManagementComponent implements OnInit {
           })
         );
 
-        this.applyFilter();
+        this.applyFilter(); // ✅ giữ nguyên
       },
       error: (err) => console.error('Load CV error', err),
+    });
+  }
+
+  loadJobs() {
+    this.cvService.getJobs().subscribe({
+      next: (res: any) => {
+        this.jobs = res.data || [];
+
+        // ✅ CHỈ LẤY JOB ĐANG MỞ
+        this.assignableJobs = this.jobs.filter(
+          (job: any) => job.status === 'OPEN' || job.status === 'Mở'
+        );
+
+        console.log('Assignable jobs:', this.assignableJobs);
+      },
+      error: (err: any) => {
+        console.error('Load jobs failed', err);
+        this.assignableJobs = [];
+      },
     });
   }
 
@@ -145,7 +182,7 @@ export class CvManagementComponent implements OnInit {
   goToPage(p: number) {
     if (p < 1 || p > this.totalPages) return;
     this.page = p;
-    this.loadCvs(); // server-side pagination
+    this.updatePage(); // ✅ KHÔNG gọi API nữa
   }
 
   /* ================= CHECKBOX ================= */
@@ -192,38 +229,46 @@ export class CvManagementComponent implements OnInit {
   }
 
   filteredJobs() {
-    return this.jobs.filter((j) =>
-      j.toLowerCase().includes(this.jobKeyword.toLowerCase())
+    return this.assignableJobs.filter((j) =>
+      j.name.toLowerCase().includes(this.jobKeyword.toLowerCase())
     );
   }
 
-  selectJob(job: string) {
-    this.selectedJob = job;
-    this.jobKeyword = job;
+  selectJob(job: Job) {
+    this.selectedJob = job; // 👈 có id
+    this.jobKeyword = job.name;
     this.showJobDropdown = false;
   }
 
   confirmAssignJob() {
-    if (!this.selectedJob) return;
+    if (!this.selectedJob) {
+      alert('Vui lòng chọn Job');
+      return;
+    }
 
-    const selected = this.selectedCVs;
+    const cvIds = this.selectedCVs.map((cv) => cv.id);
 
-    selected.forEach((cv) => {
-      cv.job = this.selectedJob!;
-      this.cvService.assignJob(cv.id, this.selectedJob!).subscribe();
+    this.cvService.assignJobToCvs(this.selectedJob.id, cvIds).subscribe({
+      next: (res: any) => {
+        // ✅ reload lại CV từ backend
+        this.loadCvs();
+
+        this.assignedCount = res.assignedCount;
+        this.assignedJob = this.selectedJob!.name;
+
+        this.showAssignModal = false;
+        this.showAssignToast = true;
+
+        setTimeout(() => (this.showAssignToast = false), 3000);
+
+        this.selectedJob = null;
+        this.jobKeyword = '';
+      },
+      error: (err) => {
+        console.error(err);
+        alert('Gán Job thất bại');
+      },
     });
-
-    this.assignedCount = selected.length;
-    this.assignedJob = this.selectedJob;
-
-    this.showAssignModal = false;
-    this.showAssignToast = true;
-
-    setTimeout(() => (this.showAssignToast = false), 3000);
-
-    selected.forEach((cv) => (cv.checked = false));
-    this.selectedJob = null;
-    this.jobKeyword = '';
   }
 
   /* ================= ACTION ================= */

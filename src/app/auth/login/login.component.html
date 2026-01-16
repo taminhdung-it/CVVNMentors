@@ -1,13 +1,8 @@
 <div class="login-wrapper">
   <mat-card class="login-card">
-
     <!-- LEFT IMAGE -->
     <div class="login-image">
-      <img
-        src= "../../../assets/image_login.png"
-        alt="Login image"
-      />
-
+      <img src="../../../assets/image_login.png" alt="Login image" />
     </div>
 
     <!-- RIGHT FORM -->
@@ -20,12 +15,7 @@
         {{ errorMessage }}
       </div>
 
-      <form
-        [formGroup]="loginForm"
-        (ngSubmit)="onSubmit()"
-        autocomplete="off"
-      >
-
+      <form [formGroup]="loginForm" (ngSubmit)="onSubmit()" autocomplete="off">
         <!-- EMAIL -->
         <mat-form-field appearance="outline" class="full-width">
           <mat-label>Email</mat-label>
@@ -54,14 +44,14 @@
             (click)="hidePassword = !hidePassword"
           >
             <mat-icon>
-              {{ hidePassword ? 'visibility_off' : 'visibility' }}
+              {{ hidePassword ? "visibility_off" : "visibility" }}
             </mat-icon>
           </button>
         </mat-form-field>
 
         <!-- FORGOT PASSWORD -->
         <div class="forgot-password">
-          <a (click)="openForgotPassword()">Quên mật khẩu</a>
+          <a (click)="openForgotPassword()"></a>
         </div>
 
         <!-- SUBMIT -->
@@ -70,13 +60,19 @@
           color="primary"
           class="login-button"
           type="submit"
-          [disabled]="loginForm.invalid"
+          [disabled]="loginForm.invalid || loading"
         >
           Đăng nhập
         </button>
-
       </form>
     </div>
-
   </mat-card>
+  <!-- LOGIN OVERLAY -->
+  <!-- LOGIN OVERLAY -->
+  <div class="login-overlay" *ngIf="loading">
+    <div class="overlay-box">
+      <mat-spinner diameter="48"></mat-spinner>
+      <p>Đang đăng nhập...</p>
+    </div>
+  </div>
 </div>

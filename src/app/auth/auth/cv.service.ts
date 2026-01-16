@@ -7,6 +7,7 @@ export interface CvDetailResponse {
   fullName: string;
   email: string;
   phone: string | null;
+  cccd?: string | null;
   position: string;
   level: string;
   status: 'NEW' | 'APPROVED' | 'REJECTED' | 'ARCHIVED';
@@ -42,6 +43,38 @@ export class CvService {
       accountid: sessionStorage.getItem('accountid') || '',
       router: 'cv/get',
     });
+  }
+
+  /** ASSIGN JOB – ĐÚNG THEO DOC */
+  /** ASSIGN JOB – ĐÚNG API BACKEND */
+  assignJobToCvs(jobId: string, cvIds: string[]) {
+    const headers = new HttpHeaders({
+      Authorization: `Bearer ${sessionStorage.getItem('accesstoken')}`,
+      refreshtoken: sessionStorage.getItem('refreshtoken') || '',
+      accountid: sessionStorage.getItem('accountid') || '',
+      router: 'cv/assign',
+      accept: 'application/json',
+    });
+
+    return this.http.post(
+      `${this.API}/assign-job`,
+      {
+        jobId,
+        cvIds,
+      },
+      { headers }
+    );
+  }
+
+  getJobs(): Observable<any> {
+    const headers = new HttpHeaders({
+      Authorization: `Bearer ${sessionStorage.getItem('accesstoken')}`,
+      refreshtoken: sessionStorage.getItem('refreshtoken') || '',
+      accountid: sessionStorage.getItem('accountid') || '',
+      router: 'job/get',
+    });
+
+    return this.http.get('https://cvvnmentors.onrender.com/jobs', { headers });
   }
 
   /** GET CV – phân trang */
@@ -83,5 +116,46 @@ export class CvService {
     return this.http.patch(`${this.API}/${id}`, payload, {
       headers: this.getHeaders(),
     });
+  }
+
+  /** 🔥 LỊCH SỬ ỨNG TUYỂN CỦA CV */
+  getApplicationsByCv(
+    cvId: string,
+    page: number = 1,
+    limit: number = 10
+  ): Observable<any> {
+    const headers = new HttpHeaders({
+      Authorization: `Bearer ${sessionStorage.getItem('accesstoken')}`,
+      refreshtoken: sessionStorage.getItem('refreshtoken') || '',
+      accountid: sessionStorage.getItem('accountid') || '',
+      router: 'application/get',
+    });
+
+    return this.http.get(
+      `https://cvvnmentors.onrender.com/applications/cv/${cvId}?page=${page}&limit=${limit}`,
+      { headers }
+    );
+  }
+}
+
+@Injectable({ providedIn: 'root' })
+export class CvUploadFileService {
+  private API = 'https://cvvnmentors.onrender.com/cv/upload';
+
+  constructor(private http: HttpClient) {}
+
+  uploadFiles(files: File[]): Observable<any> {
+    const formData = new FormData();
+    files.forEach((f) => formData.append('files', f));
+
+    const headers = new HttpHeaders({
+      Authorization: `Bearer ${sessionStorage.getItem('accesstoken')}`,
+      refreshtoken: sessionStorage.getItem('refreshtoken') || '',
+      accountid: sessionStorage.getItem('accountid') || '',
+      router: 'cv/readpdfdoc',
+      // ❗ KHÔNG set Content-Type
+    });
+
+    return this.http.post(this.API, formData, { headers });
   }
 }

@@ -2,6 +2,14 @@ import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { CvService, CvDetailResponse } from '../auth/auth/cv.service';
 
+interface ApplicationHistory {
+  id: string;
+  jobName: string;
+  status: string;
+  appliedAt: string;
+  updatedAt: string;
+}
+
 @Component({
   selector: 'app-cv-detail',
   templateUrl: './cv-detail.component.html',
@@ -15,14 +23,11 @@ export class CvDetailComponent implements OnInit {
   /** TAB */
   activeTab: 'profile' | 'jobs' = 'profile';
 
-  /** JOB ĐÃ GÁN (mock – sau này gắn API) */
-  assignedJobs: {
-    jobName: string;
-    department: string;
-    status: string;
-    assignedDate: string;
-    updatedDate: string;
-  }[] = [];
+  assignedJobs: ApplicationHistory[] = [];
+  jobLoading = false;
+  jobPage = 1;
+  jobLimit = 10;
+  jobTotalPages = 1;
 
   /** JOB FILTER + PAGINATION */
   jobKeyword = '';
@@ -34,10 +39,10 @@ export class CvDetailComponent implements OnInit {
   /** Danh sách job sau khi lọc */
   get filteredJobs() {
     return this.assignedJobs.filter((j) => {
-      const matchName = j.jobName
-        .toLowerCase()
-        .includes(this.jobSearch.toLowerCase());
+      const name = (j.jobName || '').toLowerCase();
+      const keyword = this.jobSearch.toLowerCase().trim();
 
+      const matchName = !keyword || name.includes(keyword);
       const matchStatus =
         this.jobStatus === 'ALL' || j.status === this.jobStatus;
 
@@ -45,9 +50,17 @@ export class CvDetailComponent implements OnInit {
     });
   }
 
+  onFilterChange() {
+    this.pageIndex = 1;
+  }
+
   /** Tổng số trang */
   get totalPages(): number {
     return Math.max(1, Math.ceil(this.filteredJobs.length / this.pageSize));
+  }
+
+  get pages(): number[] {
+    return Array.from({ length: this.totalPages }, (_, i) => i + 1);
   }
 
   get pagedJobs() {
@@ -86,6 +99,7 @@ export class CvDetailComponent implements OnInit {
           fullName: res.fullName ?? res.full_name ?? 'Unknown',
 
           experienceYears: res.experienceYears ?? res.experience_year ?? 0,
+          cccd: res.cccd || '',
         };
 
         this.loading = false;
@@ -94,24 +108,51 @@ export class CvDetailComponent implements OnInit {
     });
   }
 
-  /** JOB ĐÃ GÁN – MOCK DATA */
   loadAssignedJobs() {
-    this.assignedJobs = [
-      {
-        jobName: 'Job #1',
-        department: 'IT',
-        status: 'Phỏng vấn',
-        assignedDate: '31/12/2025',
-        updatedDate: '01/01/2026',
-      },
-      {
-        jobName: 'Job #2',
-        department: 'IT',
-        status: 'Ứng tuyển',
-        assignedDate: '30/12/2025',
-        updatedDate: '01/01/2026',
-      },
-    ];
+    this.jobLoading = true;
+
+    this.cvService
+      .getApplicationsByCv(this.cvId, this.jobPage, this.jobLimit)
+      .subscribe({
+        next: (res: any) => {
+          const data = res?.data || [];
+
+          this.assignedJobs = data.map((a: any) => ({
+            id: a.id,
+            jobName: a.job?.name || 'N/A',
+            status: this.mapApplicationStatus(a.status),
+            appliedAt: this.formatDate(a.appliedAt),
+            updatedAt: this.formatDate(a.updatedAt),
+          }));
+
+          this.jobTotalPages = res?.meta?.totalPages || 1;
+          this.jobLoading = false;
+        },
+        error: (err) => {
+          console.error('Load application history failed', err);
+          this.jobLoading = false;
+        },
+      });
+  }
+
+  mapApplicationStatus(status: string): string {
+    switch (status) {
+      case 'APPLIED':
+        return 'Ứng tuyển';
+      case 'INTERVIEW':
+        return 'Phỏng vấn';
+      case 'OFFER':
+        return 'Đạt';
+      case 'REJECTED':
+        return 'Không đạt';
+      default:
+        return status;
+    }
+  }
+
+  formatDate(date?: string): string {
+    if (!date) return '-';
+    return new Date(date).toLocaleDateString('vi-VN');
   }
 
   /** STATUS */
@@ -156,6 +197,7 @@ export class CvDetailComponent implements OnInit {
       fullName: this.cv.fullName,
       email: this.cv.email,
       phone: this.cv.phone,
+      cccd: this.cv.cccd,
       position: this.cv.position,
       level: this.cv.level,
       experienceYears: this.cv.experienceYears,
