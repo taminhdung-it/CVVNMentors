@@ -1,238 +1,60 @@
 <!-- employee-detail.component.html -->
 <div class="employee-detail-container">
-  <!-- Loading State -->
-  <div class="loading-overlay" *ngIf="loading">
-    <mat-spinner diameter="50"></mat-spinner>
-    <p>Đang tải dữ liệu...</p>
-  </div>
-
-  <!-- Content -->
-  <div class="content" *ngIf="!loading && employee">
+  <div class="content">
     <!-- Header -->
     <div class="page-header">
       <div class="header-left">
-        <button mat-icon-button (click)="onBack()" class="back-button">
+        <button mat-icon-button (click)="onBack()">
           <mat-icon>arrow_back</mat-icon>
         </button>
-        <div class="header-info">
-          <h2>Chi tiết nhân viên</h2>
-          <span class="employee-id">ID: {{ employee.id }}</span>
-        </div>
+        <h2>Chi tiết nhân viên</h2>
       </div>
       <div class="header-actions">
         <button mat-raised-button (click)="onEdit()">
           <mat-icon>edit</mat-icon>
           Chỉnh sửa
         </button>
-        <button mat-raised-button 
-                color="warn" 
-                (click)="onDelete()"
-                [disabled]="deleting">
-          <mat-spinner diameter="20" *ngIf="deleting" class="button-spinner"></mat-spinner>
-          <mat-icon *ngIf="!deleting">delete</mat-icon>
-          <span *ngIf="!deleting">Xóa</span>
-          <span *ngIf="deleting">Đang xóa...</span>
+        <button mat-raised-button color="warn" (click)="onDelete()">
+          <mat-icon>delete</mat-icon>
+          Xóa
         </button>
       </div>
     </div>
 
-    <!-- Main Content Grid -->
-    <div class="detail-grid">
-      <!-- Left Column - Basic Info -->
-      <div class="left-column">
-        <!-- Personal Information Card -->
-        <mat-card class="info-card">
-          <mat-card-header>
-            <mat-card-title>
-              <mat-icon>person</mat-icon>
-              <span>Thông tin cá nhân</span>
-            </mat-card-title>
-          </mat-card-header>
-          <mat-card-content>
-            <div class="avatar-section">
-              <div class="avatar-placeholder">
-                <mat-icon>account_circle</mat-icon>
-              </div>
-              <div class="employee-name-section">
-                <h3>{{ employee.name }}</h3>
-                <span class="status-badge" [class.active]="employee.status === 'active'">
-                  {{ getStatusText(employee.status) }}
-                </span>
-              </div>
-            </div>
+    <!-- Info Card -->
+    <mat-card>
+      <mat-card-content>
+        <div class="info-section">
+          <div class="avatar">
+            <mat-icon>account_circle</mat-icon>
+          </div>
+          <div class="info-details">
+            <h3>{{ employee.name }}</h3>
+            <span class="status-badge" [ngClass]="getStatusClass(employee.status)">
+              {{ getStatusText(employee.status) }}
+            </span>
+          </div>
+        </div>
 
-            <div class="info-list">
-              <div class="info-item">
-                <mat-icon>phone</mat-icon>
-                <div class="info-content">
-                  <span class="info-label">Số điện thoại</span>
-                  <span class="info-value">{{ employee.phone }}</span>
-                </div>
-              </div>
-
-              <div class="info-item">
-                <mat-icon>email</mat-icon>
-                <div class="info-content">
-                  <span class="info-label">Email</span>
-                  <span class="info-value">{{ employee.email }}</span>
-                </div>
-              </div>
-
-              <div class="info-item">
-                <mat-icon>badge</mat-icon>
-                <div class="info-content">
-                  <span class="info-label">Vai trò</span>
-                  <span class="info-value">
-                    <span class="role-badge">{{ employee.role }}</span>
-                  </span>
-                </div>
-              </div>
-
-              <div class="info-item">
-                <mat-icon>location_on</mat-icon>
-                <div class="info-content">
-                  <span class="info-label">Chi nhánh</span>
-                  <span class="info-value">{{ employee.department }}</span>
-                </div>
-              </div>
-            </div>
-          </mat-card-content>
-        </mat-card>
-
-        <!-- Work Schedule Card -->
-        <mat-card class="info-card">
-          <mat-card-header>
-            <mat-card-title>
-              <mat-icon>schedule</mat-icon>
-              <span>Lịch làm việc</span>
-            </mat-card-title>
-          </mat-card-header>
-          <mat-card-content>
-            <div class="schedule-list">
-              <div class="schedule-item" *ngFor="let schedule of workSchedule">
-                <span class="schedule-day">{{ schedule.day }}</span>
-                <span class="schedule-shift">{{ schedule.shift }}</span>
-              </div>
-            </div>
-          </mat-card-content>
-        </mat-card>
-
-        <!-- Actions Card -->
-        <mat-card class="info-card">
-          <mat-card-header>
-            <mat-card-title>
-              <mat-icon>settings</mat-icon>
-              <span>Hành động</span>
-            </mat-card-title>
-          </mat-card-header>
-          <mat-card-content>
-            <div class="action-buttons">
-              <button mat-raised-button color="primary" (click)="onResetPassword()" class="action-btn">
-                <mat-icon>lock_reset</mat-icon>
-                Reset mật khẩu
-              </button>
-              <button mat-raised-button class="action-btn">
-                <mat-icon>history</mat-icon>
-                Xem lịch sử chấm công
-              </button>
-              <button mat-raised-button class="action-btn">
-                <mat-icon>assessment</mat-icon>
-                Xem hiệu suất làm việc
-              </button>
-            </div>
-          </mat-card-content>
-        </mat-card>
-      </div>
-
-      <!-- Right Column - Activity Logs -->
-      <div class="right-column">
-        <!-- Activity Logs Card -->
-        <mat-card class="info-card activity-card">
-          <mat-card-header>
-            <mat-card-title>
-              <mat-icon>history</mat-icon>
-              <span>Lịch sử hoạt động</span>
-            </mat-card-title>
-          </mat-card-header>
-          <mat-card-content>
-            <div class="activity-timeline">
-              <div class="activity-item" *ngFor="let log of activityLogs">
-                <div class="activity-dot"></div>
-                <div class="activity-content">
-                  <div class="activity-header">
-                    <span class="activity-action">{{ log.action }}</span>
-                    <span class="activity-time">{{ formatDate(log.timestamp) }}</span>
-                  </div>
-                  <p class="activity-description">{{ log.description }}</p>
-                </div>
-              </div>
-            </div>
-          </mat-card-content>
-        </mat-card>
-
-        <!-- Statistics Card -->
-        <mat-card class="info-card">
-          <mat-card-header>
-            <mat-card-title>
-              <mat-icon>analytics</mat-icon>
-              <span>Thống kê</span>
-            </mat-card-title>
-          </mat-card-header>
-          <mat-card-content>
-            <div class="stats-grid">
-              <div class="stat-item">
-                <div class="stat-icon">
-                  <mat-icon>event</mat-icon>
-                </div>
-                <div class="stat-content">
-                  <span class="stat-value">23</span>
-                  <span class="stat-label">Ngày làm việc tháng này</span>
-                </div>
-              </div>
-
-              <div class="stat-item">
-                <div class="stat-icon">
-                  <mat-icon>shopping_cart</mat-icon>
-                </div>
-                <div class="stat-content">
-                  <span class="stat-value">156</span>
-                  <span class="stat-label">Đơn hàng xử lý</span>
-                </div>
-              </div>
-
-              <div class="stat-item">
-                <div class="stat-icon">
-                  <mat-icon>people</mat-icon>
-                </div>
-                <div class="stat-content">
-                  <span class="stat-value">89</span>
-                  <span class="stat-label">Khách hàng phục vụ</span>
-                </div>
-              </div>
-
-              <div class="stat-item">
-                <div class="stat-icon">
-                  <mat-icon>star</mat-icon>
-                </div>
-                <div class="stat-content">
-                  <span class="stat-value">4.8/5</span>
-                  <span class="stat-label">Đánh giá trung bình</span>
-                </div>
-              </div>
-            </div>
-          </mat-card-content>
-        </mat-card>
-      </div>
-    </div>
-  </div>
-
-  <!-- Empty State -->
-  <div class="empty-state" *ngIf="!loading && !employee">
-    <mat-icon>person_off</mat-icon>
-    <h3>Không tìm thấy nhân viên</h3>
-    <p>Nhân viên này có thể đã bị xóa hoặc không tồn tại.</p>
-    <button mat-raised-button color="primary" (click)="onBack()">
-      Quay lại danh sách
-    </button>
+        <div class="info-list">
+          <div class="info-item">
+            <mat-icon>phone</mat-icon>
+            <span>{{ employee.phone }}</span>
+          </div>
+          <div class="info-item">
+            <mat-icon>email</mat-icon>
+            <span>{{ employee.email }}</span>
+          </div>
+          <div class="info-item">
+            <mat-icon>badge</mat-icon>
+            <span>{{ employee.role }}</span>
+          </div>
+          <div class="info-item">
+            <mat-icon>location_on</mat-icon>
+            <span>{{ employee.departmentId }}</span>
+          </div>
+        </div>
+      </mat-card-content>
+    </mat-card>
   </div>
 </div>

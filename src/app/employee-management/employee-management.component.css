@@ -2,6 +2,8 @@
 .employee-management-container {
   display: flex;
   gap: 20px;
+  padding: 20px;
+  background-color: #f5f5f5;
   min-height: 100vh;
 }
 
@@ -202,18 +204,31 @@
 
 /* Status Badge */
 .status-badge {
-  display: inline-block;
   padding: 4px 12px;
-  background-color: #fff3e0;
-  color: #f57c00;
   border-radius: 12px;
-  font-size: 13px;
+  font-size: 12px;
   font-weight: 500;
+  display: inline-block;
+  text-align: center;
+  min-width: 120px;
 }
 
-.status-badge.active {
+.status-active {
   background-color: #e8f5e9;
   color: #2e7d32;
+  border: 1px solid #a5d6a7;
+}
+
+.status-inactive {
+  background-color: #ffebee;
+  color: #c62828;
+  border: 1px solid #ef9a9a;
+}
+
+.status-unknown {
+  background-color: #f5f5f5;
+  color: #757575;
+  border: 1px solid #e0e0e0;
 }
 
 /* Action Buttons */
