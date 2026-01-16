@@ -2580,6 +2580,20 @@ export const document: OpenAPIObject = {
                       description: 'Refresh Token',
                   },
                   {
+                      in: 'header',
+                      name: 'accountid',
+                      required: true,
+                      schema: { type: 'string', example: '<Nhập accountid>' },
+                      description: 'accountid',
+                  },
+                  {
+                      in: 'header',
+                      name: 'router',
+                      required: true,
+                      schema: { type: 'string', example: 'application/get' },
+                      description: 'router',
+                  },
+                  {
                       in: 'path',
                       name: 'cvId',
                       required: true,
