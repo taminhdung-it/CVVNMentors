@@ -49,11 +49,12 @@
           <th>MÔ TẢ</th>
           <th>TRẠNG THÁI</th>
           <th>NGÀY TẠO</th>
+          <th>HÀNH ĐỘNG</th>
         </tr>
       </thead>
 
       <tbody>
-        <tr *ngFor="let dept of filteredDepartments; let i = index">
+        <tr *ngFor="let dept of filteredDepartments">
           <td>{{ dept.name }}</td>
           <td>{{ dept.description || "—" }}</td>
           <td>
@@ -66,10 +67,46 @@
             </span>
           </td>
           <td>{{ formatDate(dept.createdAt) }}</td>
-        </tr>
+          <td class="action-col">
+            <div class="action-wrapper">
+              <!-- XEM CHI TIẾT -->
+              <span
+                class="action-icon view"
+                (click)="handleViewDepartment(dept.id)"
+              >
+                <span class="material-symbols-outlined">visibility</span>
+              </span>
 
-        <tr *ngIf="!loading && filteredDepartments.length === 0">
-          <td colspan="4" class="no-data">Không có dữ liệu</td>
+              <!-- 3 CHẤM -->
+              <span
+                class="action-icon more"
+                (click)="toggleActionMenu(dept.id)"
+              >
+                <span class="material-symbols-outlined">more_vert</span>
+              </span>
+
+              <!-- MENU -->
+              <div class="action-menu" *ngIf="openActionId === dept.id">
+                <!-- ĐÓNG -->
+                <div
+                  class="action-item danger"
+                  *ngIf="dept.status === 'ACTIVE'"
+                  (click)="changeStatus(dept, 'INACTIVE')"
+                >
+                  ⛔ Đóng phòng ban
+                </div>
+
+                <!-- MỞ -->
+                <div
+                  class="action-item success"
+                  *ngIf="dept.status === 'INACTIVE'"
+                  (click)="changeStatus(dept, 'ACTIVE')"
+                >
+                  ✅ Mở phòng ban
+                </div>
+              </div>
+            </div>
+          </td>
         </tr>
       </tbody>
     </table>
@@ -160,6 +197,104 @@
           </button>
         </div>
       </form>
+    </div>
+  </div>
+</div>
+<!-- ===== MODAL CHI TIẾT PHÒNG BAN ===== -->
+<!-- ===== MODAL CHI TIẾT PHÒNG BAN ===== -->
+<div class="modal-backdrop" *ngIf="showDetailModal">
+  <div class="modal modal-lg dept-detail-modal">
+    <h2 class="modal-title">Chi tiết phòng ban</h2>
+
+    <ng-container *ngIf="selectedDepartment && !loadingDetail">
+      <div class="dept-detail-grid">
+        <!-- Tên -->
+        <div class="dept-item">
+          <span class="dept-label">Tên phòng ban</span>
+
+          <span *ngIf="!isEditMode" class="dept-value">
+            {{ selectedDepartment.name }}
+          </span>
+
+          <input
+            *ngIf="isEditMode"
+            class="form-input"
+            [(ngModel)]="editForm.name"
+          />
+        </div>
+
+        <!-- Trạng thái -->
+        <div class="status-wrapper">
+          <span
+            class="status-badge"
+            [class.status-open]="selectedDepartment.status === 'ACTIVE'"
+            [class.status-closed]="selectedDepartment.status === 'INACTIVE'"
+          >
+            {{ selectedDepartment.status === "ACTIVE" ? "Hoạt động" : "Đóng" }}
+          </span>
+        </div>
+
+        <!-- Mô tả -->
+        <div class="dept-item full">
+          <span class="dept-label">Mô tả</span>
+
+          <span *ngIf="!isEditMode" class="dept-value muted">
+            {{ selectedDepartment.description || "—" }}
+          </span>
+
+          <textarea
+            *ngIf="isEditMode"
+            class="form-textarea"
+            rows="3"
+            [(ngModel)]="editForm.description"
+          ></textarea>
+        </div>
+
+        <!-- Người tạo -->
+        <div class="dept-item">
+          <span class="dept-label">Người tạo</span>
+          <span class="dept-value">{{ selectedDepartment.createdBy }}</span>
+        </div>
+
+        <!-- Ngày tạo -->
+        <div class="dept-item">
+          <span class="dept-label">Ngày tạo</span>
+          <span class="dept-value">
+            {{ formatDate(selectedDepartment.createdAt) }}
+          </span>
+        </div>
+
+        <!-- Cập nhật -->
+        <div class="dept-item">
+          <span class="dept-label">Cập nhật</span>
+          <span class="dept-value">
+            {{ formatDate(selectedDepartment.updatedAt) }}
+          </span>
+        </div>
+      </div>
+    </ng-container>
+
+    <div *ngIf="loadingDetail" class="loading">Đang tải dữ liệu...</div>
+
+    <!-- ACTIONS CHI TIẾT -->
+    <div class="detail-modal-actions">
+      <!-- MODE XEM -->
+      <ng-container *ngIf="!isEditMode">
+        <button class="btn-secondary" (click)="closeDetailModal()">Đóng</button>
+
+        <button class="btn-primary" (click)="handleEditDepartment()">
+          Chỉnh sửa
+        </button>
+      </ng-container>
+
+      <!-- MODE CHỈNH SỬA -->
+      <ng-container *ngIf="isEditMode">
+        <button class="btn-secondary" (click)="isEditMode = false">Hủy</button>
+
+        <button class="btn-primary" (click)="handleUpdateDepartment()">
+          Cập nhật
+        </button>
+      </ng-container>
     </div>
   </div>
 </div>

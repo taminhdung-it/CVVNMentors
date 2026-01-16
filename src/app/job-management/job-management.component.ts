@@ -1,6 +1,8 @@
 import { Component, OnInit } from '@angular/core';
 import { JobService } from '../auth/auth/job.service';
 import type { ApplicationDetail, JobApi } from '../models/job.model';
+import { Department } from '../models/department.model';
+import { DepartmentService } from '../auth/auth/department.service';
 
 export type ApplicationStatus =
   | 'APPLIED'
@@ -71,6 +73,8 @@ export class JobManagementComponent implements OnInit {
   currentView: 'job-list' | 'job-detail' = 'job-list';
   activeDetailTab: 'candidates' | 'info' = 'candidates';
   selectedJob?: Job;
+  departments: Department[] = [];
+
   // ===== APPLICATION DETAIL MODE =====
   applicationMode: 'view' | 'edit' = 'view';
 
@@ -132,7 +136,10 @@ export class JobManagementComponent implements OnInit {
 
   isSavingApplication = false;
 
-  constructor(private jobService: JobService) {}
+  constructor(
+    private jobService: JobService,
+    private departmentService: DepartmentService
+  ) {}
 
   // ===== INIT =====
   ngOnInit(): void {
@@ -183,6 +190,21 @@ export class JobManagementComponent implements OnInit {
       REJECTED: 'Từ chối',
     };
     return map[status];
+  }
+
+  loadActiveDepartments() {
+    this.departmentService.getDepartments(1, 100).subscribe({
+      next: (res) => {
+        // ✅ chỉ lấy phòng ban đang ACTIVE
+        this.departments = res.data.filter((dept) => dept.status === 'ACTIVE');
+
+        console.log('ACTIVE DEPARTMENTS', this.departments);
+      },
+      error: (err) => {
+        console.error('Load departments failed', err);
+        alert('Không tải được danh sách phòng ban');
+      },
+    });
   }
 
   changeCandidateStatus(candidate: Candidate, status: ApplicationStatus) {
@@ -791,6 +813,22 @@ export class JobManagementComponent implements OnInit {
     this.modalMode = 'add';
     this.editingJobId = null;
     this.showAddJobModal = true;
+
+    // reset form
+    this.newJob = {
+      id: 0,
+      jobApiId: '',
+      title: '',
+      department: '',
+      createdDate: '',
+      status: 'Mở',
+      description: '',
+      recruitmentCount: 0,
+      requirements: '',
+    };
+
+    // ⭐ LOAD PHÒNG BAN Ở ĐÂY
+    this.loadActiveDepartments();
   }
 
   handleOpenEditModal(job: Job) {
@@ -805,6 +843,29 @@ export class JobManagementComponent implements OnInit {
   }
 
   handleSaveJob() {
+    if (!this.newJob.title.trim()) {
+      alert('Tên job không được để trống');
+      return;
+    }
+
+    if (!this.newJob.department) {
+      alert('Vui lòng chọn phòng ban');
+      return;
+    }
+
+    const payload = {
+      name: this.newJob.title,
+      departmentId: this.newJob.department, // ✅ ID PHÒNG BAN
+      description: this.newJob.description,
+      headcountTarget: this.newJob.recruitmentCount,
+      skills: this.newJob.requirements
+        ? this.newJob.requirements.split(',').map((s) => s.trim())
+        : [],
+    };
+
+    console.log('CREATE JOB PAYLOAD', payload);
+
+    // 👉 bước này bạn sẽ gắn API create job sau
     this.showAddJobModal = false;
   }
 

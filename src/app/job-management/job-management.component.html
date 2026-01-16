@@ -498,12 +498,22 @@
         </div>
 
         <div class="form-group">
-          <label class="form-label">Phòng ban</label>
-          <input
-            type="text"
-            [(ngModel)]="newJob.department"
+          <label class="form-label">
+            Phòng ban <span class="required">*</span>
+          </label>
+
+          <select
             class="form-input"
-          />
+            [(ngModel)]="newJob.department"
+            name="department"
+            required
+          >
+            <option value="" disabled>Chọn phòng ban</option>
+
+            <option *ngFor="let dept of departments" [value]="dept.id">
+              {{ dept.name }}
+            </option>
+          </select>
         </div>
 
         <div class="form-group">

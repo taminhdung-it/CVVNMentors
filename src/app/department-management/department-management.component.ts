@@ -12,7 +12,19 @@ import { DepartmentService } from '../auth/auth/department.service';
   styleUrls: ['./department-management.component.css'],
 })
 export class DepartmentManagementComponent implements OnInit {
+  // ===== MODAL CHI TIẾT =====
+  showDetailModal: boolean = false;
+  selectedDepartment: Department | null = null;
+  loadingDetail: boolean = false;
+  isEditMode: boolean = false;
+  openActionId: string | null = null;
+
   departments: Department[] = [];
+
+  editForm = {
+    name: '',
+    description: '',
+  };
 
   // filter
   searchTerm = '';
@@ -71,9 +83,21 @@ export class DepartmentManagementComponent implements OnInit {
   }
 
   /** Convert timestamp → dd-MM-yyyy */
-  formatDate(ts?: ApiTimestamp): string {
+  formatDate(ts?: ApiTimestamp | string): string {
     if (!ts) return '—';
-    return new Date(ts._seconds * 1000).toLocaleDateString('vi-VN');
+
+    // ✅ API detail trả string ISO
+    if (typeof ts === 'string') {
+      const d = new Date(ts);
+      return isNaN(d.getTime()) ? '—' : d.toLocaleDateString('vi-VN');
+    }
+
+    // ✅ API list trả Firestore Timestamp
+    if ('_seconds' in ts) {
+      return new Date(ts._seconds * 1000).toLocaleDateString('vi-VN');
+    }
+
+    return '—';
   }
 
   /** Status label tiếng Việt */
@@ -192,5 +216,94 @@ export class DepartmentManagementComponent implements OnInit {
     if (confirm('Bạn chắc chắn muốn xoá phòng ban này?')) {
       alert('⚠️ API delete chưa được gắn');
     }
+  }
+
+  handleViewDepartment(deptId: string): void {
+    this.loadingDetail = true;
+    this.showDetailModal = true;
+    this.isEditMode = false;
+
+    this.departmentService.getDepartmentDetail(deptId).subscribe({
+      next: (res) => {
+        this.selectedDepartment = res;
+        this.loadingDetail = false;
+      },
+      error: (err) => {
+        console.error(err);
+        alert('Không thể tải chi tiết phòng ban');
+        this.loadingDetail = false;
+        this.showDetailModal = false;
+      },
+    });
+  }
+
+  closeDetailModal(): void {
+    this.showDetailModal = false;
+    this.selectedDepartment = null;
+    this.isEditMode = false;
+  }
+
+  handleEditDepartment(): void {
+    if (!this.selectedDepartment) return;
+
+    this.isEditMode = true;
+
+    this.editForm = {
+      name: this.selectedDepartment.name,
+      description: this.selectedDepartment.description || '',
+    };
+  }
+
+  handleUpdateDepartment(): void {
+    if (!this.selectedDepartment) return;
+
+    if (!this.editForm.name.trim()) {
+      alert('Tên phòng ban không được để trống');
+      return;
+    }
+
+    this.departmentService
+      .updateDepartment(this.selectedDepartment.id, {
+        name: this.editForm.name,
+        description: this.editForm.description,
+      })
+      .subscribe({
+        next: (res) => {
+          alert('✅ Cập nhật phòng ban thành công');
+
+          // Cập nhật lại UI
+          this.isEditMode = false;
+          this.showDetailModal = false;
+          this.loadDepartments();
+        },
+        error: (err) => {
+          console.error(err);
+          alert('❌ Cập nhật phòng ban thất bại');
+        },
+      });
+  }
+
+  toggleActionMenu(id: string): void {
+    this.openActionId = this.openActionId === id ? null : id;
+  }
+
+  changeStatus(dept: Department, status: 'ACTIVE' | 'INACTIVE'): void {
+    const confirmMsg =
+      status === 'INACTIVE'
+        ? 'Bạn có chắc muốn đóng phòng ban này?'
+        : 'Bạn có chắc muốn mở lại phòng ban này?';
+
+    if (!confirm(confirmMsg)) return;
+
+    this.departmentService.updateDepartmentStatus(dept.id, status).subscribe({
+      next: (res) => {
+        alert(res.message); // ✅ thông báo backend trả về
+        this.openActionId = null;
+        this.loadDepartments(); // reload danh sách
+      },
+      error: () => {
+        alert('❌ Đổi trạng thái thất bại');
+      },
+    });
   }
 }
