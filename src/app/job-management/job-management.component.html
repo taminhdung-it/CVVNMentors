@@ -37,10 +37,6 @@
             <option value="Đóng">Đóng</option>
           </select>
 
-          <select class="filter-select">
-            <option value="">Job đã gắn</option>
-          </select>
-
           <button (click)="handleClearFilters()" class="btn-clear-filter">
             Xóa bộ lọc
           </button>
@@ -347,14 +343,52 @@
 
                 <td>{{ candidate.appliedAt }}</td>
                 <td class="action-cell">
-                  <!-- XEM CHI TIẾT -->
-                  <span
-                    class="action-icon view"
-                    title="Xem chi tiết hồ sơ"
-                    (click)="viewApplicationDetail(candidate.id)"
-                  >
-                    <span class="material-symbols-outlined">visibility</span>
-                  </span>
+                  <div class="action-wrapper">
+                    <!-- icon xem -->
+                    <span
+                      class="action-icon view"
+                      title="Xem chi tiết"
+                      (click)="viewApplicationDetail(candidate.id)"
+                    >
+                      <span class="material-symbols-outlined">visibility</span>
+                    </span>
+
+                    <!-- 3 chấm -->
+                    <span
+                      class="action-icon more"
+                      *ngIf="
+                        getAllowedNextStatuses(candidate.status).length > 0
+                      "
+                      (click)="toggleCandidateStatusMenu(candidate.id)"
+                    >
+                      <span class="material-symbols-outlined">more_vert</span>
+                    </span>
+
+                    <!-- MENU -->
+                    <div
+                      class="action-toolbar"
+                      style="
+                        border: 2px solid red;
+                        min-width: 60px;
+                        min-height: 40px;
+                      "
+                      *ngIf="openCandidateActionId === candidate.id"
+                    >
+                      <span
+                        *ngFor="
+                          let s of getAllowedNextStatuses(candidate.status)
+                        "
+                        class="tool-item"
+                        [class.danger]="s === 'REJECTED'"
+                        (click)="changeCandidateStatus(candidate, s)"
+                        [title]="getStatusLabel(s)"
+                      >
+                        <span class="material-symbols-outlined">
+                          {{ getStatusIcon(s) }}
+                        </span>
+                      </span>
+                    </div>
+                  </div>
                 </td>
               </tr>
             </tbody>
@@ -515,7 +549,7 @@
   *ngIf="showApplicationDetail && selectedApplication"
 >
   <div class="modal modal-lg application-detail-modal">
-    <!-- HEADER -->
+    <!-- ================= HEADER ================= -->
     <div class="modal-header">
       <h2>Chi tiết hồ sơ ứng tuyển</h2>
 
@@ -523,196 +557,172 @@
         <span class="status-pill">
           {{ selectedApplication.status }}
         </span>
-
-        <!-- 3 chấm -->
-        <span class="status-more" (click)="toggleStatusMenu()">
-          <span class="material-symbols-outlined">more_vert</span>
-        </span>
-
-        <!-- MENU -->
-        <div class="status-menu" *ngIf="showStatusMenu">
-          <button
-            *ngIf="selectedApplication.status === 'SCREENING'"
-            (click)="updateApplicationStatus('INTERVIEW')"
-          >
-            → Phỏng vấn
-          </button>
-
-          <button class="danger" (click)="updateApplicationStatus('REJECTED')">
-            ✖ Từ chối
-          </button>
-        </div>
       </div>
     </div>
-  </div>
 
-  <!-- BODY -->
-  <div class="modal-body">
-    <!-- ================= APPLICATION INFO ================= -->
-    <!-- ===== VIEW MODE ===== -->
-    <ng-container *ngIf="applicationMode === 'view'">
-      <div class="section section-primary">
+    <!-- ================= BODY ================= -->
+    <div class="modal-body">
+      <!-- ===== VIEW MODE ===== -->
+      <ng-container *ngIf="applicationMode === 'view'">
+        <div class="section section-primary">
+          <div class="section-header">
+            <span class="icon">📄</span>
+            <h3>Thông tin hồ sơ ứng tuyển</h3>
+          </div>
+
+          <div class="info-grid">
+            <div class="info-item">
+              <label>Ngày nộp</label>
+              <p>{{ selectedApplication.appliedAt }}</p>
+            </div>
+
+            <div class="info-item">
+              <label>Cập nhật</label>
+              <p>{{ selectedApplication.updatedAt }}</p>
+            </div>
+
+            <div class="info-item">
+              <label>Đánh giá</label>
+              <p>{{ selectedApplication.rating ?? "—" }}</p>
+            </div>
+
+            <div class="info-item">
+              <label>Feedback</label>
+              <p>{{ selectedApplication.feedback ?? "—" }}</p>
+            </div>
+
+            <div class="info-item full">
+              <label>Lịch phỏng vấn</label>
+              <p>
+                {{
+                  selectedApplication.interviewScheduled
+                    ? (selectedApplication.interviewScheduled
+                      | date : "dd-MM-yyyy")
+                    : "Chưa lên lịch"
+                }}
+              </p>
+            </div>
+          </div>
+
+          <div class="reject-box" *ngIf="selectedApplication.rejectionReason">
+            <strong>Lý do từ chối</strong>
+            <p>{{ selectedApplication.rejectionReason }}</p>
+          </div>
+        </div>
+      </ng-container>
+
+      <!-- ===== EDIT MODE ===== -->
+      <ng-container *ngIf="applicationMode === 'edit'">
+        <div class="section section-primary">
+          <div class="section-header">
+            <span class="icon">✏️</span>
+            <h3>Cập nhật hồ sơ ứng tuyển</h3>
+          </div>
+
+          <div class="info-grid">
+            <div class="info-item">
+              <label>Lịch phỏng vấn</label>
+              <input
+                type="datetime-local"
+                [(ngModel)]="editForm.interviewScheduled"
+                class="form-input"
+              />
+            </div>
+
+            <div class="info-item">
+              <label>Đánh giá (1–5)</label>
+              <input
+                type="number"
+                min="1"
+                max="5"
+                [(ngModel)]="editForm.rating"
+                class="form-input"
+              />
+            </div>
+
+            <div class="info-item full">
+              <label>Feedback</label>
+              <textarea
+                [(ngModel)]="editForm.feedback"
+                class="form-textarea"
+                rows="3"
+              ></textarea>
+            </div>
+
+            <div class="info-item full">
+              <label>Lý do từ chối</label>
+              <textarea
+                [(ngModel)]="editForm.rejectionReason"
+                class="form-textarea"
+                rows="3"
+              ></textarea>
+            </div>
+          </div>
+        </div>
+      </ng-container>
+
+      <!-- ===== JOB LIÊN QUAN ===== -->
+      <div class="section section-secondary">
         <div class="section-header">
-          <span class="icon">📄</span>
-          <h3>Thông tin hồ sơ ứng tuyển</h3>
+          <span class="icon">💼</span>
+          <h3>Job liên quan</h3>
         </div>
 
-        <div class="info-grid">
-          <div class="info-item">
-            <label>Ngày nộp</label>
-            <p>{{ selectedApplication.appliedAt }}</p>
+        <div class="job-card">
+          <div class="job-title">
+            {{ selectedApplication.job.name }}
           </div>
 
-          <div class="info-item">
-            <label>Cập nhật</label>
-            <p>{{ selectedApplication.updatedAt }}</p>
-          </div>
+          <div class="job-meta">
+            <span>
+              <b>Phòng ban:</b>
+              {{ selectedApplication.job.departmentName || "—" }}
+            </span>
 
-          <div class="info-item">
-            <label>Đánh giá</label>
-            <p>{{ selectedApplication.rating ?? "—" }}</p>
-          </div>
+            <span>
+              <b>Trạng thái:</b>
+              {{ selectedApplication.job.status }}
+            </span>
 
-          <div class="info-item">
-            <label>Feedback</label>
-            <p>{{ selectedApplication.feedback ?? "—" }}</p>
-          </div>
+            <span>
+              <b>Số lượng tuyển:</b>
+              {{ selectedApplication.job.headcountTarget }}
+            </span>
 
-          <div class="info-item full">
-            <label>Lịch phỏng vấn</label>
-            <p>
-              {{
-                selectedApplication.interviewScheduled
-                  ? (selectedApplication.interviewScheduled
-                    | date : "dd-MM-yyyy")
-                  : "Chưa lên lịch"
-              }}
-            </p>
-          </div>
-        </div>
-
-        <div class="reject-box" *ngIf="selectedApplication.rejectionReason">
-          <strong>Lý do từ chối</strong>
-          <p>{{ selectedApplication.rejectionReason }}</p>
-        </div>
-      </div>
-    </ng-container>
-    <!-- ===== EDIT MODE ===== -->
-    <ng-container *ngIf="applicationMode === 'edit'">
-      <div class="section section-primary">
-        <div class="section-header">
-          <span class="icon">✏️</span>
-          <h3>Cập nhật hồ sơ ứng tuyển</h3>
-        </div>
-
-        <div class="info-grid">
-          <!-- LỊCH PV -->
-          <div class="info-item">
-            <label>Lịch phỏng vấn</label>
-            <input
-              type="datetime-local"
-              [(ngModel)]="editForm.interviewScheduled"
-              class="form-input"
-            />
-          </div>
-
-          <!-- ĐÁNH GIÁ -->
-          <div class="info-item">
-            <label>Đánh giá (1–5)</label>
-            <input
-              type="number"
-              min="1"
-              max="5"
-              [(ngModel)]="editForm.rating"
-              class="form-input"
-            />
-          </div>
-
-          <!-- FEEDBACK -->
-          <div class="info-item full">
-            <label>Feedback</label>
-            <textarea
-              [(ngModel)]="editForm.feedback"
-              class="form-textarea"
-              rows="3"
-            ></textarea>
-          </div>
-
-          <!-- LÝ DO TỪ CHỐI -->
-          <div class="info-item full">
-            <label>Lý do từ chối</label>
-            <textarea
-              [(ngModel)]="editForm.rejectionReason"
-              class="form-textarea"
-              rows="3"
-            ></textarea>
+            <span>
+              <b>Hạn nhận CV:</b>
+              {{ selectedApplication.job.applyEnd | date : "dd-MM-yyyy" }}
+            </span>
           </div>
         </div>
       </div>
-    </ng-container>
-  </div>
-
-  <!-- ================= RELATED JOB ================= -->
-  <div class="section section-secondary">
-    <div class="section-header">
-      <span class="icon">💼</span>
-      <h3>Job liên quan</h3>
     </div>
 
-    <div class="job-card">
-      <div class="job-title">
-        {{ selectedApplication.job.name }}
-      </div>
+    <!-- ================= FOOTER ================= -->
+    <div class="modal-footer">
+      <ng-container *ngIf="applicationMode === 'view'">
+        <button class="btn-secondary" (click)="showApplicationDetail = false">
+          Đóng
+        </button>
 
-      <div class="job-meta">
-        <span>
-          <b>Phòng ban:</b>
-          {{ selectedApplication.job.departmentName || "—" }}
-        </span>
+        <button class="btn-primary" (click)="enterEditApplication()">
+          ✏️ Chỉnh sửa
+        </button>
+      </ng-container>
 
-        <span>
-          <b>Trạng thái:</b>
-          {{ selectedApplication.job.status }}
-        </span>
+      <ng-container *ngIf="applicationMode === 'edit'">
+        <button class="btn-secondary" (click)="applicationMode = 'view'">
+          Hủy
+        </button>
 
-        <span>
-          <b>Số lượng tuyển:</b>
-          {{ selectedApplication.job.headcountTarget }}
-        </span>
-
-        <span>
-          <b>Hạn nhận CV:</b>
-          {{ selectedApplication.job.applyEnd | date : "dd-MM-yyyy" }}
-        </span>
-      </div>
+        <button
+          class="btn-primary"
+          [disabled]="isSavingApplication"
+          (click)="saveApplicationDetail()"
+        >
+          {{ isSavingApplication ? "Đang lưu..." : "Lưu cập nhật" }}
+        </button>
+      </ng-container>
     </div>
-  </div>
-  <!-- FOOTER -->
-  <div class="modal-footer">
-    <!-- VIEW MODE -->
-    <ng-container *ngIf="applicationMode === 'view'">
-      <button class="btn-secondary" (click)="showApplicationDetail = false">
-        Đóng
-      </button>
-
-      <button class="btn-primary" (click)="enterEditApplication()">
-        ✏️ Chỉnh sửa
-      </button>
-    </ng-container>
-
-    <!-- EDIT MODE -->
-    <ng-container *ngIf="applicationMode === 'edit'">
-      <button class="btn-secondary" (click)="applicationMode = 'view'">
-        Hủy
-      </button>
-
-      <button
-        class="btn-primary"
-        [disabled]="isSavingApplication"
-        (click)="saveApplicationDetail()"
-      >
-        {{ isSavingApplication ? "Đang lưu..." : "Lưu cập nhật" }}
-      </button>
-    </ng-container>
   </div>
 </div>

@@ -32,7 +32,7 @@
     <span
       class="tab"
       [class.active]="activeTab === 'jobs'"
-      (click)="activeTab = 'jobs'"
+      (click)="activeTab = 'jobs'; loadAssignedJobs()"
     >
       Job đã gán ({{ assignedJobs.length }})
     </span>
@@ -291,10 +291,14 @@
 
         <!-- FILTER -->
         <div class="section">
-          <div style="display: flex; gap: 8px; margin-bottom: 12px">
-            <input placeholder="Tìm theo tên job..." [(ngModel)]="jobSearch" />
+          <div class="job-filter">
+            <input
+              placeholder="Tìm theo tên job..."
+              [(ngModel)]="jobSearch"
+              (ngModelChange)="onFilterChange()"
+            />
 
-            <select [(ngModel)]="jobStatus">
+            <select [(ngModel)]="jobStatus" (change)="onFilterChange()">
               <option value="ALL">Tất cả trạng thái</option>
               <option>Ứng tuyển</option>
               <option>Phỏng vấn</option>
@@ -308,44 +312,50 @@
             <thead>
               <tr>
                 <th>Tên Job</th>
-                <th>Phòng ban</th>
                 <th>Trạng thái</th>
                 <th>Ngày gán</th>
                 <th>Cập nhật</th>
               </tr>
             </thead>
+
             <tbody>
               <tr *ngFor="let j of pagedJobs">
-                <td class="link">{{ j.jobName }}</td>
-                <td>{{ j.department }}</td>
+                <td class="job-name">{{ j.jobName }}</td>
                 <td>
                   <span class="badge status">{{ j.status }}</span>
                 </td>
-                <td>{{ j.assignedDate }}</td>
-                <td>{{ j.updatedDate }}</td>
+                <td>{{ j.appliedAt }}</td>
+                <td>{{ j.updatedAt }}</td>
+              </tr>
+
+              <tr *ngIf="!jobLoading && pagedJobs.length === 0">
+                <td colspan="4" class="empty">Chưa có lịch sử ứng tuyển</td>
               </tr>
             </tbody>
           </table>
 
           <!-- PAGINATION -->
-          <div
-            style="
-              display: flex;
-              justify-content: center;
-              gap: 12px;
-              margin-top: 12px;
-            "
-          >
+          <!-- PAGINATION -->
+          <div class="pagination" *ngIf="totalPages > 1">
             <button
+              class="page-btn"
               (click)="changePage(pageIndex - 1)"
               [disabled]="pageIndex === 1"
             >
               ‹
             </button>
 
-            <span>Trang {{ pageIndex }} / {{ totalPages }}</span>
+            <button
+              *ngFor="let p of pages"
+              class="page-btn"
+              [class.active]="p === pageIndex"
+              (click)="changePage(p)"
+            >
+              {{ p }}
+            </button>
 
             <button
+              class="page-btn"
               (click)="changePage(pageIndex + 1)"
               [disabled]="pageIndex === totalPages"
             >

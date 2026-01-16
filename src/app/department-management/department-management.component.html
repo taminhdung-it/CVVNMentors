@@ -1,0 +1,165 @@
+<div class="page-header">
+  <h1>Danh sách Phòng Ban</h1>
+
+  <button class="btn-add-job" (click)="handleOpenAddModal()">
+    <span class="btn-icon">+</span>
+    Thêm phòng ban
+  </button>
+</div>
+
+<!-- FILTER -->
+<div class="filter-box">
+  <div class="filter-row">
+    <div class="search-input-wrapper">
+      <span class="search-icon">🔍</span>
+      <input
+        type="text"
+        placeholder="Tìm kiếm..."
+        [(ngModel)]="searchTerm"
+        class="search-input"
+      />
+    </div>
+
+    <!-- LỌC THEO TÊN PHÒNG BAN -->
+    <select [(ngModel)]="nameFilter" class="filter-select">
+      <option value="">Tất cả phòng ban</option>
+      <option *ngFor="let name of departmentNames" [value]="name">
+        {{ name }}
+      </option>
+    </select>
+
+    <!-- LỌC THEO TRẠNG THÁI -->
+    <select [(ngModel)]="statusFilter" class="filter-select">
+      <option value="">Tất cả trạng thái</option>
+      <option value="ACTIVE">Đang hoạt động</option>
+      <option value="INACTIVE">Đóng</option>
+    </select>
+
+    <button class="btn-clear-filter" (click)="handleClearFilters()">
+      Xóa bộ lọc
+    </button>
+  </div>
+
+  <!-- TABLE -->
+  <div class="table-container">
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th>TÊN PHÒNG BAN</th>
+          <th>MÔ TẢ</th>
+          <th>TRẠNG THÁI</th>
+          <th>NGÀY TẠO</th>
+        </tr>
+      </thead>
+
+      <tbody>
+        <tr *ngFor="let dept of filteredDepartments; let i = index">
+          <td>{{ dept.name }}</td>
+          <td>{{ dept.description || "—" }}</td>
+          <td>
+            <span
+              class="status-badge"
+              [class.status-open]="dept.status === 'ACTIVE'"
+              [class.status-closed]="dept.status === 'INACTIVE'"
+            >
+              {{ getStatusLabel(dept.status) }}
+            </span>
+          </td>
+          <td>{{ formatDate(dept.createdAt) }}</td>
+        </tr>
+
+        <tr *ngIf="!loading && filteredDepartments.length === 0">
+          <td colspan="4" class="no-data">Không có dữ liệu</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- PAGINATION -->
+  <div class="pagination">
+    <!-- PREV -->
+    <button class="page-btn" [disabled]="page === 1" (click)="prevPage()">
+      ←
+    </button>
+
+    <!-- PAGE NUMBERS -->
+    <button
+      *ngFor="let p of pages"
+      class="page-btn"
+      [class.active]="p === page"
+      (click)="goToPage(p)"
+    >
+      {{ p }}
+    </button>
+
+    <!-- NEXT -->
+    <button
+      class="page-btn"
+      [disabled]="page === totalPages"
+      (click)="nextPage()"
+    >
+      →
+    </button>
+  </div>
+  <!-- ================= MODAL THÊM PHÒNG BAN ================= -->
+  <div class="modal-backdrop" *ngIf="showAddModal">
+    <div class="modal">
+      <h2 class="modal-title">Thêm phòng ban mới</h2>
+
+      <form class="modal-form">
+        <div class="form-group">
+          <label class="form-label">
+            Tên phòng ban <span class="required">*</span>
+          </label>
+          <input
+            type="text"
+            class="form-input"
+            [(ngModel)]="newDepartment.name"
+            name="name"
+            placeholder="Nhập tên phòng ban"
+          />
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Mô tả</label>
+          <textarea
+            class="form-textarea"
+            rows="3"
+            [(ngModel)]="newDepartment.description"
+            name="description"
+          ></textarea>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Trạng thái</label>
+          <select
+            class="form-input"
+            [(ngModel)]="newDepartment.status"
+            name="status"
+          >
+            <option value="ACTIVE">Hoạt động</option>
+            <option value="INACTIVE">Đóng</option>
+          </select>
+        </div>
+
+        <div class="modal-actions">
+          <button
+            type="button"
+            class="btn-secondary"
+            (click)="handleCloseModal()"
+          >
+            Hủy
+          </button>
+
+          <button
+            type="button"
+            class="btn-primary"
+            (click)="handleSaveDepartment()"
+          >
+            Thêm phòng ban
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>

@@ -16,8 +16,7 @@ import { EmployeeManagementComponent } from './employee-management/employee-mana
 import { RolePermissionComponent } from './role-permission/role-permission.component';
 import { EmployeeDetailComponent } from './employee-detail/employee-detail.component';
 import { EmployeeEditComponent } from './employee-edit/employee-edit.component';
-
-
+import { DepartmentManagementComponent } from './department-management/department-management.component';
 
 const routes: Routes = [
   { path: 'login', component: LoginComponent },
@@ -58,6 +57,11 @@ const routes: Routes = [
       { path: 'employee/role-permission', component: RolePermissionComponent },
       { path: 'employee/detail/:id', component: EmployeeDetailComponent },
       { path: 'employee/edit/:id', component: EmployeeEditComponent },
+      {
+        path: 'department',
+        component: DepartmentManagementComponent,
+        data: { title: 'Quản lý Phòng ban' },
+      },
     ],
   },
 

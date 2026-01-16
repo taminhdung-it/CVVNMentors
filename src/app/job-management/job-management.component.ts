@@ -6,6 +6,7 @@ export type ApplicationStatus =
   | 'APPLIED'
   | 'SCREENING'
   | 'INTERVIEW'
+  | 'OFFERED'
   | 'HIRED'
   | 'REJECTED';
 
@@ -104,6 +105,7 @@ export class JobManagementComponent implements OnInit {
   selectedApplication?: ApplicationDetail;
   showApplicationDetail = false;
   showStatusMenu = false;
+  openCandidateActionId: string | null = null;
 
   // ===== PAGINATION =====
   currentPage = 1;
@@ -139,6 +141,90 @@ export class JobManagementComponent implements OnInit {
 
   toggleStatusMenu() {
     this.showStatusMenu = !this.showStatusMenu;
+  }
+
+  toggleCandidateStatusMenu(applicationId: string) {
+    this.openCandidateActionId =
+      this.openCandidateActionId === applicationId ? null : applicationId;
+  }
+
+  getAllowedNextStatuses(current: ApplicationStatus): ApplicationStatus[] {
+    const workflow: Record<ApplicationStatus, ApplicationStatus[]> = {
+      APPLIED: ['SCREENING', 'REJECTED'],
+      SCREENING: ['INTERVIEW', 'REJECTED'],
+      INTERVIEW: ['OFFERED', 'REJECTED'],
+      OFFERED: ['HIRED', 'REJECTED'],
+      HIRED: [],
+      REJECTED: [],
+    };
+
+    return workflow[current] || [];
+  }
+
+  getStatusIcon(status: ApplicationStatus): string {
+    const map: Record<ApplicationStatus, string> = {
+      APPLIED: 'inbox',
+      SCREENING: 'manage_search',
+      INTERVIEW: 'forum',
+      OFFERED: 'handshake',
+      HIRED: 'check_circle',
+      REJECTED: 'block',
+    };
+    return map[status];
+  }
+
+  getStatusLabel(status: ApplicationStatus): string {
+    const map: Record<ApplicationStatus, string> = {
+      APPLIED: 'Đã nộp',
+      SCREENING: 'Sàng lọc',
+      INTERVIEW: 'Phỏng vấn',
+      OFFERED: 'Mời nhận việc',
+      HIRED: 'Đã tuyển',
+      REJECTED: 'Từ chối',
+    };
+    return map[status];
+  }
+
+  changeCandidateStatus(candidate: Candidate, status: ApplicationStatus) {
+    let rejectionReason: string | undefined;
+
+    if (status === 'REJECTED') {
+      const reason = prompt('Nhập lý do từ chối');
+      if (!reason) return;
+      rejectionReason = reason;
+    }
+
+    this.jobService
+      .updateApplicationStatus(candidate.id, {
+        status,
+        rejectionReason,
+      })
+      .subscribe({
+        next: () => {
+          candidate.status = status;
+          candidate.rejectionReason = rejectionReason ?? null;
+          this.openCandidateActionId = null;
+        },
+        error: (err) => {
+          alert(err?.error?.message || 'Cập nhật trạng thái thất bại');
+        },
+      });
+  }
+
+  canChangeStatus(
+    current: ApplicationStatus,
+    next: ApplicationStatus
+  ): boolean {
+    const workflow: Record<ApplicationStatus, ApplicationStatus[]> = {
+      APPLIED: ['SCREENING', 'REJECTED'],
+      SCREENING: ['INTERVIEW', 'REJECTED'],
+      INTERVIEW: ['OFFERED', 'REJECTED'],
+      OFFERED: ['HIRED', 'REJECTED'],
+      HIRED: [],
+      REJECTED: [],
+    };
+
+    return workflow[current]?.includes(next) ?? false;
   }
 
   // ===== API: LOAD JOBS =====
@@ -253,7 +339,8 @@ export class JobManagementComponent implements OnInit {
     const allowed: Record<ApplicationStatus, ApplicationStatus[]> = {
       APPLIED: ['SCREENING', 'REJECTED'],
       SCREENING: ['INTERVIEW', 'REJECTED'],
-      INTERVIEW: ['HIRED', 'REJECTED'],
+      INTERVIEW: ['OFFERED', 'REJECTED'],
+      OFFERED: ['HIRED', 'REJECTED'],
       HIRED: [],
       REJECTED: [],
     };
@@ -417,6 +504,34 @@ export class JobManagementComponent implements OnInit {
 
       createdBy: job.createdBy,
     };
+  }
+
+  private callUpdateStatus(
+    candidate: Candidate,
+    status: ApplicationStatus,
+    rejectionReason?: string
+  ) {
+    const payload: any = { status };
+
+    if (status === 'REJECTED') {
+      payload.rejectionReason = rejectionReason;
+    }
+
+    this.jobService.updateApplicationStatus(candidate.id, payload).subscribe({
+      next: () => {
+        candidate.status = status;
+        if (rejectionReason) {
+          candidate.rejectionReason = rejectionReason;
+        }
+
+        this.openCandidateActionId = null;
+        alert('Cập nhật trạng thái thành công');
+      },
+      error: (err) => {
+        console.error(err);
+        alert(err?.error?.message || 'Cập nhật trạng thái thất bại');
+      },
+    });
   }
 
   private formatDate(date: string): string {

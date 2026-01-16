@@ -171,17 +171,17 @@ export class JobService {
       status: ApplicationStatus;
       rejectionReason?: string;
     }
-  ) {
+  ): Observable<any> {
     const headers = new HttpHeaders({
-      Authorization: `Bearer ${sessionStorage.getItem('access_token')}`,
-      refreshToken: sessionStorage.getItem('refresh_token') || '',
-      accountId: sessionStorage.getItem('account_id') || '',
+      Authorization: `Bearer ${sessionStorage.getItem('accesstoken')}`,
+      refreshtoken: sessionStorage.getItem('refreshtoken') || '',
+      accountid: sessionStorage.getItem('accountid') || '',
       router: 'application/changestatus',
       'Content-Type': 'application/json',
     });
 
     return this.http.patch(
-      `${this.API_URL}/applications/${id}/status`,
+      `https://cvvnmentors.onrender.com/applications/${id}/status`,
       payload,
       { headers }
     );

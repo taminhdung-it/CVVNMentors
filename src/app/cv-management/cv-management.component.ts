@@ -14,6 +14,13 @@ export interface CV {
   checked?: boolean;
 }
 
+interface Job {
+  id: string;
+  name: string;
+  departmentId?: string;
+  departmentName?: string; // 👈 thêm
+}
+
 @Component({
   selector: 'app-cv-management',
   templateUrl: './cv-management.component.html',
@@ -46,15 +53,16 @@ export class CvManagementComponent implements OnInit {
   assignedCount = 0;
   assignedJob = '';
 
-  jobs = ['Frontend Developer', 'Backend Developer', 'Tester', 'QA Engineer'];
+  jobs: Job[] = [];
   jobKeyword = '';
-  selectedJob: string | null = null;
+  selectedJob: Job | null = null;
   showJobDropdown = false;
 
   constructor(private cvService: CvService, private router: Router) {}
 
   ngOnInit(): void {
     this.loadCvs();
+    this.loadJobs();
   }
 
   /* ================= API ================= */
@@ -81,6 +89,19 @@ export class CvManagementComponent implements OnInit {
         this.applyFilter(); // ✅ giữ nguyên
       },
       error: (err) => console.error('Load CV error', err),
+    });
+  }
+
+  loadJobs() {
+    this.cvService.getJobs().subscribe({
+      next: (res: any) => {
+        // backend thường trả { data: [...] }
+        this.jobs = res.data || [];
+      },
+      error: (err: any) => {
+        console.error('Load jobs failed', err);
+        alert('Không tải được danh sách Job');
+      },
     });
   }
 
@@ -194,47 +215,43 @@ export class CvManagementComponent implements OnInit {
 
   filteredJobs() {
     return this.jobs.filter((j) =>
-      j.toLowerCase().includes(this.jobKeyword.toLowerCase())
+      j.name.toLowerCase().includes(this.jobKeyword.toLowerCase())
     );
   }
 
-  selectJob(job: string) {
-    this.selectedJob = job;
-    this.jobKeyword = job;
+  selectJob(job: Job) {
+    this.selectedJob = job; // 👈 có id
+    this.jobKeyword = job.name;
     this.showJobDropdown = false;
   }
 
   confirmAssignJob() {
-    if (!this.selectedJob) return;
+    if (!this.selectedJob) {
+      alert('Vui lòng chọn Job');
+      return;
+    }
 
-    const selected = this.selectedCVs;
-    const cvIds = selected.map((cv) => cv.id);
+    const cvIds = this.selectedCVs.map((cv) => cv.id);
 
-    this.cvService.assignJobToCvs(this.selectedJob, cvIds).subscribe({
+    this.cvService.assignJobToCvs(this.selectedJob.id, cvIds).subscribe({
       next: (res: any) => {
-        // update UI
-        selected.forEach((cv) => {
-          cv.job = this.selectedJob!;
-          cv.checked = false;
-        });
+        // ✅ reload lại CV từ backend
+        this.loadCvs();
 
-        this.assignedCount = cvIds.length;
-        this.assignedJob = this.selectedJob!;
+        this.assignedCount = res.assignedCount;
+        this.assignedJob = this.selectedJob!.name;
 
         this.showAssignModal = false;
         this.showAssignToast = true;
 
         setTimeout(() => (this.showAssignToast = false), 3000);
 
-        // reload để đồng bộ server
-        this.loadCvs();
-
         this.selectedJob = null;
         this.jobKeyword = '';
       },
       error: (err) => {
-        console.error('Assign job failed', err);
-        alert('Gán job thất bại');
+        console.error(err);
+        alert('Gán Job thất bại');
       },
     });
   }

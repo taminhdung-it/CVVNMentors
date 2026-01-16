@@ -45,12 +45,14 @@ export class CvService {
   }
 
   /** ASSIGN JOB – ĐÚNG THEO DOC */
+  /** ASSIGN JOB – ĐÚNG API BACKEND */
   assignJobToCvs(jobId: string, cvIds: string[]) {
     const headers = new HttpHeaders({
       Authorization: `Bearer ${sessionStorage.getItem('accesstoken')}`,
       refreshtoken: sessionStorage.getItem('refreshtoken') || '',
       accountid: sessionStorage.getItem('accountid') || '',
       router: 'cv/assign',
+      accept: 'application/json',
     });
 
     return this.http.post(
@@ -61,6 +63,17 @@ export class CvService {
       },
       { headers }
     );
+  }
+
+  getJobs(): Observable<any> {
+    const headers = new HttpHeaders({
+      Authorization: `Bearer ${sessionStorage.getItem('accesstoken')}`,
+      refreshtoken: sessionStorage.getItem('refreshtoken') || '',
+      accountid: sessionStorage.getItem('accountid') || '',
+      router: 'job/get',
+    });
+
+    return this.http.get('https://cvvnmentors.onrender.com/jobs', { headers });
   }
 
   /** GET CV – phân trang */
@@ -102,5 +115,24 @@ export class CvService {
     return this.http.patch(`${this.API}/${id}`, payload, {
       headers: this.getHeaders(),
     });
+  }
+
+  /** 🔥 LỊCH SỬ ỨNG TUYỂN CỦA CV */
+  getApplicationsByCv(
+    cvId: string,
+    page: number = 1,
+    limit: number = 10
+  ): Observable<any> {
+    const headers = new HttpHeaders({
+      Authorization: `Bearer ${sessionStorage.getItem('accesstoken')}`,
+      refreshtoken: sessionStorage.getItem('refreshtoken') || '',
+      accountid: sessionStorage.getItem('accountid') || '',
+      router: 'application/get',
+    });
+
+    return this.http.get(
+      `https://cvvnmentors.onrender.com/applications/cv/${cvId}?page=${page}&limit=${limit}`,
+      { headers }
+    );
   }
 }
