@@ -653,7 +653,11 @@ export class JobManagementComponent implements OnInit {
               phone: item.cv?.phone,
               cvFileUrl: item.cv?.cvFileUrl,
               position: item.cv?.position,
-              experienceYears: item.cv?.experienceYears,
+              experienceYears:
+                item.cv?.experienceYears ??
+                item.cv?.experience_year ??
+                item.cv?.parsed?.experienceYears ??
+                null,
             })
           );
         },
