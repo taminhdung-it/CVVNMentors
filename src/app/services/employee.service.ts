@@ -1,96 +1,156 @@
 // services/employee.service.ts
 import { Injectable } from '@angular/core';
-import { Observable, of, delay } from 'rxjs';
-import { Employee, Role } from '../models/employee';
+import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
+import { Observable } from 'rxjs';
+import { map } from 'rxjs/operators';
+import { Employee, Role, ApiResponse } from '../models/employee';
+import { 
+  RoleApiResponse, 
+  RoleEditRequest, 
+  RoleAddRequest,
+  RolePermissions 
+} from '../models/role.model';
 
 @Injectable({
   providedIn: 'root'
 })
 export class EmployeeService {
-  private mockEmployees: Employee[] = [
-    {
-      id: '1',
-      name: 'Nhân viên 1',
-      phone: '0987345123',
-      email: 'nhanvien1@gmail.com',
-      role: 'Kế toán',
-      department: 'HeadOffice',
-      status: 'active'
-    },
-    {
-      id: '2',
-      name: 'Nhân viên 2',
-      phone: '0987345123',
-      email: 'nhanvien2@gmail.com',
-      role: 'Kế toán',
-      department: 'HeadOffice',
-      status: 'active'
-    },
-    {
-      id: '3',
-      name: 'Nhân viên 3',
-      phone: '0987345123',
-      email: 'nhanvien3@gmail.com',
-      role: 'Kế toán',
-      department: 'HeadOffice',
-      status: 'active'
-    },
-    {
-      id: '4',
-      name: 'Nhân viên 4',
-      phone: '0987345123',
-      email: 'nhanvien4@gmail.com',
-      role: 'Kế toán',
-      department: 'HeadOffice',
-      status: 'active'
-    },
-    {
-      id: '5',
-      name: 'Nhân viên 5',
-      phone: '0987345123',
-      email: 'nhanvien5@gmail.com',
-      role: 'Kế toán',
-      department: 'HeadOffice',
-      status: 'active'
-    },
-    {
-      id: '6',
-      name: 'Nhân viên 6',
-      phone: '0987345123',
-      email: 'nhanvien6@gmail.com',
-      role: 'Kế toán',
-      department: 'HeadOffice',
-      status: 'active'
-    },
-    {
-      id: '7',
-      name: 'Nhân viên 7',
-      phone: '0987345123',
-      email: 'nhanvien7@gmail.com',
-      role: 'Kế toán',
-      department: 'HeadOffice',
-      status: 'active'
+  private apiUrl = 'https://cvvnmentors.onrender.com';
+
+  constructor(private http: HttpClient) {}
+
+  private getHeaders(router: string = 'user/get'): HttpHeaders {
+    const accessToken = sessionStorage.getItem('accesstoken');
+    const refreshToken = sessionStorage.getItem('refreshtoken');
+    const accountId = sessionStorage.getItem('accountid');
+    
+    return new HttpHeaders({
+      'Authorization': `Bearer ${accessToken}`,
+      'refreshtoken': refreshToken || '',
+      'accountid': accountId || '',
+      'router': router
+    });
+  }
+
+  // ... các methods cũ giữ nguyên ...
+
+  getEmployees(page: number = 1, limit: number = 10, filters?: {
+    search?: string;
+    role?: string;
+    status?: string;
+  }): Observable<ApiResponse<Employee[]>> {
+    let params = new HttpParams()
+      .set('page', page.toString())
+      .set('limit', limit.toString());
+
+    if (filters?.search) {
+      params = params.set('search', filters.search);
     }
-  ];
+    if (filters?.role) {
+      params = params.set('role', filters.role);
+    }
+    if (filters?.status) {
+      params = params.set('status', filters.status);
+    }
 
-  private mockRoles: Role[] = [
-    { id: '1', name: 'Chủ cơ sở', employeeCount: 7 },
-    { id: '2', name: 'Admin', employeeCount: 7 },
-    { id: '3', name: 'Kế toán', employeeCount: 7 },
-    { id: '4', name: 'CSKH', employeeCount: 7 },
-    { id: '5', name: 'Thu ngân', employeeCount: 7 },
-    { id: '6', name: 'Người xem', employeeCount: 7 }
-  ];
-
-  getEmployees(): Observable<Employee[]> {
-    return of(this.mockEmployees).pipe(delay(500));
+    const headers = this.getHeaders('user/get');
+    
+    return this.http.get<ApiResponse<Employee[]>>(`${this.apiUrl}/users`, { headers, params })
+      .pipe(
+        map(response => {
+          response.data = response.data.map((emp: any) => ({
+            ...emp,
+            createdAt: emp.createdAt?._seconds 
+              ? new Date(emp.createdAt._seconds * 1000) 
+              : emp.createdAt,
+            updatedAt: emp.updatedAt?._seconds 
+              ? new Date(emp.updatedAt._seconds * 1000) 
+              : emp.updatedAt
+          }));
+          return response;
+        })
+      );
   }
 
   getRoles(): Observable<Role[]> {
-    return of(this.mockRoles).pipe(delay(300));
+    const headers = this.getHeaders('role/get');
+
+    return this.http.get<RoleApiResponse>(`${this.apiUrl}/role/get`, { headers })
+      .pipe(
+        map(response => {
+          const roles: Role[] = [];
+          
+          if (response.role) {
+            const roleNames = Object.keys(response.role);
+            
+            roleNames.forEach((roleName, index) => {
+              roles.push({
+                id: roleName, // Dùng tên role làm ID
+                name: this.formatRoleName(roleName),
+                employeeCount: 0
+              });
+            });
+          }
+          
+          return roles;
+        })
+      );
   }
 
-  getEmployeeById(id: string): Observable<Employee | undefined> {
-    return of(this.mockEmployees.find(emp => emp.id === id)).pipe(delay(300));
+  // ← MỚI: Lấy permissions của 1 role cụ thể
+  getRolePermissions(roleId: string): Observable<RolePermissions> {
+    const headers = this.getHeaders('role/get');
+
+    return this.http.get<RoleApiResponse>(`${this.apiUrl}/role/get`, { headers })
+      .pipe(
+        map(response => {
+          // Tìm role theo ID
+          if (response.role && response.role[roleId]) {
+            return response.role[roleId];
+          }
+          return {};
+        })
+      );
+  }
+
+  // ← MỚI: Thêm role mới
+  addRole(roleName: string): Observable<any> {
+    const headers = this.getHeaders('role/add');
+    const body: RoleAddRequest = { name: roleName };
+
+    return this.http.post(`${this.apiUrl}/role/add`, body, { headers });
+  }
+
+  // ← MỚI: Cập nhật permissions của role
+  updateRolePermissions(roleId: string, permissions: RolePermissions): Observable<any> {
+    const headers = this.getHeaders('role/edit');
+    
+    const body: RoleEditRequest = {
+      groupName: roleId, // Hoặc "default" nếu API yêu cầu
+      data: permissions
+    };
+
+    return this.http.put(`${this.apiUrl}/role/edit`, body, { headers });
+  }
+
+  // ← MỚI: Xóa role
+  deleteRole(roleId: string): Observable<any> {
+    const headers = this.getHeaders('role/delete');
+
+    return this.http.delete(`${this.apiUrl}/role/delete/${roleId}`, { headers });
+  }
+
+  private formatRoleName(roleName: string): string {
+    const roleMap: { [key: string]: string } = {
+      'user': 'Người dùng',
+      'admin': 'Quản trị viên',
+      'accountant': 'Kế toán',
+      'customer_service': 'CSKH',
+      'cashier': 'Thu ngân',
+      'viewer': 'Người xem',
+      'default': 'Mặc định'
+    };
+    
+    return roleMap[roleName] || roleName;
   }
 }

@@ -2,20 +2,8 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { MatSnackBar } from '@angular/material/snack-bar';
-
-interface Permission {
-  id: string;
-  name: string;
-  checked: boolean;
-}
-
-interface PermissionGroup {
-  id: string;
-  name: string;
-  permissions: Permission[];
-  allChecked: boolean;
-  indeterminate: boolean;
-}
+import { EmployeeService } from '../services/employee.service';
+import { PermissionGroup, Permission, RolePermissions } from '../models/role.model';
 
 @Component({
   selector: 'app-role-permission',
@@ -28,68 +16,44 @@ export class RolePermissionComponent implements OnInit {
   loading = false;
   saving = false;
 
-  permissionGroups: PermissionGroup[] = [
-    {
-      id: '1',
-      name: 'Quản lý khách hàng',
-      permissions: [
-        { id: '1-1', name: 'Chức năng 1', checked: false },
-        { id: '1-2', name: 'Chức năng 2', checked: false },
-        { id: '1-3', name: 'Chức năng 3', checked: false },
-        { id: '1-4', name: 'Chức năng 4', checked: false },
-        { id: '1-5', name: 'Chức năng 5', checked: false },
-        { id: '1-6', name: 'Chức năng 6', checked: false },
-        { id: '1-7', name: 'Chức năng 7', checked: false },
-        { id: '1-8', name: 'Chức năng 8', checked: false }
-      ],
-      allChecked: false,
-      indeterminate: false
-    },
-    {
-      id: '2',
-      name: 'Quản lý CV',
-      permissions: [
-        { id: '2-1', name: 'Chức năng 1', checked: true },
-        { id: '2-2', name: 'Chức năng 2', checked: true },
-        { id: '2-3', name: 'Chức năng 3', checked: true },
-        { id: '2-4', name: 'Chức năng 4', checked: true },
-        { id: '2-5', name: 'Chức năng 5', checked: false },
-        { id: '2-6', name: 'Chức năng 6', checked: false },
-        { id: '2-7', name: 'Chức năng 7', checked: false },
-        { id: '2-8', name: 'Chức năng 8', checked: false }
-      ],
-      allChecked: false,
-      indeterminate: true
-    },
-    {
-      id: '3',
-      name: 'Quản lý nhân viên',
-      permissions: [
-        { id: '3-1', name: 'Xem danh sách', checked: false },
-        { id: '3-2', name: 'Thêm nhân viên', checked: false },
-        { id: '3-3', name: 'Chỉnh sửa nhân viên', checked: false },
-        { id: '3-4', name: 'Xóa nhân viên', checked: false }
-      ],
-      allChecked: false,
-      indeterminate: false
-    },
-    {
-      id: '4',
-      name: 'Quản lý báo cáo',
-      permissions: [
-        { id: '4-1', name: 'Xem báo cáo', checked: false },
-        { id: '4-2', name: 'Xuất báo cáo', checked: false },
-        { id: '4-3', name: 'Tạo báo cáo', checked: false }
-      ],
-      allChecked: false,
-      indeterminate: false
-    }
-  ];
+  permissionGroups: PermissionGroup[] = [];
+
+  // Mapping tên module sang tiếng Việt
+  private moduleNameMap: { [key: string]: string } = {
+    'account': 'Quản lý tài khoản',
+    'application': 'Quản lý ứng dụng',
+    'cv': 'Quản lý CV',
+    'department': 'Quản lý phòng ban',
+    'job': 'Quản lý công việc',
+    'role': 'Quản lý vai trò',
+    'user': 'Quản lý người dùng'
+  };
+
+  // Mapping tên action sang tiếng Việt
+  private actionNameMap: { [key: string]: string } = {
+    'logout': 'Đăng xuất',
+    'changestatus': 'Thay đổi trạng thái',
+    'edit': 'Chỉnh sửa',
+    'get': 'Xem danh sách',
+    'getone': 'Xem chi tiết',
+    'add': 'Thêm mới',
+    'addcv': 'Thêm CV',
+    'addexcel': 'Thêm từ Excel',
+    'assign': 'Phân công',
+    'readexcel': 'Đọc Excel',
+    'readpdfdoc': 'Đọc PDF/DOC',
+    'search': 'Tìm kiếm',
+    'delete': 'Xóa',
+    'close': 'Đóng',
+    'lock': 'Khóa',
+    'open': 'Mở'
+  };
 
   constructor(
     private route: ActivatedRoute,
     private router: Router,
-    private snackBar: MatSnackBar
+    private snackBar: MatSnackBar,
+    private employeeService: EmployeeService
   ) {}
 
   ngOnInit(): void {
@@ -102,27 +66,69 @@ export class RolePermissionComponent implements OnInit {
   loadRolePermissions(): void {
     this.loading = true;
     
-    // Giả lập API call
-    setTimeout(() => {
-      // Mock data - role name
-      const roleNames: { [key: string]: string } = {
-        '1': 'Chủ cơ sở',
-        '2': 'Admin',
-        '3': 'Kế toán',
-        '4': 'CSKH',
-        '5': 'Thu ngân',
-        '6': 'Người xem'
-      };
-      
-      this.roleName = roleNames[this.roleId] || 'Admin';
-      
-      // Update group states
-      this.permissionGroups.forEach(group => {
-        this.updateGroupState(group);
+    this.employeeService.getRolePermissions(this.roleId).subscribe({
+      next: (permissions) => {
+        this.roleName = this.formatRoleName(this.roleId);
+        this.permissionGroups = this.transformPermissionsToGroups(permissions);
+        this.loading = false;
+      },
+      error: (err) => {
+        console.error('Error loading role permissions:', err);
+        this.loading = false;
+        this.snackBar.open('Không thể tải quyền của vai trò', 'Đóng', {
+          duration: 3000,
+          panelClass: ['error-snackbar']
+        });
+      }
+    });
+  }
+
+  transformPermissionsToGroups(permissions: RolePermissions): PermissionGroup[] {
+    const groups: PermissionGroup[] = [];
+    let groupIndex = 0;
+
+    Object.keys(permissions).forEach(moduleName => {
+      const modulePermissions = permissions[moduleName];
+      const permissionList: Permission[] = [];
+
+      Object.keys(modulePermissions).forEach(action => {
+        permissionList.push({
+          id: `${moduleName}-${action}`,
+          name: this.actionNameMap[action] || action,
+          module: moduleName,
+          action: action,
+          checked: modulePermissions[action] === 1
+        });
       });
+
+      const group: PermissionGroup = {
+        id: (groupIndex++).toString(),
+        name: this.moduleNameMap[moduleName] || moduleName,
+        module: moduleName,
+        permissions: permissionList,
+        allChecked: false,
+        indeterminate: false
+      };
+
+      this.updateGroupState(group);
+      groups.push(group);
+    });
+
+    return groups;
+  }
+
+  transformGroupsToPermissions(): RolePermissions {
+    const permissions: RolePermissions = {};
+
+    this.permissionGroups.forEach(group => {
+      permissions[group.module] = {};
       
-      this.loading = false;
-    }, 500);
+      group.permissions.forEach(permission => {
+        permissions[group.module][permission.action] = permission.checked ? 1 : 0;
+      });
+    });
+
+    return permissions;
   }
 
   updateGroupState(group: PermissionGroup): void {
@@ -153,32 +159,44 @@ export class RolePermissionComponent implements OnInit {
   onSave(): void {
     this.saving = true;
     
-    // Collect all checked permissions
-    const selectedPermissions = this.permissionGroups.flatMap(group => 
-      group.permissions.filter(p => p.checked).map(p => ({
-        groupId: group.id,
-        groupName: group.name,
-        permissionId: p.id,
-        permissionName: p.name
-      }))
-    );
+    const permissions = this.transformGroupsToPermissions();
     
-    console.log('Saving permissions for role:', this.roleName);
-    console.log('Selected permissions:', selectedPermissions);
-    
-    // Giả lập API call
-    setTimeout(() => {
-      this.saving = false;
-      this.snackBar.open('Lưu quyền thành công!', 'Đóng', {
-        duration: 3000,
-        horizontalPosition: 'right',
-        verticalPosition: 'top',
-        panelClass: ['success-snackbar']
-      });
-    }, 1000);
+    this.employeeService.updateRolePermissions(this.roleId, permissions).subscribe({
+      next: () => {
+        this.saving = false;
+        this.snackBar.open('Lưu quyền thành công!', 'Đóng', {
+          duration: 3000,
+          horizontalPosition: 'right',
+          verticalPosition: 'top',
+          panelClass: ['success-snackbar']
+        });
+      },
+      error: (err) => {
+        console.error('Error saving permissions:', err);
+        this.saving = false;
+        this.snackBar.open('Lưu quyền thất bại!', 'Đóng', {
+          duration: 3000,
+          panelClass: ['error-snackbar']
+        });
+      }
+    });
   }
 
   onBack(): void {
     this.router.navigate(['/employees']);
+  }
+
+  private formatRoleName(roleId: string): string {
+    const roleMap: { [key: string]: string } = {
+      'user': 'Người dùng',
+      'admin': 'Quản trị viên',
+      'accountant': 'Kế toán',
+      'customer_service': 'CSKH',
+      'cashier': 'Thu ngân',
+      'viewer': 'Người xem',
+      'default': 'Mặc định'
+    };
+    
+    return roleMap[roleId] || roleId;
   }
 }

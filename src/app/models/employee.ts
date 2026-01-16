@@ -5,8 +5,9 @@ export interface Employee {
   phone: string;
   email: string;
   role: string;
-  department: string;
-  status: 'active' | 'inactive';
+  status: 'ACTIVE' | 'INACTIVE';
+  departmentId: string;
+  createdAt: string;
   avatar?: string;
 }
 
@@ -24,4 +25,15 @@ export interface EmployeeFilter {
   role: string;
   dateFrom?: Date;
   dateTo?: Date;
+}
+
+// models/api-response.ts
+export interface ApiResponse<T> {
+  data: T;
+  meta: {
+    total: number;
+    page: number;
+    limit: number;
+    totalPages: number;
+  };
 }
