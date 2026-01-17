@@ -3,8 +3,14 @@
   <div class="left">
     <button class="menu-btn" aria-label="Toggle sidebar" (click)="onToggle()">
       <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor">
-        <path *ngIf="!collapsed" d="M3 6h18v2H3zM3 11h18v2H3zM3 16h18v2H3z"></path>
-        <path *ngIf="collapsed" d="M4 6h16v2H4zM4 11h10v2H4zM4 16h16v2H4z"></path>
+        <path
+          *ngIf="!collapsed"
+          d="M3 6h18v2H3zM3 11h18v2H3zM3 16h18v2H3z"
+        ></path>
+        <path
+          *ngIf="collapsed"
+          d="M4 6h16v2H4zM4 11h10v2H4zM4 16h16v2H4z"
+        ></path>
       </svg>
     </button>
 
@@ -22,7 +28,11 @@
       <!-- Dropdown Menu (hiện khi hover) -->
       <div class="user-dropdown">
         <div class="dropdown-header">
-          <img src="../../../assets/Duong.jpg" alt="avatar" class="dropdown-avatar" />
+          <img
+            src="../../../assets/Duong.jpg"
+            alt="avatar"
+            class="dropdown-avatar"
+          />
           <div class="dropdown-info">
             <div class="dropdown-name">{{ username }}</div>
             <div class="dropdown-role">Admin</div>
