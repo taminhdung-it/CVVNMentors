@@ -2,40 +2,49 @@ import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { ValidationPipe, Post } from '@nestjs/common';
 import { SwaggerModule } from '@nestjs/swagger';
-import { document } from './swagger/swagger.document'
+import { document } from './swagger/swagger.document';
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
   app.enableCors({
-    origin: [ 
+    origin: [
       'http://localhost:3000',
       'http://localhost:4200',
       'http://localhost:9999',
       'https://cvvnmentors.onrender.com',
-      'https://cvvnmentors.pages.dev'
+      'https://cvvnmentors.pages.dev',
+      'https://qlcv.pages.dev/',
     ],
     methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
-    allowedHeaders: ['Content-Type', 'Authorization','refreshtoken',"accountid","router"],
+    allowedHeaders: [
+      'Content-Type',
+      'Authorization',
+      'refreshtoken',
+      'accountid',
+      'router',
+    ],
     credentials: true,
     preflightContinue: false,
     optionsSuccessStatus: 204,
   });
 
-    SwaggerModule.setup("/doc_api", app, document, {
+  SwaggerModule.setup('/doc_api', app, document, {
     swaggerOptions: {
-      docExpansion: 'none', //Kiểu hiện thị danh sách khi mở lên 
+      docExpansion: 'none', //Kiểu hiện thị danh sách khi mở lên
       // operationsSorter: 'alpha',//Sắp xếp chức năng theo bảng chữ cái
-      // tagsSorter: 'alpha',//Sắp xếp tên tags theo bảng chữ cái 
+      // tagsSorter: 'alpha',//Sắp xếp tên tags theo bảng chữ cái
     },
   });
-  app.useGlobalPipes(new ValidationPipe({
-    whitelist: true, // loại bỏ các field không có trong DTO
-    forbidNonWhitelisted: true, // báo lỗi nếu gửi thêm field lạ
-    transform: true, // tự động chuyển kiểu dữ liệu nếu cần
-  }));
+  app.useGlobalPipes(
+    new ValidationPipe({
+      whitelist: true, // loại bỏ các field không có trong DTO
+      forbidNonWhitelisted: true, // báo lỗi nếu gửi thêm field lạ
+      transform: true, // tự động chuyển kiểu dữ liệu nếu cần
+    }),
+  );
 
   await app.listen(process.env.SERVER_PORT ?? process.env.PORT ?? 3000);
-  const url = await app.getUrl()
-  console.log(`🎉Link Render: https://cvvnmentors.onrender.com/doc_api`)
-  console.log(`🎉Link localhost: ${url.replace("[::1]", "localhost")}/doc_api`)
+  const url = await app.getUrl();
+  console.log(`🎉Link Render: https://cvvnmentors.onrender.com/doc_api`);
+  console.log(`🎉Link localhost: ${url.replace('[::1]', 'localhost')}/doc_api`);
 }
 bootstrap();
